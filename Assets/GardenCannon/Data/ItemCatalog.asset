@@ -32,6 +32,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   - label: Brick Wall
     typeId: 2
@@ -52,6 +53,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
     breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.25, g: 0.3, b: 0.8, a: 1}
   - label: Moving Barrier
     typeId: 4
@@ -72,6 +74,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
     breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.25, b: 0.2, a: 1}
   - label: Target Stand
     typeId: 5
@@ -92,6 +95,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
   - label: Electric Orb
     typeId: 6
@@ -112,6 +116,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
     breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
+    extraBreakSfx: {fileID: 8300000, guid: 3c225e7bc75948649864ad143a4bc342, type: 3}
     debugColor: {r: 0.4, g: 0.7, b: 1, a: 1}
   - label: Log Cutter
     typeId: 7
@@ -132,6 +137,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
     breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
   - label: Egg Box
     typeId: 8
@@ -152,6 +158,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
     breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
+    extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
     debugColor: {r: 0.98, g: 0.95, b: 0.85, a: 1}
   - label: Moving Target
     typeId: 9
@@ -172,6 +179,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
   - label: Multi Block
     typeId: 13
@@ -192,6 +200,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   - label: Stone Corner
     typeId: 23
@@ -212,6 +221,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
     breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.86, b: 0.78, a: 1}
   - label: Container
     typeId: 24
@@ -232,6 +242,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
     breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.8, b: 0.25, a: 1}
   - label: Stone
     typeId: 25
@@ -252,6 +263,7 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
     breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.86, b: 0.78, a: 1}
   - label: Wooden Box
     typeId: 26
@@ -272,11 +284,12 @@ MonoBehaviour:
     breakFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
     breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.93, g: 0.55, b: 0.16, a: 1}
   defaultsVersion: 2
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
-    rimMask: 5
+    rimMask: 15
   - mesh: {fileID: 4300000, guid: 09523d0f98ea3064695adfc1e16da795, type: 2}
     rimMask: 14
   - mesh: {fileID: 4300000, guid: c81cae512ac9f7b4e8a16a9f0a4ef68d, type: 2}

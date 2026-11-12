@@ -41,5 +41,23 @@ namespace GardenCannon
         public AudioClip waterSplash;
         public AudioClip aimTick;
         public AudioClip lastMoves;
+        public AudioClip refillLand;
+
+        [Header("UI / flow SFX (extracted from audioclips_assets_all)")]
+        public AudioClip buttonClick;
+        public AudioClip appear;
+        public AudioClip goalHit;
+        public AudioClip goalComplete;
+        public AudioClip levelWin;
+        public AudioClip levelWinFireworks;
+        public AudioClip outOfBalls;
+        public AudioClip levelFail;
+
+        [Header("Music")]
+        public AudioClip music;
+
+        [Header("Animation")]
+        [Tooltip("Original CannonController (Idle / Fire / PlayOn). Clips animate Piv/Base/Rail.")]
+        public RuntimeAnimatorController cannonAnimator;
     }
 }

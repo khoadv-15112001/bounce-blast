@@ -53,6 +53,9 @@ namespace GardenCannon
 
         public bool PopupOpen => _popupRoot != null;
 
+        /// <summary>Raised for every HUD button press (click sound).</summary>
+        public Action ButtonClicked;
+
         public void Init(Action restart, Action prev, Action next)
         {
             _uiLayer = gameObject.layer;
@@ -292,6 +295,8 @@ namespace GardenCannon
                 Vector2 half = b.Size * 0.5f * (b.Popup && _popupRoot != null ? _popupRoot.lossyScale.x : 1f);
                 if (Mathf.Abs(world.x - c.x) <= half.x && Mathf.Abs(world.y - c.y) <= half.y)
                 {
+                    ButtonClicked?.Invoke();
+                    Punch(b.Target);
                     b.OnClick?.Invoke();
                     return true;
                 }

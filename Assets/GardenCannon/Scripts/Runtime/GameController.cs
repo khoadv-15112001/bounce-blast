@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -77,8 +78,10 @@ namespace GardenCannon
             _font = hud != null ? hud.font : null;
             physics.Board = board;
             physics.OnContact = OnBallContact;
+            sfx?.PlayMusic();
             if (hud != null)
             {
+                hud.ButtonClicked = () => sfx?.Play(sfx.buttonClick, 0.9f, 0f);
                 hud.VariantForType = FirstVariantOfType;
                 hud.Init(Restart, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
             }
@@ -122,6 +125,9 @@ namespace GardenCannon
             MovesLeft = Mathf.Max(1, level.moves);
             CurrentState = State.Aiming;
             cannon?.SetAngle(0f);
+            cannon?.PlayRefill();
+            sfx?.SetMusicDuck(false);
+            sfx?.Play(sfx.refillLand, 0.6f, 0f);
 
             if (hud != null)
             {
@@ -130,7 +136,8 @@ namespace GardenCannon
                 hud.BuildGoals(level.goals, catalog);
                 foreach (var g in level.goals) hud.SetGoal(g.type, g.count);
                 _tutorial = number == 1;
-                if (_tutorial) hud.ShowBanner(tutorialText); else hud.HideBanner();
+                if (_tutorial) { hud.ShowBanner(tutorialText); sfx?.Play(sfx.appear, 0.7f, 0f); }
+                else hud.HideBanner();
             }
         }
 
@@ -323,7 +330,11 @@ namespace GardenCannon
             float cell = board.CellSize;
             if (broke)
             {
-                sfx?.Play(e?.breakSfx != null ? e.breakSfx : sfx.ballCollide, 0.9f);
+                // Consecutive breaks by the same ball climb in pitch (combo feel).
+                float pitch = 1f + Mathf.Min(ball.Combo, 10) * 0.045f;
+                ball.Combo++;
+                sfx?.PlayPitched(e?.breakSfx != null ? e.breakSfx : sfx.ballCollide, 0.9f, pitch, 0.02f);
+                if (e?.extraBreakSfx != null) sfx?.Play(e.extraBreakSfx, 0.7f);
                 fx?.Break(item.VisualCentre, c, cell * Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
                 rig?.Shake(item.Offsets.Count > 1 ? bigBreakShake : breakShake);
                 OnItemBroken(item);
@@ -350,6 +361,8 @@ namespace GardenCannon
                 left--;
                 _goals[type] = left;
                 hud?.SetGoal(type, left, true);
+                if (left == 0) sfx?.Play(sfx.goalComplete, 0.8f, 0f);
+                else sfx?.Play(sfx.goalHit, 0.35f, 0.03f);
             }
             if (CurrentState == State.Aiming && GoalsDone()) Win();
         }
@@ -377,6 +390,22 @@ namespace GardenCannon
             int next = LevelNumber + 1;
             PlayerPrefs.SetInt(PrefKey, next > LevelLibrary.Count ? 1 : next);
             PlayerPrefs.Save();
+            sfx?.SetMusicDuck(true);
+            sfx?.Play(sfx.levelWin, 1f, 0f);
+            StartCoroutine(WinSequence());
+        }
+
+        IEnumerator WinSequence()
+        {
+            int level = LevelNumber;
+            yield return new WaitForSeconds(0.6f);
+            if (CurrentState != State.Won || level != LevelNumber) yield break;
+            sfx?.Play(sfx.levelWinFireworks, 0.8f, 0f);
+            for (int i = 0; i < 3; i++)
+                fx?.Break(new Vector3(Random.Range(-4f, 4f), Random.Range(0f, 8f), 0f), VisualUtil.AtlasTileColor(Random.Range(0, 25)), 2f);
+            yield return new WaitForSeconds(0.5f);
+            if (CurrentState != State.Won || level != LevelNumber) yield break;
+            sfx?.Play(sfx.appear, 0.7f, 0f);
             hud?.ShowPopup("Well Done!", new Color(0.18f, 0.6f, 0.17f),
                 $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
                 ("Replay", Restart, false),
@@ -388,6 +417,17 @@ namespace GardenCannon
             CurrentState = State.Lost;
             aimGuide?.Hide();
             hud?.HideBanner();
+            sfx?.SetMusicDuck(true);
+            sfx?.Play(sfx.outOfBalls, 0.9f, 0f);
+            StartCoroutine(LoseSequence());
+        }
+
+        IEnumerator LoseSequence()
+        {
+            int level = LevelNumber;
+            yield return new WaitForSeconds(0.8f);
+            if (CurrentState != State.Lost || level != LevelNumber) yield break;
+            sfx?.Play(sfx.levelFail, 0.9f, 0f);
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");

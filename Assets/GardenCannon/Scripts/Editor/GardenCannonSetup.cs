@@ -53,7 +53,7 @@ namespace GardenCannon.EditorTools
         [MenuItem("Garden Cannon/Create or Update Item Catalog", priority = 1)]
         public static void CatalogOnly() => Selection.activeObject = CreateOrUpdateCatalog();
 
-        [MenuItem("Garden Cannon/Refresh Addressables Groups", priority = 2)]
+        [MenuItem("Garden Cannon/Update Catalog + Assets + Addressables (keeps scene)", priority = 2)]
         public static void AddressablesOnly()
         {
             var catalog = CreateOrUpdateCatalog();
@@ -82,7 +82,7 @@ namespace GardenCannon.EditorTools
         struct Def
         {
             public int id; public string label; public ItemKind kind; public string prefab;
-            public int hits; public string hit, brk, stages; public bool color, rotate, count, fit, autotile;
+            public int hits; public string hit, brk, extra, stages; public bool color, rotate, count, fit, autotile;
             public float speed; public Color fxColor;
         }
 
@@ -105,9 +105,9 @@ namespace GardenCannon.EditorTools
             d = D(24, "Container", ItemKind.Breakable, "ContainerItemView", "container_hit", "container_burst", new Color(1f, .8f, .25f)); d.count = true; d.fit = true; yield return d;
             d = D(9, "Moving Target", ItemKind.Breakable, "TargetItemView", "target_hit", "target_break", new Color(1f, .45f, .7f)); d.speed = 1.2f; yield return d;
             d = D(7, "Log Cutter", ItemKind.Breakable, "LogCutterItemView", "log_cut", "log_cutter_break", new Color(.6f, .4f, .2f)); d.hits = 2; d.fit = true; yield return d;
-            d = D(8, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.98f, .95f, .85f)); d.hits = 3; yield return d;
+            d = D(8, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.98f, .95f, .85f)); d.hits = 3; d.extra = "egg_bird_fly"; yield return d;
             d = D(13, "Multi Block", ItemKind.Breakable, "MultiBlockItemView", "ball_collide", "block_break", Color.white); d.hits = 10; d.count = true; d.color = true; d.fit = true; yield return d;
-            d = D(6, "Electric Orb", ItemKind.Breakable, "ElectricOrbItemView", "orb_on", "orb_discharge", new Color(.4f, .7f, 1f)); d.hits = 2; d.fit = true; yield return d;
+            d = D(6, "Electric Orb", ItemKind.Breakable, "ElectricOrbItemView", "orb_on", "orb_discharge", new Color(.4f, .7f, 1f)); d.hits = 2; d.fit = true; d.extra = "orb_off"; yield return d;
             d = D(2, "Brick Wall", ItemKind.Indestructible, "BrickWallItemView", "brick_wall_hit", null, new Color(.25f, .3f, .8f)); d.autotile = true; yield return d;
         }
 
@@ -142,13 +142,14 @@ namespace GardenCannon.EditorTools
                     if (e.prefab == null) e.prefab = LoadPrefab(def.prefab);
                     if (e.hitSfx == null) e.hitSfx = LoadClip(def.hit);
                     if (e.breakSfx == null) e.breakSfx = LoadClip(def.brk);
+                    if (e.extraBreakSfx == null) e.extraBreakSfx = LoadClip(def.extra);
                     
                     continue;
                 }
                 catalog.entries.Add(new ItemCatalog.Entry
                 {
                     label = def.label, typeId = def.id, kind = def.kind, defaultHits = def.hits,
-                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), breakFx = null,
+                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), extraBreakSfx = LoadClip(def.extra), breakFx = null,
                     colorByVariant = def.color, rotateByVariant = def.rotate, showHitCount = def.count, fitFootprint = def.fit,
                     stagePrefix = def.stages ?? "", autotile = def.autotile, laneSpeed = def.speed, debugColor = def.fxColor,
                 });
@@ -205,17 +206,18 @@ namespace GardenCannon.EditorTools
                     var mesh = AssetDatabase.LoadAssetAtPath<Mesh>($"Assets/Mesh/{name}.asset");
                     if (mesh == null) continue;
                     var verts = mesh.vertices.Select(v => toRoot.MultiplyPoint3x4(v)).ToArray();
-                    if (verts.Length == 0) continue;
+                    var uvs = mesh.uv;
+                    if (verts.Length == 0 || uvs.Length != verts.Length) continue;
                     float minX = verts.Min(v => v.x), maxX = verts.Max(v => v.x);
                     float minY = verts.Min(v => v.y), maxY = verts.Max(v => v.y);
-                    float top = verts.Min(v => v.z), bottom = verts.Max(v => v.z); // -z = towards the camera
-                    float cut = top + (bottom - top) * 0.2f;
                     float cx = (minX + maxX) * 0.5f, cy = (minY + maxY) * 0.5f;
                     float hx = Mathf.Max(1e-4f, (maxX - minX) * 0.5f), hy = Mathf.Max(1e-4f, (maxY - minY) * 0.5f);
                     int mask = 0;
-                    foreach (var v in verts)
+                    for (int i = 0; i < verts.Length; i++)
                     {
-                        if (v.z > cut) continue;
+                        // Brick rim = the blue lower part of the dynamite_wall texture; the sand floor is the top band (v > 0.72).
+                        if (uvs[i].y >= 0.72f) continue;
+                        var v = verts[i];
                         float nx = (v.x - cx) / hx, ny = (v.y - cy) / hy;
                         if (ny > 0.6f && Mathf.Abs(nx) < 0.35f) mask |= 1;
                         if (nx > 0.6f && Mathf.Abs(ny) < 0.35f) mask |= 2;
@@ -265,6 +267,19 @@ namespace GardenCannon.EditorTools
             if (a.waterSplash == null) a.waterSplash = LoadClip("ball_water_splash");
             if (a.aimTick == null) a.aimTick = LoadClip("aim_tick");
             if (a.lastMoves == null) a.lastMoves = LoadClip("last_moves_banner");
+            if (a.refillLand == null) a.refillLand = LoadClip("playon_refill_ball_land");
+            // Extracted from the original audioclips bundle into Assets/GardenCannon/Audio.
+            ConfigureExtractedAudio();
+            if (a.buttonClick == null) a.buttonClick = LoadWav("Button Click");
+            if (a.appear == null) a.appear = LoadWav("Appear");
+            if (a.goalHit == null) a.goalHit = LoadWav("Icon Point Hit");
+            if (a.goalComplete == null) a.goalComplete = LoadWav("Reward Collect");
+            if (a.levelWin == null) a.levelWin = LoadWav("Level Win - Celebration");
+            if (a.levelWinFireworks == null) a.levelWinFireworks = LoadWav("Level Win - Logo Animation - Fireworks");
+            if (a.outOfBalls == null) a.outOfBalls = LoadWav("Out Of Balls Banner");
+            if (a.levelFail == null) a.levelFail = LoadWav("Level Fail - PlayOnPopUp");
+            if (a.music == null) a.music = LoadWav("Music - Core Game Play");
+            if (a.cannonAnimator == null) a.cannonAnimator = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/AnimatorController/CannonController.controller");
             EditorUtility.SetDirty(a);
             AssetDatabase.SaveAssets();
             return a;
@@ -284,6 +299,7 @@ namespace GardenCannon.EditorTools
 
             Add(settings, gDefault, assets, GameAssets.Address);
             Add(settings, gDefault, catalog, "GardenCannon/ItemCatalog");
+            if (assets.cannonAnimator != null) Add(settings, gDefault, assets.cannonAnimator, "GardenCannon/Animators/" + assets.cannonAnimator.name);
             var prefabs = new List<GameObject> { assets.ballPrefab };
             foreach (var e in catalog.entries) { prefabs.Add(e.prefab); prefabs.Add(e.breakFx); }
             prefabs = prefabs.Where(p => p != null).Distinct().ToList();
@@ -293,8 +309,13 @@ namespace GardenCannon.EditorTools
                          assets.cannonShadow, assets.aimDot, assets.sparkle, assets.levelPlate, assets.settingsButton, assets.white })
                 if (s != null) Add(settings, gDefault, s, "GardenCannon/Sprites/" + s.name);
 
-            var clips = new List<AudioClip> { assets.ballFire, assets.ballFireRefused, assets.wallBounce, assets.ballCollide, assets.waterSplash, assets.aimTick, assets.lastMoves };
-            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); }
+            var clips = new List<AudioClip>
+            {
+                assets.ballFire, assets.ballFireRefused, assets.wallBounce, assets.ballCollide, assets.waterSplash, assets.aimTick,
+                assets.lastMoves, assets.refillLand, assets.buttonClick, assets.appear, assets.goalHit, assets.goalComplete,
+                assets.levelWin, assets.levelWinFireworks, assets.outOfBalls, assets.levelFail, assets.music,
+            };
+            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); clips.Add(e.extraBreakSfx); }
             foreach (var c in clips.Where(c => c != null).Distinct())
                 Add(settings, gAudio, c, "GardenCannon/Audio/" + c.name);
 
@@ -542,6 +563,30 @@ namespace GardenCannon.EditorTools
 
         static AudioClip LoadClip(string name) =>
             string.IsNullOrEmpty(name) ? null : AssetDatabase.LoadAssetAtPath<AudioClip>($"Assets/AudioClip/{name}.ogg");
+
+        const string ExtractedAudio = Root + "/Audio";
+
+        static AudioClip LoadWav(string name) => AssetDatabase.LoadAssetAtPath<AudioClip>($"{ExtractedAudio}/{name}.wav");
+
+        /// <summary>Music streams (Vorbis), short SFX are decompressed on load.</summary>
+        static void ConfigureExtractedAudio()
+        {
+            foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { ExtractedAudio }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!(AssetImporter.GetAtPath(path) is AudioImporter imp)) continue;
+                bool music = Path.GetFileName(path).StartsWith("Music");
+                var st = imp.defaultSampleSettings;
+                var want = st;
+                want.loadType = music ? AudioClipLoadType.Streaming : AudioClipLoadType.DecompressOnLoad;
+                want.compressionFormat = AudioCompressionFormat.Vorbis;
+                want.quality = music ? 0.5f : 0.7f;
+                if (st.loadType == want.loadType && st.compressionFormat == want.compressionFormat && Mathf.Approximately(st.quality, want.quality)) continue;
+                imp.defaultSampleSettings = want;
+                imp.forceToMono = !music;
+                imp.SaveAndReimport();
+            }
+        }
 
         static Sprite LoadSprite(string name)
         {

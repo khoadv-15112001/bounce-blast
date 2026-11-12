@@ -147,6 +147,66 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d2564c929fc61f14cb53b42015be66ae
+    m_Address: GardenCannon/Audio/playon_refill_ball_land
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e6507fe5fe82eb4f9c755b96b60842a
+    m_Address: GardenCannon/Audio/Button Click
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f757a75387431874caecb96130d27c64
+    m_Address: GardenCannon/Audio/Appear
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 72404e7ac795bec41a80800e339ff157
+    m_Address: GardenCannon/Audio/Icon Point Hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4a626b3751923c94a8a7ae6ff7601a4c
+    m_Address: GardenCannon/Audio/Reward Collect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e01125a349df6ae478ad54a3feb1fb27
+    m_Address: GardenCannon/Audio/Level Win - Celebration
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 08d1e6e569bcbda43a78f612d1906da8
+    m_Address: GardenCannon/Audio/Level Win - Logo Animation - Fireworks
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 579d9a0d97b3cdb4e8d26868fe38b6e3
+    m_Address: GardenCannon/Audio/Out Of Balls Banner
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6c80561002b2ef46b9177d70cf84a96
+    m_Address: GardenCannon/Audio/Level Fail - PlayOnPopUp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 34c2e41d639725a46afb4e08a1469512
+    m_Address: GardenCannon/Audio/Music - Core Game Play
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c225e7bc75948649864ad143a4bc342
+    m_Address: GardenCannon/Audio/orb_off
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 798c18c4297c63047bc99ad9a28b5d55
+    m_Address: GardenCannon/Audio/egg_bird_fly
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

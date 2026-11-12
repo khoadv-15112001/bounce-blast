@@ -39,6 +39,10 @@ namespace GardenCannon
         float _punch;
         float _shake;
         readonly List<(Transform t, int n)> _stages = new List<(Transform, int)>();
+        Animator[] _animators = new Animator[0];
+        static readonly int ShakeTrigger = Animator.StringToHash("shake");
+        static readonly int ShakeStateUpper = Animator.StringToHash("Shake");
+        static readonly int ShakeStateLower = Animator.StringToHash("shake");
 
         public void Init(Board board, ItemData data, ItemCatalog.Entry entry, ItemCatalog catalog, Font font)
         {
@@ -106,6 +110,7 @@ namespace GardenCannon
             go.name = e.prefab.name;
             VisualUtil.StripRuntimeComponents(go);
             _visual = go.transform;
+            _animators = go.GetComponentsInChildren<Animator>(true);
 
             float cell = _board.CellSize;
             float rot = e.rotationOffset + (e.rotateByVariant ? 180f - 90f * (((Data.variant % 4) + 4) % 4) : 0f);
@@ -310,6 +315,7 @@ namespace GardenCannon
             if (!Alive) return false;
             _punch = 1f;
             _shake = 1f;
+            PlayHitAnimation();
             if (!IsBreakable) return false;
             Hits--;
             if (_hitText != null) _hitText.text = Mathf.Max(0, Hits).ToString();
@@ -318,6 +324,23 @@ namespace GardenCannon
             Break();
             return true;
         }
+
+        /// <summary>Original item animators: trigger "shake" (TargetStand, EggBox, LogCutter) or state "Shake" (ItemHit).</summary>
+        void PlayHitAnimation()
+        {
+            foreach (var a in _animators)
+            {
+                if (a == null || !a.isActiveAndEnabled || a.runtimeAnimatorController == null) continue;
+                bool triggered = false;
+                foreach (var p in a.parameters)
+                    if (p.nameHash == ShakeTrigger && p.type == AnimatorControllerParameterType.Trigger) { a.SetTrigger(ShakeTrigger); triggered = true; break; }
+                if (triggered) continue;
+                if (a.HasState(0, ShakeStateUpper)) a.Play(ShakeStateUpper, 0, 0f);
+                else if (a.HasState(0, ShakeStateLower)) a.Play(ShakeStateLower, 0, 0f);
+            }
+        }
+
+        public bool HasHitAnimation => _animators.Length > 0;
 
         void Break()
         {

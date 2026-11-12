@@ -67,3 +67,15 @@ The original scripts are AssetRipper stubs, so prefabs are used only as visuals;
 `Scripts/Runtime`. uGUI / TextMeshPro assemblies are stubs too, so the HUD uses SpriteRenderer + TextMesh.
 The stub copies of Unity.Addressables / Unity.ResourceManager / Unity.ScriptableBuildPipeline were removed
 from `Assets/Scripts` in favour of the real package `com.unity.addressables` 1.21.21.
+
+## Sound & animation
+
+- Gameplay SFX: `Assets/AudioClip` (original). UI / flow SFX and the gameplay music were extracted from
+  `audioclips_assets_all` into `Assets/GardenCannon/Audio` (button click, appear, goal hit / complete,
+  level win + fireworks, out of balls, level fail, "Music - Core Game Play"). All are in the AudioClips group.
+- Break sounds rise in pitch for consecutive breaks by the same ball; music ducks under win / lose jingles.
+- Item hit animations use the prefabs' original controllers (trigger `shake` or state `Shake`).
+- Cannon uses the original CannonController: `Fire` on each shot, `PlayOn` (refill) at level start. The
+  Piv/Base/Rail hierarchy its clips expect is created at runtime, the scene is untouched.
+- After changing catalog / assets: **Garden Cannon > Update Catalog + Assets + Addressables (keeps scene)**.
+  Only use Setup to rebuild the scene from scratch.

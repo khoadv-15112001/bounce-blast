@@ -69,6 +69,7 @@ namespace GardenCannon
         void Wire(GameAssets a)
         {
             if (aimGuide != null) aimGuide.dotSprite = a.aimDot;
+            if (cannon != null) cannon.UseAnimator(a.cannonAnimator);
             if (fx != null) fx.sparkleSprite = a.sparkle;
 
             if (sfx != null)
@@ -80,6 +81,16 @@ namespace GardenCannon
                 sfx.waterSplash = a.waterSplash;
                 sfx.aimTick = a.aimTick;
                 sfx.lastMoves = a.lastMoves;
+                sfx.refillLand = a.refillLand;
+                sfx.buttonClick = a.buttonClick;
+                sfx.appear = a.appear;
+                sfx.goalHit = a.goalHit;
+                sfx.goalComplete = a.goalComplete;
+                sfx.levelWin = a.levelWin;
+                sfx.levelWinFireworks = a.levelWinFireworks;
+                sfx.outOfBalls = a.outOfBalls;
+                sfx.levelFail = a.levelFail;
+                sfx.music = a.music;
             }
 
             if (hud != null)

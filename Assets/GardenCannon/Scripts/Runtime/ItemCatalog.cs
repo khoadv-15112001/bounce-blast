@@ -70,6 +70,8 @@ namespace GardenCannon
             public GameObject breakFx;
             public AudioClip hitSfx;
             public AudioClip breakSfx;
+            [Tooltip("Optional second sound on break (e.g. egg box bird flying away).")]
+            public AudioClip extraBreakSfx;
             [Tooltip("Colour used for debug gizmos / goal fallback icon.")]
             public Color debugColor = Color.white;
         }

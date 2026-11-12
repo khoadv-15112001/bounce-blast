@@ -14,6 +14,8 @@ namespace GardenCannon
         public bool Dead;
         public float Age;
         public float SpeedScale = 1f;
+        /// <summary>Items broken by this ball (raises the break sound pitch).</summary>
+        public int Combo;
         public readonly HashSet<BoardItem> Inside = new HashSet<BoardItem>();
     }
 
