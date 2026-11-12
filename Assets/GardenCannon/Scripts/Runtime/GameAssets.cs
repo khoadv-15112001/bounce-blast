@@ -34,6 +34,16 @@ namespace GardenCannon
         [Tooltip("Two flapping frames of the egg box bird (Art/Bird.png, built from the original bird08 Spine parts).")]
         public Sprite[] birdFrames = new Sprite[0];
 
+        [Header("FX (Art/FxAtlas.png + original confetti)")]
+        public Sprite fxChip;
+        public Sprite fxGlow;
+        public Sprite fxStar;
+        public Sprite[] confetti = new Sprite[0];
+        [Tooltip("Original ball splash effect (Assets/GardenCannon/VFX/VFX_Ball_Splash).")]
+        public GameObject splashFx;
+        [Tooltip("Original animated water (Assets/Material/Water_GardenB, shader K1m/Sprite Add) for the 'Water' sprite near the cannon.")]
+        public Material waterMaterial;
+
         [Header("HUD")]
         public Sprite levelPlate;
         public Sprite settingsButton;

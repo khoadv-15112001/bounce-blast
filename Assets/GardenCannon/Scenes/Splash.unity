@@ -519,6 +519,8 @@ MonoBehaviour:
   cam: {fileID: 478953956}
   background: {fileID: 513688780}
   logo: {fileID: 362838160}
+  backgroundSprite: {fileID: 21300000, guid: cb62992f7363fa04f834f5b79057f00b, type: 2}
+  logoSprite: {fileID: 21300000, guid: dc6fa7f71df5f3c40ae6b53f9b32dbfa, type: 2}
   loadingAnchor: {fileID: 612280071}
   font:
     m_AssetGUID: cd7cde3d0b16f59458708cd5f1bff7f3

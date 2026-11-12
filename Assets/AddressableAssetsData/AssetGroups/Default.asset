@@ -197,6 +197,66 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 938f26ebf10641cc84fdc059165c2234
+    m_Address: GardenCannon/Sprites/FxAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 077f32e48b18acb4f94fcaf6fab39c2f
+    m_Address: GardenCannon/Prefabs/VFX_Block_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 718aaa1bd9737224aafd6f650364b6fe
+    m_Address: GardenCannon/Prefabs/VFX_EggBox_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0ebca3bfc3b086848b5b5083e7bd7f20
+    m_Address: GardenCannon/Prefabs/VFX_EggBox_Lid
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e717d0b3b1ab7454bb8a83059616860c
+    m_Address: GardenCannon/Prefabs/VFX_EggBox_Egg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f92ac0fae5c320418797a16110fba54
+    m_Address: GardenCannon/Prefabs/VFX_ElectricOrb
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20e40015cd4d9cd4d90028c2df62ff71
+    m_Address: GardenCannon/Prefabs/VFX_LogCutter_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 388c990e7940b3a439fe020690bf8e0f
+    m_Address: GardenCannon/Prefabs/VFX_TargetStand_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bab0b502ad86bff4bb1abf05c227bdd3
+    m_Address: GardenCannon/Prefabs/VFX_WoodenBox_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b840bab5dc566f34597fb833204b8f7e
+    m_Address: GardenCannon/Prefabs/VFX_Container_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c85b59b799b0574a8b6c0c4484c7091
+    m_Address: GardenCannon/Prefabs/VFX_Container_Hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8cf065b9ff812e747a1adb4e8f30259b
+    m_Address: GardenCannon/Prefabs/VFX_Ball_Splash
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

@@ -47,6 +47,8 @@ namespace GardenCannon
         [Header("Feel")]
         public float breakShake = 0.25f;
         public float bigBreakShake = 0.5f;
+        [Tooltip("Egg box lid VFX: plays this many times slower so the pieces fade out gently (1 = original speed).")]
+        [Range(1f, 2f)] public float lidFxLifetime = 1.35f;
         public string tutorialText = "Drag to aim,\nrelease to shoot!";
 
         [Header("Start")]
@@ -73,7 +75,7 @@ namespace GardenCannon
 
         // One-time upgrade of values already saved in the scene when the defaults change.
         [SerializeField, HideInInspector] int _settingsVersion;
-        const int SettingsVersion = 3;
+        const int SettingsVersion = 4;
 
         void OnValidate()
         {
@@ -85,6 +87,7 @@ namespace GardenCannon
                 trailColor = new Color(0.7f, 1f, 0.4f, 0.65f);
             }
             if (_settingsVersion < 3) allowFireWhileBallsFly = true; // shoot again while balls are flying
+            if (_settingsVersion < 4) lidFxLifetime = 1.35f;           // egg box lid: a bit slower, then fade
             _settingsVersion = SettingsVersion;
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
@@ -211,8 +214,10 @@ namespace GardenCannon
                 if (b.View != null) b.View.position = BallPosition(b);
                 if (b.Dead)
                 {
-                    sfx?.Play(sfx.waterSplash, 0.6f);
-                    fx?.Splash(new Vector3(b.Pos.x, board.WaterLine, 0f), board.CellSize);
+                    sfx?.Play(sfx.waterSplash, 0.9f, 0.1f);
+                    var splashPos = new Vector3(b.Pos.x, board.SplashLine, 0f);
+                    if (fx == null || !fx.PlayPrefab(fx.splashFx, splashPos, board.CellSize))
+                        fx?.Splash(splashPos, board.CellSize);
                     ReleaseBall(b);
                     _balls.RemoveAt(i);
                 }
@@ -363,8 +368,10 @@ namespace GardenCannon
             float cell = board.CellSize;
             if (item.LastHitHatched)
             {
-                // Egg hatches: crack + a bird flies away.
-                fx?.Hit(item.LastHatchPos, new Color(1f, 0.97f, 0.9f), cell * 1.4f);
+                // Egg hatches: shell pieces + a bird flies away.
+                var eggPos = new Vector3(item.LastHatchPos.x, item.LastHatchPos.y, 0f);
+                if (fx == null || !fx.PlayPrefab(e?.hatchFx, eggPos, cell))
+                    fx?.Hit(item.LastHatchPos, new Color(1f, 0.97f, 0.9f), cell * 1.4f);
                 fx?.Bird(item.LastHatchPos, cell);
                 sfx?.Play(e?.hitSfx, 0.8f);
                 sfx?.Play(e?.extraBreakSfx, 0.6f);
@@ -372,7 +379,8 @@ namespace GardenCannon
             if (result == BoardItem.HitResult.Opened)
             {
                 sfx?.Play(e?.openSfx != null ? e.openSfx : e?.hitSfx, 0.85f);
-                fx?.Hit(item.VisualCentre, ItemColor(item), cell * 1.6f);
+                if (fx == null || !fx.PlayPrefabSlow(e?.openFx, item.VisualCentre, cell, lidFxLifetime))
+                    fx?.Hit(item.VisualCentre, ItemColor(item), cell * 1.6f);
                 rig?.Shake(0.15f);
                 return;
             }
@@ -384,14 +392,17 @@ namespace GardenCannon
                 ball.Combo++;
                 sfx?.PlayPitched(e?.breakSfx != null ? e.breakSfx : sfx.ballCollide, 0.9f, pitch, 0.02f);
                 if (e?.extraBreakSfx != null) sfx?.Play(e.extraBreakSfx, 0.7f);
-                fx?.Break(item.VisualCentre, c, cell * Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
+                int tile = e != null && e.colorByVariant ? catalog.AtlasTileForVariant(item.Data.variant) : -1;
+                if (fx == null || !fx.PlayPrefab(e?.breakFx, item.VisualCentre, cell, catalog, tile))
+                    fx?.Break(item.VisualCentre, c, cell, Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
                 rig?.Shake(item.Offsets.Count > 1 ? bigBreakShake : breakShake);
                 OnItemBroken(item);
             }
             else
             {
                 sfx?.Play(e?.hitSfx != null ? e.hitSfx : sfx.ballCollide, 0.65f);
-                fx?.Hit(new Vector3(ball.Pos.x, ball.Pos.y, 0f), item.IsBreakable ? c : new Color(0.9f, 0.9f, 0.85f), cell);
+                if (fx == null || !fx.PlayPrefab(e?.hitFx, item.VisualCentre, cell))
+                    fx?.Hit(new Vector3(ball.Pos.x, ball.Pos.y, 0f), item.IsBreakable ? c : new Color(0.9f, 0.9f, 0.85f), cell);
             }
         }
 
@@ -450,8 +461,7 @@ namespace GardenCannon
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.Play(sfx.levelWinFireworks, 0.8f, 0f);
-            for (int i = 0; i < 3; i++)
-                fx?.Break(new Vector3(Random.Range(-4f, 4f), Random.Range(0f, 8f), 0f), VisualUtil.AtlasTileColor(Random.Range(0, 25)), 2f);
+            fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
             yield return new WaitForSeconds(0.5f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.Play(sfx.appear, 0.7f, 0f);

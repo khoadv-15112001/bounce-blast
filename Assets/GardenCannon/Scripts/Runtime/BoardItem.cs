@@ -601,13 +601,7 @@ namespace GardenCannon
 
         void Break()
         {
-            Alive = false;
-            if (Entry != null && Entry.breakFx != null)
-            {
-                var fx = Instantiate(Entry.breakFx, VisualCentre + new Vector3(0, 0, -1f), Quaternion.identity);
-                fx.transform.localScale *= _board.CellSize;
-                Destroy(fx, 3f);
-            }
+            Alive = false;   // break effects are played (pooled) by GameController / FxPool
             gameObject.SetActive(false);
         }
 

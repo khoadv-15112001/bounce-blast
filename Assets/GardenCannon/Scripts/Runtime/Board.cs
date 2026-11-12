@@ -16,6 +16,8 @@ namespace GardenCannon
         public float gridWidth = 11.52f;
         [Tooltip("Balls falling below this line drop into the water.")]
         public float waterLine = -7.2f;
+        [Tooltip("How far below the water line a ball keeps falling before it splashes (towards the middle of the river).")]
+        public float splashDepth = 1.0f;
 
         public float CellSize { get; private set; } = 1.28f;
         public LevelData Level { get; private set; }
@@ -25,6 +27,8 @@ namespace GardenCannon
         public float Right => gridLeft + gridWidth;
         public float Top => gridTop;
         public float WaterLine => waterLine;
+        /// <summary>Y where a falling ball hits the water and splashes (a bit inside the river, not on its edge).</summary>
+        public float SplashLine => waterLine - Mathf.Max(0f, splashDepth);
 
         Vector2 _gridOrigin; // world position of the bottom-left corner of cell (0,0)
 

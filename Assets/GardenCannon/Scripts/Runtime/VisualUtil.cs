@@ -70,6 +70,25 @@ namespace GardenCannon
             }
         }
 
+        /// <summary>Recolour BlockColorAtlas renderers (e.g. mesh particles of the block break effect) to one atlas tile.</summary>
+        public static void ApplyAtlasTileToRenderers(Renderer[] renderers, ItemCatalog catalog, int tile)
+        {
+            if (renderers == null || catalog == null) return;
+            if (_mpb == null) _mpb = new MaterialPropertyBlock();
+            int cols = Mathf.Max(1, catalog.atlasColumns), rows = Mathf.Max(1, catalog.atlasRows);
+            var target = TileToColRow(tile, cols);
+            var st = new Vector4(1f / cols, 1f / rows, target.x / (float)cols, 1f - (target.y + 1f) / rows);
+            foreach (var r in renderers)
+            {
+                var mat = r != null ? r.sharedMaterial : null;
+                if (mat == null || !mat.HasProperty("_MainTex") || mat.mainTexture == null) continue;
+                if (!mat.mainTexture.name.Contains("BlockColorAtlas")) continue;
+                r.GetPropertyBlock(_mpb);
+                _mpb.SetVector(MainTexSt, st);
+                r.SetPropertyBlock(_mpb);
+            }
+        }
+
         /// <summary>Centre of the mesh UV bounds (wrapped into 0..1), or (-1,-1) when unreadable.</summary>
         public static Vector2 MeshUvCenter(Mesh mesh)
         {

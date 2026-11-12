@@ -108,7 +108,7 @@ namespace GardenCannon
             if (Mathf.Abs(b.Vel.y) < minVy) b.Vel.y = (b.Vel.y >= 0f ? 1f : -1f) * minVy;
             b.Vel = b.Vel.normalized * speed;
 
-            if (b.Vel.y < 0f && b.Pos.y < Board.WaterLine - r) b.Dead = true;
+            if (b.Vel.y < 0f && b.Pos.y < Board.SplashLine) b.Dead = true;
             return result;
         }
 

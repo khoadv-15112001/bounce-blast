@@ -11,12 +11,52 @@ namespace GardenCannon
     /// logo at y 8.98, "Loading" text 2.25 above the bottom edge. Initialises Addressables, preloads the level data
     /// and opens the game scene.
     /// </summary>
+    [DefaultExecutionOrder(-1000)] // before AddressableSprite.OnEnable, so the direct sprites win
     public class SplashView : MonoBehaviour
     {
         public Camera cam;
         [Tooltip("Background sprite renderer, scaled to cover the whole screen.")]
         public SpriteRenderer background;
         public Transform logo;
+        [Tooltip("Shown on the very first frame (built into the Splash scene, not loaded from Addressables).")]
+        public Sprite backgroundSprite;
+        public Sprite logoSprite;
+
+        const string BackgroundPath = "Assets/Sprite/splash asset.asset";
+        const string LogoPath = "Assets/Sprite/logo.asset";
+
+        void Awake()
+        {
+            // The splash art is the first thing on screen: assign it directly so there is no blue frame while the
+            // Addressables catalog / bundles are still loading.
+            if (background != null && backgroundSprite != null)
+            {
+                background.sprite = backgroundSprite;
+                var a = background.GetComponent<AddressableSprite>();
+                if (a != null) a.enabled = false;
+                FitBackground();
+            }
+            if (logo != null && logoSprite != null)
+            {
+                var sr = logo.GetComponent<SpriteRenderer>();
+                if (sr != null) sr.sprite = logoSprite;
+                var a = logo.GetComponent<AddressableSprite>();
+                if (a != null) a.enabled = false;
+            }
+        }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            bool changed = false;
+            if (backgroundSprite == null) { backgroundSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(BackgroundPath); changed |= backgroundSprite != null; }
+            if (logoSprite == null) { logoSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(LogoPath); changed |= logoSprite != null; }
+            if (changed) UnityEditor.EditorUtility.SetDirty(this);
+        }
+
+        /// <summary>Editor/build helper: fill the direct sprite references.</summary>
+        public void EnsureSprites() => OnValidate();
+#endif
         public Transform loadingAnchor;
         public AssetReferenceT<Font> font;
         public string loadingText = "Loading";
@@ -49,7 +89,7 @@ namespace GardenCannon
 
             // Wait for the splash sprites (background / logo) to come out of Addressables.
             foreach (var s in FindObjectsOfType<AddressableSprite>(true))
-                while (s != null && !s.IsDone) yield return null;
+                while (s != null && s.isActiveAndEnabled && !s.IsDone) yield return null;
 
             // Warm up the level bundle so the game scene starts faster.
             var levels = Addressables.DownloadDependenciesAsync(LevelLibrary.Label);

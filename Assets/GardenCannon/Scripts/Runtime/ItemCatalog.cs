@@ -77,7 +77,14 @@ namespace GardenCannon
             public bool showHitCount;
             [Tooltip("Lane speed in cells per second for moving items.")]
             public float laneSpeed = 1.5f;
+            [Tooltip("Original effect played when the item breaks (Assets/GardenCannon/VFX).")]
             public GameObject breakFx;
+            [Tooltip("Original effect played when a hit doesn't break the item (e.g. Container).")]
+            public GameObject hitFx;
+            [Tooltip("Egg box: effect when the lid opens.")]
+            public GameObject openFx;
+            [Tooltip("Egg box: effect when an egg hatches.")]
+            public GameObject hatchFx;
             public AudioClip hitSfx;
             public AudioClip breakSfx;
             [Tooltip("Optional second sound on break (e.g. egg box bird flying away).")]

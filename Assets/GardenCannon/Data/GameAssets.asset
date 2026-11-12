@@ -38,6 +38,17 @@ MonoBehaviour:
   birdFrames:
   - {fileID: 1600000000000000000, guid: fa206216200b43a59b5232b43cef075b, type: 3}
   - {fileID: 1600000000000000001, guid: fa206216200b43a59b5232b43cef075b, type: 3}
+  fxChip: {fileID: 1700000000000000000, guid: 938f26ebf10641cc84fdc059165c2234, type: 3}
+  fxGlow: {fileID: 1700000000000000001, guid: 938f26ebf10641cc84fdc059165c2234, type: 3}
+  fxStar: {fileID: 1700000000000000002, guid: 938f26ebf10641cc84fdc059165c2234, type: 3}
+  confetti:
+  - {fileID: 21300000, guid: 0c84a05ac3ea1d44790236d7ca61994a, type: 2}
+  - {fileID: 21300000, guid: d9697480bab733d408b00b444319d9ba, type: 2}
+  - {fileID: 21300000, guid: 8a53f291e18807a48b1f6030c2d701e8, type: 2}
+  - {fileID: 21300000, guid: ae8c4fd280c362448a934a38b9619b42, type: 2}
+  - {fileID: 21300000, guid: c0f7abd525f77b040a128793f6f97b06, type: 2}
+  splashFx: {fileID: 6851331514951016854, guid: 8cf065b9ff812e747a1adb4e8f30259b, type: 3}
+  waterMaterial: {fileID: 2100000, guid: 7245c6acd4578624c9376d7fbc7701aa, type: 2}
   levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
   settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
   white: {fileID: 21300000, guid: 243e36b186531734b9905acb677ee060, type: 2}

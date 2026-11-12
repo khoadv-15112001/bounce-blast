@@ -54,7 +54,7 @@ namespace GardenCannon
 
             // Wait for the scene sprites so the lawn swap below is not overwritten by a late load.
             foreach (var s in FindObjectsOfType<AddressableSprite>(true))
-                while (s != null && !s.IsDone) yield return null;
+                while (s != null && s.isActiveAndEnabled && !s.IsDone) yield return null;
 
             LevelLibrary.Initialize(_levelsHandle.Result);
             Wire(_assetsHandle.Result);
@@ -70,8 +70,21 @@ namespace GardenCannon
         {
             if (aimGuide != null) aimGuide.dotSprite = a.aimDot;
             if (cannon != null) cannon.UseAnimator(a.cannonAnimator);
-            if (fx != null) fx.sparkleSprite = a.sparkle;
+            if (fx != null)
+            {
+                fx.chipSprite = a.fxChip;
+                fx.glowSprite = a.fxGlow;
+                fx.starSprite = a.fxStar != null ? a.fxStar : a.sparkle;
+                fx.confettiSprites = a.confetti;
+                fx.splashFx = a.splashFx;
+            }
             if (fx != null) fx.birdFrames = a.birdFrames;
+            if (a.waterMaterial != null)
+            {
+                // Animated caustics / foam on the water strip in front of the cannon (as in the original Game scene).
+                foreach (var sr in FindObjectsOfType<SpriteRenderer>(true))
+                    if (sr.gameObject.name == "Water") sr.sharedMaterial = a.waterMaterial;
+            }
             DigitLabel.Digits = a.digits;
             if (a.digitShader != null && DigitLabel.OverlayMaterial == null)
                 DigitLabel.OverlayMaterial = new Material(a.digitShader) { name = "DigitOverlay" };
@@ -83,6 +96,8 @@ namespace GardenCannon
                 sfx.wallBounce = a.wallBounce;
                 sfx.ballCollide = a.ballCollide;
                 sfx.waterSplash = a.waterSplash;
+                // Clips are imported with "Preload Audio Data" off: load them now so the first play isn't silent.
+                if (a.waterSplash != null) a.waterSplash.LoadAudioData();
                 sfx.aimTick = a.aimTick;
                 sfx.lastMoves = a.lastMoves;
                 sfx.refillLand = a.refillLand;

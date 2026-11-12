@@ -33,7 +33,10 @@ MonoBehaviour:
     colorByVariant: 1
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 7313273411346813433, guid: 077f32e48b18acb4f94fcaf6fab39c2f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -59,6 +62,9 @@ MonoBehaviour:
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
@@ -84,6 +90,9 @@ MonoBehaviour:
     showHitCount: 0
     laneSpeed: 1.6
     breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
@@ -108,7 +117,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 198045410432241170, guid: 718aaa1bd9737224aafd6f650364b6fe, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 67903384687882446, guid: 0ebca3bfc3b086848b5b5083e7bd7f20, type: 3}
+    hatchFx: {fileID: 682167952479840192, guid: e717d0b3b1ab7454bb8a83059616860c, type: 3}
     hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
     breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
     extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
@@ -133,7 +145,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 949823887834461746, guid: 5f92ac0fae5c320418797a16110fba54, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
     breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
     extraBreakSfx: {fileID: 8300000, guid: 3c225e7bc75948649864ad143a4bc342, type: 3}
@@ -158,7 +173,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 45424504262585878, guid: 20e40015cd4d9cd4d90028c2df62ff71, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
     breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -183,7 +201,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 6639990687976562072, guid: 388c990e7940b3a439fe020690bf8e0f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -208,7 +229,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.2
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 6639990687976562072, guid: 388c990e7940b3a439fe020690bf8e0f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -233,7 +257,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 6347052287175827291, guid: bab0b502ad86bff4bb1abf05c227bdd3, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
     breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -259,6 +286,9 @@ MonoBehaviour:
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
@@ -283,7 +313,10 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 1
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 979454528307687699, guid: b840bab5dc566f34597fb833204b8f7e, type: 3}
+    hitFx: {fileID: 1601110587117562170, guid: 9c85b59b799b0574a8b6c0c4484c7091, type: 3}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
     breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
     extraBreakSfx: {fileID: 0}
@@ -309,6 +342,9 @@ MonoBehaviour:
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
@@ -333,7 +369,10 @@ MonoBehaviour:
     colorByVariant: 1
     showHitCount: 1
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 7313273411346813433, guid: 077f32e48b18acb4f94fcaf6fab39c2f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
