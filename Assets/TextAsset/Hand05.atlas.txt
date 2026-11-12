@@ -1,0 +1,41 @@
+
+Hand05.png
+size: 512,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Circle
+  rotate: false
+  xy: 219, 111
+  size: 139, 139
+  orig: 139, 139
+  offset: 0, 0
+  index: -1
+Finger
+  rotate: 270
+  xy: 190, 7
+  size: 121, 165
+  orig: 121, 166
+  offset: 0, 0
+  index: -1
+Hand
+  rotate: false
+  xy: 2, 41
+  size: 216, 211
+  orig: 216, 211
+  offset: 0, 0
+  index: -1
+Shadow
+  rotate: 180
+  xy: 353, 101
+  size: 136, 150
+  orig: 136, 151
+  offset: 0, 1
+  index: -1
+Trail
+  rotate: false
+  xy: 2, 4
+  size: 221, 35
+  orig: 221, 35
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,159 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Eigerdals Norm Heavy MultiLayer - Congratulatory-Yellow
+  m_Shader: {fileID: 4800000, guid: 9d4d79623e097e543979737b7d3b3ce1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - LAYER0_OUTLINE
+  - LAYER1
+  - LAYER2
+  - LAYER3
+  - LAYER4
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+      _MainTex:
+        m_Texture: {fileID: 2800000, guid: e2e994affb74c8346bd6624833eb6ac8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: {}
+    m_Floats:
+      _0_LayerCenterFill: 0
+      _0_LayerDilate: 0.048
+      _0_LayerGradDown: 0
+      _0_LayerGradUp: 1
+      _0_LayerOffsetX: 0
+      _0_LayerOffsetY: 0.48
+      _0_LayerOutlineWidth: 0.056
+      _0_LayerScale: 0
+      _0_LayerSoftness: 0
+      _1_LayerCenterFill: 0
+      _1_LayerDilate: 0.244
+      _1_LayerGradDown: 0
+      _1_LayerGradUp: 1
+      _1_LayerOffsetX: 0
+      _1_LayerOffsetY: 0.37
+      _1_LayerOutlineWidth: 0
+      _1_LayerScale: 0
+      _1_LayerSoftness: 0
+      _2_LayerCenterFill: 0.005
+      _2_LayerDilate: 0.657
+      _2_LayerGradDown: 0
+      _2_LayerGradUp: 1
+      _2_LayerOffsetX: 0
+      _2_LayerOffsetY: 0.24
+      _2_LayerOutlineWidth: 0
+      _2_LayerScale: 0
+      _2_LayerSoftness: 0
+      _3_LayerCenterFill: 0
+      _3_LayerDilate: 0.676
+      _3_LayerGradDown: 0
+      _3_LayerGradUp: 1
+      _3_LayerOffsetX: 0
+      _3_LayerOffsetY: -0.07
+      _3_LayerOutlineWidth: 0.105
+      _3_LayerScale: 0
+      _3_LayerSoftness: 0
+      _4_LayerCenterFill: 0
+      _4_LayerDilate: 0.631
+      _4_LayerGradDown: 0
+      _4_LayerGradUp: 1
+      _4_LayerOffsetX: 0
+      _4_LayerOffsetY: 0.42
+      _4_LayerOutlineWidth: 0
+      _4_LayerScale: 0
+      _4_LayerSoftness: 0
+      _Ambient: 0.5
+      _Bevel: 0.5
+      _BevelClamp: 0
+      _BevelOffset: 0
+      _BevelRoundness: 0
+      _BevelWidth: 0
+      _BumpFace: 0
+      _BumpOutline: 0
+      _ColorMask: 15
+      _CullMode: 0
+      _Diffuse: 0.5
+      _FaceDilate: -0.12
+      _FaceUVSpeedX: 0
+      _FaceUVSpeedY: 0
+      _GlowInner: 0.05
+      _GlowOffset: 0
+      _GlowOuter: 0.05
+      _GlowPower: 0.75
+      _GradientScale: 26
+      _LightAngle: 3.1416
+      _MaskSoftnessX: 0
+      _MaskSoftnessY: 0
+      _OutlineSoftness: 0
+      _OutlineUVSpeedX: 0
+      _OutlineUVSpeedY: 0
+      _OutlineWidth: 0.081
+      _PerspectiveFilter: 0.875
+      _Reflectivity: 10
+      _ScaleRatioA: 0.96153843
+      _ScaleRatioB: 0.89663464
+      _ScaleRatioC: 0.89663464
+      _ScaleX: 1
+      _ScaleY: 1
+      _ShaderFlags: 0
+      _Sharpness: 0
+      _SpecularPower: 2
+      _Stencil: 0
+      _StencilComp: 8
+      _StencilOp: 0
+      _StencilReadMask: 255
+      _StencilWriteMask: 255
+      _TextureHeight: 2048
+      _TextureWidth: 2048
+      _UnderlayDilate: 0
+      _UnderlayOffsetX: 0
+      _UnderlayOffsetY: 0
+      _UnderlaySoftness: 0
+      _VertexOffsetX: 0
+      _VertexOffsetY: 0
+      _WeightBold: 0.75
+      _WeightNormal: 0
+    m_Colors:
+      _0_LayerColor: {r: 1, g: 0.9411765, b: 0.007843138, a: 1}
+      _0_LayerOutlineColor: {r: 0.28235295, g: 0.039215688, b: 0.12156863, a: 1}
+      _0_LayerSecColor: {r: 1, g: 1, b: 1, a: 1}
+      _1_LayerColor: {r: 0.2901961, g: 0.043137256, b: 0.1254902, a: 1}
+      _1_LayerOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      _1_LayerSecColor: {r: 1, g: 1, b: 1, a: 1}
+      _2_LayerColor: {r: 0.69411767, g: 0.12941177, b: 0.32156864, a: 1}
+      _2_LayerOutlineColor: {r: 0.7882353, g: 0.49411765, b: 0.6509804, a: 1}
+      _2_LayerSecColor: {r: 1, g: 1, b: 1, a: 1}
+      _3_LayerColor: {r: 0.41960785, g: 0.07450981, b: 0.1882353, a: 1}
+      _3_LayerOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      _3_LayerSecColor: {r: 1, g: 1, b: 1, a: 1}
+      _4_LayerColor: {r: 0.9098039, g: 0.5803922, b: 0.7019608, a: 1}
+      _4_LayerOutlineColor: {r: 0.81960785, g: 0.5254902, b: 0.6627451, a: 1}
+      _4_LayerSecColor: {r: 1, g: 1, b: 1, a: 1}
+      _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+      _EnvMatrixRotation: {r: 0, g: 0, b: 0, a: 0}
+      _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+      _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
+      _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
+      _OutlineColor: {r: 0.26666668, g: 0.11372549, b: 0.000303527, a: 1}
+      _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
+      _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+      _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+      _UnderlayColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []

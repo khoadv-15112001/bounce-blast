@@ -1,0 +1,237 @@
+
+MatchResort_ChefLoadingAnimation.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Back
+  rotate: false
+  xy: 1523, 1780
+  size: 118, 64
+  orig: 118, 64
+  offset: 0, 0
+  index: -1
+Body
+  rotate: true
+  xy: 1321, 158
+  size: 410, 479
+  orig: 410, 479
+  offset: 0, 0
+  index: -1
+Eyebrow_Left
+  rotate: false
+  xy: 880, 25
+  size: 148, 145
+  orig: 152, 147
+  offset: 2, 1
+  index: -1
+Eyebrow_Right
+  rotate: true
+  xy: 1032, 37
+  size: 133, 148
+  orig: 166, 168
+  offset: 1, 18
+  index: -1
+Finger_L
+  rotate: false
+  xy: 1515, 8
+  size: 57, 35
+  orig: 57, 35
+  offset: 0, 0
+  index: -1
+FrontLip
+  rotate: false
+  xy: 1693, 52
+  size: 156, 102
+  orig: 161, 104
+  offset: 3, 1
+  index: -1
+Kol_sol_altkol
+  rotate: false
+  xy: 1523, 1848
+  size: 113, 92
+  orig: 113, 92
+  offset: 0, 0
+  index: -1
+Layer 10
+  rotate: true
+  xy: 1582, 5
+  size: 39, 50
+  orig: 44, 61
+  offset: 4, 5
+  index: -1
+Layer 11
+  rotate: false
+  xy: 888, 1528
+  size: 49, 87
+  orig: 49, 87
+  offset: 0, 0
+  index: -1
+Layer 3
+  rotate: false
+  xy: 1321, 37
+  size: 118, 117
+  orig: 118, 117
+  offset: 0, 0
+  index: -1
+Layer 4
+  rotate: false
+  xy: 1640, 1854
+  size: 164, 86
+  orig: 164, 87
+  offset: 0, 1
+  index: -1
+MBack
+  rotate: false
+  xy: 4, 17
+  size: 282, 261
+  orig: 284, 263
+  offset: 1, 1
+  index: -1
+Mouth
+  rotate: false
+  xy: 1726, 1971
+  size: 162, 73
+  orig: 162, 73
+  offset: 0, 0
+  index: -1
+Progress
+  rotate: false
+  xy: 1314, 1606
+  size: 278, 167
+  orig: 278, 167
+  offset: 0, 0
+  index: -1
+Pupil_Left
+  rotate: false
+  xy: 941, 1569
+  size: 42, 46
+  orig: 44, 48
+  offset: 1, 1
+  index: -1
+Pupil_Right
+  rotate: true
+  xy: 946, 1657
+  size: 42, 46
+  orig: 44, 48
+  offset: 1, 1
+  index: -1
+Shadow
+  rotate: true
+  xy: 4, 282
+  size: 876, 879
+  orig: 880, 882
+  offset: 2, 2
+  index: -1
+Spoon
+  rotate: true
+  xy: 536, 162
+  size: 116, 340
+  orig: 118, 342
+  offset: 1, 1
+  index: -1
+T-Shadow
+  rotate: false
+  xy: 1693, 4
+  size: 167, 44
+  orig: 167, 44
+  offset: 0, 0
+  index: -1
+body_A_cloth_004
+  rotate: false
+  xy: 888, 1703
+  size: 422, 341
+  orig: 422, 341
+  offset: 0, 0
+  index: -1
+characterback
+  rotate: false
+  xy: 887, 572
+  size: 586, 586
+  orig: 586, 586
+  offset: 0, 0
+  index: -1
+goz_sol_001
+  rotate: true
+  xy: 1314, 1777
+  size: 267, 205
+  orig: 269, 207
+  offset: 1, 1
+  index: -1
+hamur_001
+  rotate: false
+  xy: 536, 30
+  size: 335, 128
+  orig: 335, 128
+  offset: 0, 0
+  index: -1
+hand_L
+  rotate: true
+  xy: 1582, 48
+  size: 106, 107
+  orig: 106, 118
+  offset: 0, 0
+  index: -1
+hand_R
+  rotate: false
+  xy: 1184, 37
+  size: 133, 133
+  orig: 133, 133
+  offset: 0, 0
+  index: -1
+hat_001
+  rotate: false
+  xy: 290, 39
+  size: 242, 239
+  orig: 242, 239
+  offset: 0, 0
+  index: -1
+kase_001
+  rotate: false
+  xy: 887, 415
+  size: 430, 153
+  orig: 432, 222
+  offset: 1, 68
+  index: -1
+kase_001 copy
+  rotate: false
+  xy: 887, 174
+  size: 426, 237
+  orig: 431, 240
+  offset: 3, 2
+  index: -1
+kollar_A_ustkol_001
+  rotate: false
+  xy: 1443, 47
+  size: 135, 107
+  orig: 135, 107
+  offset: 0, 0
+  index: -1
+mouth_dil_001
+  rotate: true
+  xy: 888, 1619
+  size: 80, 54
+  orig: 80, 54
+  offset: 0, 0
+  index: -1
+mouth_dil_golge_001
+  rotate: false
+  xy: 1523, 1944
+  size: 199, 100
+  orig: 199, 100
+  offset: 0, 0
+  index: -1
+progress_frame
+  rotate: false
+  xy: 4, 1162
+  size: 880, 882
+  orig: 880, 882
+  offset: 0, 0
+  index: -1
+sol_golge
+  rotate: true
+  xy: 1443, 5
+  size: 38, 68
+  orig: 38, 68
+  offset: 0, 0
+  index: -1

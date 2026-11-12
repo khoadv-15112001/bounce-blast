@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CubePlasticAtlas
+  m_Shader: {fileID: 4800000, guid: 544df8fea5222174b8d6637ebf4ff9a8, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ATLASALBEDO_ON
+  m_InvalidKeywords:
+  - _ORTHOSPECULAR_ON
+  - _SPECULARHIGHLIGHTS_ON
+  - _USECUSTOMLIGHT2_ON
+  - _USECUSTOMLIGHT3_ON
+  - _USECUSTOMLIGHTDIR_ON
+  - _USECUSTOMSPEC4_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+      _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _MainTex:
+        m_Texture: {fileID: 2800000, guid: 74c9c0e899e45e341bd3b329a04945d0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _MetallicMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: f0823a3ea26c7d046a4c7d87cf1b7d7b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _SmoothnessMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: {}
+    m_Floats:
+      _AtlasAlbedo: 1
+      _BumpScale: 1
+      _ClipAboveY: 0
+      _ClipBelowY: -99999
+      _DstBlend: 0
+      _Glossiness: 0.688
+      _GlossyReflections: 1
+      _LightPitch: -20.6
+      _LightPitch2: -90
+      _LightPitch3: 30
+      _LightYaw: 166
+      _LightYaw2: 360
+      _LightYaw3: 200
+      _Metallic: 0
+      _OcclusionStrength: 0.4
+      _OrthoSpecular: 1
+      _SpecPitch4: -5.3
+      _SpecYaw4: 149
+      _SpecularHighlights: 1
+      _SrcBlend: 1
+      _StencilRef: 1
+      _UseCustomLight2: 1
+      _UseCustomLight3: 1
+      _UseCustomLightDir: 1
+      _UseCustomSpec4: 1
+      _ZTest: 4
+      _ZWrite: 1
+    m_Colors:
+      _AtlasGrid: {r: 8, g: 4, b: 0, a: 0}
+      _Color: {r: 0.74612856, g: 0.75256515, b: 0.764151, a: 1}
+      _CustomLightColor: {r: 0.7728729, g: 0.81968564, b: 0.9811321, a: 1}
+      _CustomLightColor2: {r: 0, g: 0, b: 0.14150941, a: 1}
+      _CustomLightColor3: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 1}
+      _CustomSpecColor4: {r: 0.41701427, g: 0.53059757, b: 1.319508, a: 1}
+      _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+      _OcclusionColor: {r: 0, g: 0.19870736, b: 0.8490566, a: 1}
+      _SpecularColor: {r: 0.6650944, g: 0.7020897, b: 1, a: 1}
+  m_BuildTextureStacks: []

@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RB_Shared
+  m_Shader: {fileID: 4800000, guid: d3e9339f22347684a89de366c96d1846, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _ORTHOSPECULAR_ON
+  - _SPECULARHIGHLIGHTS_ON
+  - _USECUSTOMLIGHT2_ON
+  - _USECUSTOMLIGHT3_ON
+  - _USECUSTOMLIGHTDIR_ON
+  - _USECUSTOMSPEC4_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+      _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _MainTex:
+        m_Texture: {fileID: 2800000, guid: 5cc202f5d09ee2240af642d0e8ed926a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _MetallicMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _SmoothnessMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: {}
+    m_Floats:
+      _AtlasAlbedo: 0
+      _BumpScale: 1
+      _ClipAboveY: 0
+      _ClipBelowY: -99999
+      _DstBlend: 0
+      _Glossiness: 0.4
+      _GlossyReflections: 1
+      _GroundClipAllowance: 0
+      _LightPitch: -20.6
+      _LightPitch2: -90
+      _LightPitch3: 30
+      _LightYaw: 166
+      _LightYaw2: 360
+      _LightYaw3: 200
+      _Metallic: 0
+      _OcclusionStrength: 0
+      _OrthoSpecular: 1
+      _SpecPitch4: -5.3
+      _SpecYaw4: 149
+      _SpecularHighlights: 1
+      _SrcBlend: 1
+      _StencilRef: 2
+      _UseCustomLight2: 1
+      _UseCustomLight3: 1
+      _UseCustomLightDir: 1
+      _UseCustomSpec4: 1
+      _ZTest: 4
+      _ZWrite: 1
+    m_Colors:
+      _AtlasGrid: {r: 8, g: 4, b: 0, a: 0}
+      _Color: {r: 0.78, g: 0.78, b: 0.78, a: 1}
+      _CustomLightColor: {r: 1, g: 1, b: 1, a: 1}
+      _CustomLightColor2: {r: 0.32, g: 0.24, b: 0.025, a: 1}
+      _CustomLightColor3: {r: 0.3, g: 0.3, b: 0.24, a: 1}
+      _CustomSpecColor4: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+      _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+      _OcclusionColor: {r: 0, g: 0.19870736, b: 0.8490566, a: 1}
+      _SpecularColor: {r: 0.18, g: 0.18, b: 0.18, a: 1}
+  m_BuildTextureStacks: []

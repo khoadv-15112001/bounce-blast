@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags: []
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - SwipeBlocker
+  - Touch Raycast
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - HomeAnimation
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Cell
+    uniqueID: 699519125
+    locked: 0
+  - name: L2
+    uniqueID: 2874555463
+    locked: 0
+  - name: L1
+    uniqueID: 176198157
+    locked: 0
+  - name: LowerParticle
+    uniqueID: 273626825
+    locked: 0
+  - name: BL
+    uniqueID: 2212948431
+    locked: 0
+  - name: U1
+    uniqueID: 916407217
+    locked: 0
+  - name: U2
+    uniqueID: 387489675
+    locked: 0
+  - name: UpperParticle
+    uniqueID: 1854790053
+    locked: 0
+  - name: Top
+    uniqueID: 2496721303
+    locked: 0
+  - name: UI
+    uniqueID: 3634542457
+    locked: 0

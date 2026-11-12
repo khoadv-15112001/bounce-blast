@@ -1,0 +1,391 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!200 &20000000
+ShaderVariantCollection:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AllShaderVariants
+  m_Shaders:
+  - first: {fileID: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+  - first: {fileID: 66, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 1
+      - keywords:
+        passType: 2
+      - keywords:
+        passType: 4
+      - keywords:
+        passType: 5
+      - keywords:
+        passType: 8
+  - first: {fileID: 47, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 1
+      - keywords:
+        passType: 2
+      - keywords:
+        passType: 4
+      - keywords:
+        passType: 5
+      - keywords:
+        passType: 8
+  - first: {fileID: 106, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: _SUNDISK_SIMPLE
+        passType: 0
+  - first: {fileID: 202, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: _ALPHABLEND_ON
+        passType: 0
+      - keywords: _ALPHABLEND_ON _COLORCOLOR_ON
+        passType: 0
+      - keywords: PROCEDURAL_INSTANCING_ON
+        passType: 8
+      - keywords: PROCEDURAL_INSTANCING_ON _ALPHABLEND_ON
+        passType: 8
+      - keywords: _ALPHABLEND_ON
+        passType: 8
+  - first: {fileID: 9000, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9001, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9002, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9003, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9004, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9007, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9101, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 9103, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10720, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10721, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10723, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10750, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 10757, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 544df8fea5222174b8d6637ebf4ff9a8, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 4
+      - keywords: INSTANCING_ON
+        passType: 4
+      - keywords: INSTANCING_ON _ATLASALBEDO_ON
+        passType: 4
+      - keywords: _ATLASALBEDO_ON
+        passType: 4
+      - keywords:
+        passType: 8
+      - keywords: INSTANCING_ON
+        passType: 8
+      - keywords: INSTANCING_ON _ATLASALBEDO_ON
+        passType: 8
+      - keywords: _ATLASALBEDO_ON
+        passType: 8
+  - first: {fileID: 4800000, guid: 73da3cf386c8f9441b621f9db7bf703f, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 74477467290f3044e88eb4044c22a66e, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: INSTANCING_ON
+        passType: 0
+  - first: {fileID: 4800000, guid: 7165691a2807e01498051b9f347130a7, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: UNITY_UI_ALPHACLIP _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords: _CANVAS_GROUP_COMPATIBLE _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords: _STRAIGHT_ALPHA_INPUT
+        passType: 0
+  - first: {fileID: 4800000, guid: 9559b7a4948234e46a4c52271058ac71, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 4
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 9d4d79623e097e543979737b7d3b3ce1, type: 3}
+    second:
+      variants:
+      - keywords: LAYER0_OUTLINE LAYER1 LAYER2 LAYER3 LAYER4
+        passType: 0
+      - keywords: LAYER0_OUTLINE LAYER1 LAYER2 LAYER3 LAYER4 UNITY_UI_CLIP_RECT
+        passType: 0
+  - first: {fileID: 4800000, guid: 28de9d6e2926a4f4dacb20906406dcf1, type: 3}
+    second:
+      variants:
+      - keywords: INSTANCING_ON
+        passType: 0
+  - first: {fileID: 4800000, guid: 1b9382dcea04cad4b94c07d5cc51e9d0, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: d3bc8b5f17b8eb64da6b1ed7705c8aa6, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: a3e2e1d0bc7511041a6b6798962d3f1e, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 00d4abb6f58b59c4eac3760ff1b23e6b, type: 3}
+    second:
+      variants:
+      - keywords: OUTLINE_ON UNDERLAY_ON
+        passType: 0
+  - first: {fileID: 4800000, guid: 8b2694609470afb45b5a4e36e712161f, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 248c0a55cd07dc9418887d80c625d32e, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: UNDERLAY_ON
+        passType: 0
+      - keywords: UNDERLAY_ON UNITY_UI_CLIP_RECT
+        passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+  - first: {fileID: 4800000, guid: 33ff5baa58e38854cbba3b3daa39d099, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: df8035f977ab5884ba4f34b5aec6a4ff, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 9af4439334a289a42940a92006f84067, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+  - first: {fileID: 4800000, guid: ec58b8515939bec49bdd8652eacbacca, type: 3}
+    second:
+      variants:
+      - keywords: AMBIENT MATCAP MATCAP_CONTRAST MATCAP_PERSPECTIVE NORMAL_MAP _MATCAPBLEND_MULTIPLY
+        passType: 4
+      - keywords: AMBIENT MATCAP MATCAP_CONTRAST MATCAP_PERSPECTIVE _MATCAPBLEND_MULTIPLY
+        passType: 4
+      - keywords: AMBIENT MATCAP MATCAP_PERSPECTIVE _MATCAPBLEND_MULTIPLY
+        passType: 4
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 30fd84db09dc21c40ac1618170a2ca68, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 20e3ac02e07633e4c972108ead9498d6, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: _STRAIGHT_ALPHA_INPUT
+        passType: 0
+      - keywords:
+        passType: 8
+  - first: {fileID: 4800000, guid: 22d51af1d7dcf6e45a819656bd5f904f, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+      - keywords: INSTANCING_ON
+        passType: 0
+      - keywords:
+        passType: 1
+      - keywords:
+        passType: 2
+      - keywords:
+        passType: 4
+      - keywords: INSTANCING_ON
+        passType: 4
+      - keywords:
+        passType: 5
+  - first: {fileID: 4800000, guid: 17bae9da304b05940ab7e90cd19a8fbb, type: 3}
+    second:
+      variants:
+      - keywords: LIGHTPROBE_SH
+        passType: 4
+  - first: {fileID: 4800000, guid: 1b4e14e4e0ee76d459dca0e9710cc60c, type: 3}
+    second:
+      variants:
+      - keywords: _ORIENT_VERTICAL
+        passType: 0
+  - first: {fileID: 4800000, guid: d623f05d2f12b2e4780899d15af45a91, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 546f3c242f583844dbf65341ea103c27, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: b5fb685f4000c604088591b5a1b6221b, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: bf4b5767f9de07545a06cc7baa6f582e, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: bfb4d12f6b7a11041ba2229485b33bc7, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: ebb8c769e3651ca45b3b247d96f9a124, type: 3}
+    second:
+      variants:
+      - keywords: _CANVAS_GROUP_COMPATIBLE _STRAIGHT_ALPHA_INPUT
+        passType: 0
+  - first: {fileID: 4800000, guid: deea325836843fa4b855175dba87a10c, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 824e1292f113fb14daa9f4ca0480f397, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: c1914dcd353564e4a897b5938cdd1ba4, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 0b15abd9fa866054781b42e4ff537fca, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: 9140c28fc62a7c244bbe3b843907a622, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 4800000, guid: cf969fa014bfc8a4bb86c4c4cabfec1c, type: 3}
+    second:
+      variants:
+      - keywords:
+        passType: 0
+  - first: {fileID: 0}
+    second:
+      variants:
+      - keywords:
+        passType: 4

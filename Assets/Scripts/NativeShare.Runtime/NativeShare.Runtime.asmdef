@@ -1,0 +1,5 @@
+{
+  "name": "NativeShare.Runtime",
+  "references": [],
+  "allowUnsafeCode": true
+}
