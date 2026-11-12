@@ -69,3 +69,7 @@ desktop.ini
 # Output of Tools/ExportSprites.ps1
 /SpriteExport/
 /SpineExport/
+
+# DecompileIl2Cpp tool cache/output
+Tools/.cache/
+DecompiledCode/
