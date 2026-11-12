@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "garden-cannon", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5174", "--directory", "C:/Users/HIUU HIUU/Documents/my-unity-project/bounce-busters"], "port": 5174 }
+  ]
+}
