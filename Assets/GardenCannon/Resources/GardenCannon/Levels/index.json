@@ -1,0 +1,304 @@
+{
+ "levels": [
+  {
+   "id": 1,
+   "file": "level_001",
+   "moves": 30,
+   "difficulty": 1
+  },
+  {
+   "id": 2,
+   "file": "level_002",
+   "moves": 30,
+   "difficulty": 1
+  },
+  {
+   "id": 3,
+   "file": "level_003",
+   "moves": 30,
+   "difficulty": 1
+  },
+  {
+   "id": 4,
+   "file": "level_004",
+   "moves": 35,
+   "difficulty": 1
+  },
+  {
+   "id": 5,
+   "file": "level_005",
+   "moves": 30,
+   "difficulty": 1
+  },
+  {
+   "id": 6,
+   "file": "level_006",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 7,
+   "file": "level_007",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 8,
+   "file": "level_008",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 9,
+   "file": "level_009",
+   "moves": 23,
+   "difficulty": 1
+  },
+  {
+   "id": 10,
+   "file": "level_010",
+   "moves": 22,
+   "difficulty": 1
+  },
+  {
+   "id": 11,
+   "file": "level_011",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 12,
+   "file": "level_012",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 13,
+   "file": "level_013",
+   "moves": 36,
+   "difficulty": 1
+  },
+  {
+   "id": 14,
+   "file": "level_014",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 15,
+   "file": "level_015",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 16,
+   "file": "level_016",
+   "moves": 20,
+   "difficulty": 1
+  },
+  {
+   "id": 17,
+   "file": "level_017",
+   "moves": 20,
+   "difficulty": 1
+  },
+  {
+   "id": 18,
+   "file": "level_018",
+   "moves": 20,
+   "difficulty": 1
+  },
+  {
+   "id": 19,
+   "file": "level_019",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 20,
+   "file": "level_020",
+   "moves": 20,
+   "difficulty": 1
+  },
+  {
+   "id": 21,
+   "file": "level_021",
+   "moves": 20,
+   "difficulty": 1
+  },
+  {
+   "id": 22,
+   "file": "level_022",
+   "moves": 22,
+   "difficulty": 1
+  },
+  {
+   "id": 23,
+   "file": "level_023",
+   "moves": 22,
+   "difficulty": 1
+  },
+  {
+   "id": 24,
+   "file": "level_024",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 25,
+   "file": "level_025",
+   "moves": 30,
+   "difficulty": 2
+  },
+  {
+   "id": 26,
+   "file": "level_026",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 27,
+   "file": "level_027",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 28,
+   "file": "level_028",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 29,
+   "file": "level_029",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 30,
+   "file": "level_030",
+   "moves": 25,
+   "difficulty": 3
+  },
+  {
+   "id": 31,
+   "file": "level_031",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 32,
+   "file": "level_032",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 33,
+   "file": "level_033",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 34,
+   "file": "level_034",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 35,
+   "file": "level_035",
+   "moves": 25,
+   "difficulty": 2
+  },
+  {
+   "id": 36,
+   "file": "level_036",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 37,
+   "file": "level_037",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 38,
+   "file": "level_038",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 39,
+   "file": "level_039",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 40,
+   "file": "level_040",
+   "moves": 25,
+   "difficulty": 3
+  },
+  {
+   "id": 41,
+   "file": "level_041",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 42,
+   "file": "level_042",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 43,
+   "file": "level_043",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 44,
+   "file": "level_044",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 45,
+   "file": "level_045",
+   "moves": 25,
+   "difficulty": 2
+  },
+  {
+   "id": 46,
+   "file": "level_046",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 47,
+   "file": "level_047",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 48,
+   "file": "level_048",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 49,
+   "file": "level_049",
+   "moves": 25,
+   "difficulty": 1
+  },
+  {
+   "id": 50,
+   "file": "level_050",
+   "moves": 25,
+   "difficulty": 3
+  }
+ ]
+}

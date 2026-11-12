@@ -1,0 +1,409 @@
+{
+ "id": 31,
+ "name": "31",
+ "moves": 25,
+ "difficulty": 1,
+ "width": 9,
+ "height": 12,
+ "goals": [
+  {
+   "type": 13,
+   "count": 2
+  },
+  {
+   "type": 1,
+   "count": 17
+  }
+ ],
+ "items": [
+  {
+   "type": 13,
+   "x": 1,
+   "y": 2,
+   "layers": 1,
+   "variant": 0,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [
+    {
+     "x": 1,
+     "y": 0
+    },
+    {
+     "x": 2,
+     "y": 0
+    },
+    {
+     "x": 3,
+     "y": 0
+    },
+    {
+     "x": 4,
+     "y": 0
+    },
+    {
+     "x": 5,
+     "y": 0
+    },
+    {
+     "x": 6,
+     "y": 0
+    },
+    {
+     "x": 0,
+     "y": 1
+    },
+    {
+     "x": 6,
+     "y": 1
+    },
+    {
+     "x": 0,
+     "y": 2
+    },
+    {
+     "x": 6,
+     "y": 2
+    },
+    {
+     "x": 0,
+     "y": 3
+    },
+    {
+     "x": 6,
+     "y": 3
+    },
+    {
+     "x": 0,
+     "y": 4
+    },
+    {
+     "x": 6,
+     "y": 4
+    },
+    {
+     "x": 0,
+     "y": 5
+    },
+    {
+     "x": 6,
+     "y": 5
+    },
+    {
+     "x": 0,
+     "y": 6
+    },
+    {
+     "x": 1,
+     "y": 6
+    },
+    {
+     "x": 2,
+     "y": 6
+    },
+    {
+     "x": 3,
+     "y": 6
+    },
+    {
+     "x": 4,
+     "y": 6
+    },
+    {
+     "x": 5,
+     "y": 6
+    },
+    {
+     "x": 6,
+     "y": 6
+    }
+   ],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 2,
+   "y": 3,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 3,
+   "y": 3,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 4,
+   "y": 3,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 5,
+   "y": 3,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 6,
+   "y": 3,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 2,
+   "y": 4,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 13,
+   "x": 3,
+   "y": 4,
+   "layers": 1,
+   "variant": 0,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [
+    {
+     "x": 1,
+     "y": 0
+    },
+    {
+     "x": 2,
+     "y": 0
+    },
+    {
+     "x": 0,
+     "y": 1
+    },
+    {
+     "x": 2,
+     "y": 1
+    },
+    {
+     "x": 0,
+     "y": 2
+    },
+    {
+     "x": 1,
+     "y": 2
+    },
+    {
+     "x": 2,
+     "y": 2
+    }
+   ],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 6,
+   "y": 4,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 2,
+   "y": 5,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 4,
+   "y": 5,
+   "layers": 1,
+   "variant": 15,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 6,
+   "y": 5,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 2,
+   "y": 6,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 6,
+   "y": 6,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 2,
+   "y": 7,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 3,
+   "y": 7,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 4,
+   "y": 7,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 5,
+   "y": 7,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 1,
+   "x": 6,
+   "y": 7,
+   "layers": 1,
+   "variant": 25,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  }
+ ],
+ "format": 66
+}

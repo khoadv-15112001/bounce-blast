@@ -1,0 +1,254 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8380111d28b254b498c8315cdb18f8be, type: 3}
+  m_Name: ItemCatalog
+  m_EditorClassIdentifier: 
+  entries:
+  - label: Block
+    typeId: 1
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 5916039e18d0f8c4b9879c5f650d4738, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 1
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
+    breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    debugColor: {r: 0, g: 1, b: 1, a: 1}
+  - label: Rising Bumper
+    typeId: 2
+    kind: 3
+    shape: 1
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: a97453a1d63ea644a921ce8a9ab6913d, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
+    breakSfx: {fileID: 0}
+    debugColor: {r: 0, g: 1, b: 0, a: 1}
+  - label: Moving Barrier
+    typeId: 4
+    kind: 1
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 6602137ae6f66624796ec45c1754c4d5, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.6
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
+    breakSfx: {fileID: 0}
+    debugColor: {r: 1, g: 0, b: 0, a: 1}
+  - label: Target Stand
+    typeId: 5
+    kind: 0
+    shape: 0
+    defaultHits: 3
+    prefab: {fileID: 1709254077376921, guid: 60a5be7bd6838a94e9119517efe367bf, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
+    debugColor: {r: 1, g: 0, b: 1, a: 1}
+  - label: Electric Orb
+    typeId: 6
+    kind: 0
+    shape: 0
+    defaultHits: 2
+    prefab: {fileID: 1709254077376921, guid: aae0f6e7d2ce4cf4e8fab1ba8a22c8e8, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
+    breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
+    debugColor: {r: 0, g: 0, b: 1, a: 1}
+  - label: Log Cutter
+    typeId: 7
+    kind: 0
+    shape: 0
+    defaultHits: 2
+    prefab: {fileID: 1709254077376921, guid: fb5276f11e2c416439d983df4cbc1b72, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
+    breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
+    debugColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
+  - label: Wooden Box
+    typeId: 8
+    kind: 0
+    shape: 0
+    defaultHits: 4
+    prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    debugColor: {r: 0.7, g: 0.5, b: 0.3, a: 1}
+  - label: Moving Target
+    typeId: 9
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 7917fb2b39397d54d95df647d73b64d3, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.2
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
+    debugColor: {r: 1, g: 0, b: 1, a: 1}
+  - label: Egg Box
+    typeId: 13
+    kind: 0
+    shape: 0
+    defaultHits: 3
+    prefab: {fileID: 1709254077376921, guid: 4e2f49daeb39b18458c1899a31e0703a, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
+    breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
+    debugColor: {r: 1, g: 1, b: 1, a: 1}
+  - label: Stone Corner
+    typeId: 23
+    kind: 2
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: ee56ca0b8947252459e97f4339b2f068, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 1
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
+    breakSfx: {fileID: 0}
+    debugColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - label: Container
+    typeId: 24
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 68ccb75b24dc88647b49cba26e220ade, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 1
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
+    breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
+    debugColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - label: Stone
+    typeId: 25
+    kind: 1
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 3c1c763b628c9ee4db3a47c83213d151, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
+    breakSfx: {fileID: 0}
+    debugColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - label: Brick Wall
+    typeId: 26
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: b750d37a8c725b24391261bd4ab0c6a9, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 1709254077376921, guid: 591c5256ae04458438b8d9f14d0b87d0, type: 3}
+    hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
+    breakSfx: {fileID: 8300000, guid: 149c886980ff22248b81d4ed8c5481fa, type: 3}
+    debugColor: {r: 1, g: 0.5, b: 0.2, a: 1}
+  damagePerHit: 5
+  variantToAtlasTile: 11000000000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000180000001800000018000000180000001800000018000000
+  atlasBaseUvCenter: {x: 0.50668335, y: 0.5168152}
+  atlasColumns: 8
+  atlasRows: 4
