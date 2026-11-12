@@ -9,7 +9,78 @@ namespace GardenCannon
     public class FxPool : MonoBehaviour
     {
         public Sprite sparkleSprite;
+        [Tooltip("Egg box bird: 2 flapping frames.")]
+        public Sprite[] birdFrames;
         ParticleSystem _chips, _sparkles;
+
+        // ---------------- Egg box birds (pooled sprites)
+
+        class Flyer
+        {
+            public SpriteRenderer sr;
+            public Vector3 start, vel;
+            public float age, life, scale, flapRate;
+        }
+
+        readonly System.Collections.Generic.List<Flyer> _birdsActive = new System.Collections.Generic.List<Flyer>();
+        readonly System.Collections.Generic.Stack<Flyer> _birdsFree = new System.Collections.Generic.Stack<Flyer>();
+
+        /// <summary>A bird pops out of an egg, flaps and flies up off the board.</summary>
+        public void Bird(Vector3 pos, float cellSize)
+        {
+            if (birdFrames == null || birdFrames.Length == 0 || birdFrames[0] == null) return;
+            var f = _birdsFree.Count > 0 ? _birdsFree.Pop() : null;
+            if (f == null)
+            {
+                var go = new GameObject("Bird");
+                go.transform.SetParent(transform, false);
+                f = new Flyer { sr = go.AddComponent<SpriteRenderer>() };
+                f.sr.sortingOrder = 85;
+            }
+            f.sr.gameObject.SetActive(true);
+            float dir = Random.value < 0.5f ? -1f : 1f;
+            f.start = new Vector3(pos.x, pos.y, -1.6f * cellSize);
+            f.vel = new Vector3(dir * Random.Range(2.2f, 3.6f), Random.Range(7f, 9f), 0f) * cellSize;
+            f.age = 0f;
+            f.life = 1.3f;
+            f.flapRate = Random.Range(11f, 14f);
+            float w = birdFrames[0].bounds.size.x;
+            f.scale = cellSize * 1.15f / Mathf.Max(0.01f, w);
+            f.sr.flipX = dir < 0f;
+            f.sr.color = Color.white;
+            f.sr.sprite = birdFrames[0];
+            f.sr.transform.position = f.start;
+            f.sr.transform.localScale = Vector3.zero;
+            _birdsActive.Add(f);
+        }
+
+        void Update()
+        {
+            float dt = Time.deltaTime;
+            for (int i = _birdsActive.Count - 1; i >= 0; i--)
+            {
+                var f = _birdsActive[i];
+                f.age += dt;
+                float t = f.age;
+                if (t >= f.life)
+                {
+                    f.sr.gameObject.SetActive(false);
+                    _birdsActive.RemoveAt(i);
+                    _birdsFree.Push(f);
+                    continue;
+                }
+                // Hop out of the egg (quick pop), then fly up with a slight wobble, fading near the end.
+                float pop = Mathf.Clamp01(t / 0.15f);
+                float s = f.scale * (pop < 1f ? Mathf.Lerp(0.2f, 1.15f, pop) : Mathf.Lerp(1.15f, 1f, Mathf.Clamp01((t - 0.15f) / 0.2f)));
+                f.sr.transform.localScale = new Vector3(s, s, 1f);
+                float climb = Mathf.Max(0f, t - 0.1f);
+                f.sr.transform.position = f.start + new Vector3(f.vel.x * climb, f.vel.y * climb + Mathf.Sin(t * 9f) * 0.08f, 0f);
+                int frame = (int)(t * f.flapRate) % Mathf.Min(2, birdFrames.Length);
+                f.sr.sprite = birdFrames[frame];
+                float fade = Mathf.Clamp01((f.life - t) / 0.35f);
+                f.sr.color = new Color(1f, 1f, 1f, fade);
+            }
+        }
 
         void Init()
         {
@@ -50,7 +121,16 @@ namespace GardenCannon
             var r = go.GetComponent<ParticleSystemRenderer>();
             var shader = Shader.Find("Sprites/Default");
             var mat = new Material(shader);
-            if (sparkle && sparkleSprite != null) mat.mainTexture = sparkleSprite.texture;
+            if (sparkle && sparkleSprite != null)
+            {
+                // Sparkle lives inside a 4096x4096 atlas: use the sprite's own UV rect (sprite sheet mode),
+                // otherwise every particle shows the whole atlas.
+                mat.mainTexture = sparkleSprite.texture;
+                var sheet = ps.textureSheetAnimation;
+                sheet.enabled = true;
+                sheet.mode = ParticleSystemAnimationMode.Sprites;
+                sheet.AddSprite(sparkleSprite);
+            }
             r.sharedMaterial = mat;
             r.sortingOrder = 80;
             r.renderMode = ParticleSystemRenderMode.Billboard;

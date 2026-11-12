@@ -47,13 +47,20 @@ namespace GardenCannon
                 }
             }
 
-            // Warm up the level data so the game scene starts faster.
+            // Wait for the splash sprites (background / logo) to come out of Addressables.
+            foreach (var s in FindObjectsOfType<AddressableSprite>(true))
+                while (s != null && !s.IsDone) yield return null;
+
+            // Warm up the level bundle so the game scene starts faster.
             var levels = Addressables.DownloadDependenciesAsync(LevelLibrary.Label);
-            var op = SceneManager.LoadSceneAsync(gameScene);
-            op.allowSceneActivation = false;
-            while (_t < minDuration || op.progress < 0.9f || !levels.IsDone) yield return null;
+            yield return levels;
             if (levels.IsValid()) Addressables.Release(levels);
-            op.allowSceneActivation = true;
+
+            while (_t < minDuration) yield return null;
+
+            // Load the game scene only now. A scene load held with allowSceneActivation = false blocks every async
+            // load queued after it (asset bundles included), which froze the first launch on "Loading".
+            yield return SceneManager.LoadSceneAsync(gameScene);
         }
 
         void Update()

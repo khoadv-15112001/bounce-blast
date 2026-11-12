@@ -22,6 +22,38 @@ namespace GardenCannon
         Transform _spinVisual;
         Quaternion _spinVisualBase;
         public Rect Bounds => _bounds;
+
+        public enum HitResult { None, Damaged, Opened, Hatched, Broken }
+
+        readonly List<Renderer> _rings = new List<Renderer>();
+        static readonly int FillId = Shader.PropertyToID("_Fill");
+        static MaterialPropertyBlock _ringBlock;
+
+        void UpdateRings()
+        {
+            if (_rings.Count == 0) return;
+            if (_ringBlock == null) _ringBlock = new MaterialPropertyBlock();
+            float fill = MaxHits > 0 ? Mathf.Clamp01(Hits / (float)MaxHits) : 1f;
+            foreach (var r in _rings)
+            {
+                if (r == null) continue;
+                r.GetPropertyBlock(_ringBlock);
+                _ringBlock.SetFloat(FillId, fill);
+                r.SetPropertyBlock(_ringBlock);
+            }
+        }
+
+        /// <summary>World position of the egg hatched by the last hit (egg box).</summary>
+        public Vector3 LastHatchPos { get; private set; }
+        /// <summary>True when the last hit hatched an egg (also on the final, breaking hit).</summary>
+        public bool LastHitHatched { get; private set; }
+
+        // Egg box state
+        readonly List<Transform> _eggs = new List<Transform>();
+        Transform _doors, _door1, _door2;
+        Vector3 _door1Base, _door2Base;
+        bool _doorsClosed;
+        float _doorOpen = -1f;
         public Vector3 VisualCentre => transform.position + _visualOffset;
         public IReadOnlyList<Vector2Int> Offsets => _offsets;
 
@@ -98,6 +130,12 @@ namespace GardenCannon
             _spinAngle = 45f; _spinArms = 4; _spinDir = 1f; _spinVisual = null;
             _labelVisible = false;
             if (_label != null) _label.Hide();
+            _eggs.Clear();
+            _rings.Clear();
+            _doors = _door1 = _door2 = null;
+            _doorsClosed = false;
+            _doorOpen = -1f;
+            LastHitHatched = false;
         }
 
         /// <summary>Give the visual back to the board pool and park this object.</summary>
@@ -159,7 +197,7 @@ namespace GardenCannon
             if (_lane || e.label.Contains("Barrier")) VisualUtil.ApplyOrientation(_visual, _laneVertical);
             if (e.colorByVariant) VisualUtil.ApplyAtlasTile(_visual, _catalog, _catalog.AtlasTileForVariant(Data.variant));
 
-            if (!string.IsNullOrEmpty(e.stagePrefix))
+            if (!string.IsNullOrEmpty(e.stagePrefix) && !e.eggBox)
             {
                 foreach (var t in _visual.GetComponentsInChildren<Transform>(true))
                     if (t.name.StartsWith(e.stagePrefix) && int.TryParse(t.name.Substring(e.stagePrefix.Length), out int n))
@@ -180,6 +218,28 @@ namespace GardenCannon
                     _visual.localPosition += new Vector3(_visualOffset.x - b.center.x, _visualOffset.y - b.center.y, 0f);
                     _visualOffset = new Vector3(_visual.localPosition.x, _visual.localPosition.y, _visualOffset.z);
                 }
+            }
+
+            // Container progress ring (Spyke/ContainerRingFill): show remaining HP.
+            foreach (var r in _visual.GetComponentsInChildren<Renderer>(true))
+                if (r.sharedMaterial != null && r.sharedMaterial.shader != null && r.sharedMaterial.shader.name == "Spyke/ContainerRingFill")
+                    _rings.Add(r);
+            UpdateRings();
+
+            if (e.eggBox)
+            {
+                foreach (var t in _visual.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t.name == "Doors") _doors = t;
+                    else if (t.name == "cover1") _door1 = t;
+                    else if (t.name == "cover2") _door2 = t;
+                    else if (t.name.Length == 5 && t.name.StartsWith("Egg0")) _eggs.Add(t);
+                }
+                _eggs.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+                _doorsClosed = _doors != null && _doors.gameObject.activeSelf;
+                if (_door1 != null) _door1Base = _door1.localPosition;
+                if (_door2 != null) _door2Base = _door2.localPosition;
+                MaxHits = Hits = Mathf.Max(1, _eggs.Count + (_doorsClosed ? 1 : 0));
             }
 
             if (e.showHitCount)
@@ -384,6 +444,17 @@ namespace GardenCannon
                 _spinAngle += _spinDir * (Entry != null ? Entry.spinSpeed : 90f) * dt;
                 if (_spinVisual != null) _spinVisual.rotation = Quaternion.AngleAxis(_spinAngle - 45f, Vector3.forward) * _spinVisualBase;
             }
+            if (_doorOpen >= 0f && _doorOpen < 1f)
+            {
+                // Lid halves slide out sideways, pop up a little, then disappear.
+                _doorOpen = Mathf.Min(1f, _doorOpen + dt / 0.35f);
+                float t = _doorOpen;
+                float side = (1f - (1f - t) * (1f - t)) * 1.3f;
+                float lift = Mathf.Sin(t * Mathf.PI) * 0.45f;
+                if (_door1 != null) _door1.localPosition = _door1Base + new Vector3(side, 0f, -lift);
+                if (_door2 != null) _door2.localPosition = _door2Base + new Vector3(-side, 0f, -lift);
+                if (t >= 1f && _doors != null) _doors.gameObject.SetActive(false);
+            }
             if (_visual != null)
             {
                 _punch = Mathf.Max(0f, _punch - dt * 5f);
@@ -469,19 +540,57 @@ namespace GardenCannon
         }
 
         /// <summary>Apply one ball hit. Returns true when the item breaks.</summary>
-        public bool Hit()
+        public bool Hit() => HitAt(VisualCentre) == HitResult.Broken;
+
+        /// <summary>Apply one ball hit at <paramref name="point"/> (world).</summary>
+        public HitResult HitAt(Vector2 point)
         {
-            if (!Alive) return false;
+            LastHitHatched = false;
+            if (!Alive) return HitResult.None;
             _punch = 1f;
             _shake = 1f;
             PlayHitAnimation();
-            if (!IsBreakable) return false;
+            if (!IsBreakable) return HitResult.None;
+
+            if (Entry != null && Entry.eggBox)
+            {
+                if (_doorsClosed)
+                {
+                    _doorsClosed = false;
+                    _doorOpen = 0f;
+                    Hits--;
+                    return Hits > 0 ? HitResult.Opened : BreakResult();
+                }
+                // Hatch the egg nearest to the ball.
+                Transform best = null;
+                float bestD = float.MaxValue;
+                foreach (var egg in _eggs)
+                {
+                    if (egg == null || !egg.gameObject.activeSelf) continue;
+                    float d = ((Vector2)egg.position - point).sqrMagnitude;
+                    if (d < bestD) { bestD = d; best = egg; }
+                }
+                if (best != null)
+                {
+                    LastHatchPos = best.position;
+                    LastHitHatched = true;
+                    best.gameObject.SetActive(false);
+                }
+                Hits--;
+                return Hits > 0 ? HitResult.Hatched : BreakResult();
+            }
+
             Hits--;
             SetHitLabel(Mathf.Max(0, Hits));
+            UpdateRings();
             UpdateStage();
-            if (Hits > 0) return false;
+            return Hits > 0 ? HitResult.Damaged : BreakResult();
+        }
+
+        HitResult BreakResult()
+        {
             Break();
-            return true;
+            return HitResult.Broken;
         }
 
         /// <summary>Original item animators (trigger "shake" / state "Shake"), looked up once per pooled visual.</summary>

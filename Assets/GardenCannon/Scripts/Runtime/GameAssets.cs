@@ -31,6 +31,8 @@ namespace GardenCannon
         public Sprite[] digits = new Sprite[0];
         [Tooltip("GardenCannon/SpriteOverlay: digits are drawn on top of the (animated) block meshes.")]
         public Shader digitShader;
+        [Tooltip("Two flapping frames of the egg box bird (Art/Bird.png, built from the original bird08 Spine parts).")]
+        public Sprite[] birdFrames = new Sprite[0];
 
         [Header("HUD")]
         public Sprite levelPlate;

@@ -358,8 +358,25 @@ namespace GardenCannon
             if (item == null) return;
             var e = item.Entry;
             Color c = ItemColor(item);
-            bool broke = item.Hit();
+            var result = item.HitAt(ball.Pos);
+            bool broke = result == BoardItem.HitResult.Broken;
             float cell = board.CellSize;
+            if (item.LastHitHatched)
+            {
+                // Egg hatches: crack + a bird flies away.
+                fx?.Hit(item.LastHatchPos, new Color(1f, 0.97f, 0.9f), cell * 1.4f);
+                fx?.Bird(item.LastHatchPos, cell);
+                sfx?.Play(e?.hitSfx, 0.8f);
+                sfx?.Play(e?.extraBreakSfx, 0.6f);
+            }
+            if (result == BoardItem.HitResult.Opened)
+            {
+                sfx?.Play(e?.openSfx != null ? e.openSfx : e?.hitSfx, 0.85f);
+                fx?.Hit(item.VisualCentre, ItemColor(item), cell * 1.6f);
+                rig?.Shake(0.15f);
+                return;
+            }
+            if (result == BoardItem.HitResult.Hatched) return;
             if (broke)
             {
                 // Consecutive breaks by the same ball climb in pitch (combo feel).

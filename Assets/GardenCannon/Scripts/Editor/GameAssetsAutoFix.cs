@@ -15,6 +15,7 @@ namespace GardenCannon.EditorTools
         const string GameAssetsPath = "Assets/GardenCannon/Data/GameAssets.asset";
         const string DigitsPath = "Assets/GardenCannon/Art/Digits.png";
         const string OverlayShaderPath = "Assets/GardenCannon/Shaders/SpriteOverlay.shader";
+        const string BirdPath = "Assets/GardenCannon/Art/Bird.png";
 
         static GameAssetsAutoFix()
         {
@@ -44,6 +45,27 @@ namespace GardenCannon.EditorTools
                 Debug.Log("[GardenCannon] Digit sprites assigned to GameAssets.");
             }
 
+            // Catalog defaults changed (e.g. egg box behaviour): rebuild it and register new SFX.
+            if (assets.catalog != null && assets.catalog.defaultsVersion < GardenCannonSetup.DefaultsVersion)
+            {
+                GardenCannonSetup.CreateOrUpdateCatalog();
+                GardenCannonSetup.SetupAddressables(assets.catalog, assets);
+            }
+
+            bool birdsOk = assets.birdFrames != null && assets.birdFrames.Length == 2 && assets.birdFrames.All(b => b != null);
+            if (!birdsOk)
+            {
+                var all = AssetDatabase.LoadAllAssetsAtPath(BirdPath).OfType<Sprite>().ToList();
+                var frames = new[] { all.FirstOrDefault(s => s.name == "Bird_0"), all.FirstOrDefault(s => s.name == "Bird_1") };
+                if (frames.All(f => f != null))
+                {
+                    assets.birdFrames = frames;
+                    EditorUtility.SetDirty(assets);
+                    AssetDatabase.SaveAssets();
+                    Debug.Log("[GardenCannon] Egg box bird frames assigned to GameAssets.");
+                }
+            }
+
             if (assets.digitShader == null)
             {
                 assets.digitShader = AssetDatabase.LoadAssetAtPath<Shader>(OverlayShaderPath);
@@ -63,6 +85,14 @@ namespace GardenCannon.EditorTools
                 var g = settings.FindGroup("LocalShaders") ?? settings.DefaultGroup;
                 var e = settings.CreateOrMoveEntry(shaderGuid, g, false, true);
                 e.SetAddress("GardenCannon/Shaders/SpriteOverlay", true);
+                AssetDatabase.SaveAssets();
+            }
+            var birdGuid = AssetDatabase.AssetPathToGUID(BirdPath);
+            if (!string.IsNullOrEmpty(birdGuid) && settings.FindAssetEntry(birdGuid) == null)
+            {
+                var bg = settings.FindGroup("Default") ?? settings.DefaultGroup;
+                var be = settings.CreateOrMoveEntry(birdGuid, bg, false, true);
+                be.SetAddress("GardenCannon/Sprites/Bird", true);
                 AssetDatabase.SaveAssets();
             }
             var guid = AssetDatabase.AssetPathToGUID(DigitsPath);

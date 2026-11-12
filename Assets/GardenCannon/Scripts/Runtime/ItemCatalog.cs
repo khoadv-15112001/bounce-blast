@@ -63,6 +63,10 @@ namespace GardenCannon
             public string stagePrefix = "";
             [Tooltip("Stages are cumulative: child N stays visible while N <= hits left (Egg Box eggs).")]
             public bool stagesCumulative;
+            [Tooltip("Egg box: first hit opens the lid (child 'Doors'), every following hit hatches the egg nearest to the ball (children Egg01..Egg09) and a bird flies away. Hits = 1 + eggs.")]
+            public bool eggBox;
+            [Tooltip("Egg box: sound when the lid opens.")]
+            public AudioClip openSfx;
             [Tooltip("Spinner: degrees per second.")]
             public float spinSpeed = 90f;
             [Tooltip("Pick the mesh of the child named 'Tile' from autotileModules by same-type neighbours (Brick Wall).")]

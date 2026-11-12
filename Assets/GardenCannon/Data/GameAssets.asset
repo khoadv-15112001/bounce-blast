@@ -35,6 +35,9 @@ MonoBehaviour:
   - {fileID: 1500000000000000008, guid: c902a70fc11295b469e43bde8e05d72e, type: 3}
   - {fileID: 1500000000000000009, guid: c902a70fc11295b469e43bde8e05d72e, type: 3}
   digitShader: {fileID: 4800000, guid: 823731577f328974383db2ee051c8405, type: 3}
+  birdFrames:
+  - {fileID: 1600000000000000000, guid: fa206216200b43a59b5232b43cef075b, type: 3}
+  - {fileID: 1600000000000000001, guid: fa206216200b43a59b5232b43cef075b, type: 3}
   levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
   settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
   white: {fileID: 21300000, guid: 243e36b186531734b9905acb677ee060, type: 2}

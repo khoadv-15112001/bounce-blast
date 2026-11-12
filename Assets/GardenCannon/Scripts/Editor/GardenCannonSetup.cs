@@ -38,7 +38,7 @@ namespace GardenCannon.EditorTools
         public const string GroupShaders = "LocalShaders";
 
         const int RefWidth = 1440, RefHeight = 3120;
-        const int DefaultsVersion = 3;
+        public const int DefaultsVersion = 4;
         const int UiLayer = 5; // built-in "UI"
 
         [MenuItem("Garden Cannon/Setup (catalog + addressables + scene)", priority = 0)]
@@ -83,7 +83,7 @@ namespace GardenCannon.EditorTools
         struct Def
         {
             public int id; public string label; public ItemKind kind; public string prefab;
-            public int hits; public string hit, brk, extra, stages; public bool color, rotate, count, fit, autotile, cumulative;
+            public int hits; public string hit, brk, extra, stages, open; public bool color, rotate, count, fit, autotile, cumulative, egg;
             public float speed; public Color fxColor;
         }
 
@@ -104,7 +104,7 @@ namespace GardenCannon.EditorTools
             d = D(23, "Stone Corner", ItemKind.Wedge, "HalfUnbreakableBlockItemView", "unbreakable_hit", null, new Color(.9f, .86f, .78f)); d.rotate = true; yield return d;
             d = D(25, "Twirler", ItemKind.Spinner, "TurningBurningItemView", "rising_bumper_bounce", null, new Color(.9f, .2f, .15f)); d.fit = true; yield return d;
             d = D(4, "Moving Barrier", ItemKind.Indestructible, "MovingBarrierItemView", "moving_barrier_hit", null, new Color(.9f, .25f, .2f)); d.fit = true; d.speed = 1.6f; yield return d;
-            d = D(5, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.75f, .35f, .85f)); d.hits = 6; d.fit = true; d.stages = "Egg0"; d.cumulative = true; d.extra = "egg_bird_fly"; yield return d;
+            d = D(5, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.75f, .35f, .85f)); d.hits = 10; d.fit = true; d.egg = true; d.open = "egg_box_lid_break"; d.extra = "egg_bird_fly"; yield return d;
             d = D(24, "Container", ItemKind.Breakable, "ContainerItemView", "container_hit", "container_burst", new Color(1f, .8f, .25f)); d.count = true; d.fit = true; yield return d;
             d = D(9, "Moving Target", ItemKind.Breakable, "TargetItemView", "target_hit", "target_break", new Color(1f, .45f, .7f)); d.speed = 1.2f; yield return d;
             d = D(7, "Log Cutter", ItemKind.Breakable, "LogCutterItemView", "log_cut", "log_cutter_break", new Color(.6f, .4f, .2f)); d.hits = 2; d.fit = true; yield return d;
@@ -148,13 +148,14 @@ namespace GardenCannon.EditorTools
                     if (e.hitSfx == null) e.hitSfx = LoadClip(def.hit);
                     if (e.breakSfx == null) e.breakSfx = LoadClip(def.brk);
                     if (e.extraBreakSfx == null) e.extraBreakSfx = LoadClip(def.extra);
+                    if (e.openSfx == null) e.openSfx = LoadClip(def.open);
                     
                     continue;
                 }
                 catalog.entries.Add(new ItemCatalog.Entry
                 {
                     label = def.label, typeId = def.id, kind = def.kind, defaultHits = def.hits,
-                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), extraBreakSfx = LoadClip(def.extra), breakFx = null,
+                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), extraBreakSfx = LoadClip(def.extra), openSfx = LoadClip(def.open), eggBox = def.egg, breakFx = null,
                     colorByVariant = def.color, rotateByVariant = def.rotate, showHitCount = def.count, fitFootprint = def.fit,
                     stagePrefix = def.stages ?? "", stagesCumulative = def.cumulative, autotile = def.autotile, laneSpeed = def.speed, debugColor = def.fxColor,
                 });
@@ -323,7 +324,7 @@ namespace GardenCannon.EditorTools
                 assets.lastMoves, assets.refillLand, assets.buttonClick, assets.appear, assets.goalHit, assets.goalComplete,
                 assets.levelWin, assets.levelWinFireworks, assets.outOfBalls, assets.levelFail, assets.music,
             };
-            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); clips.Add(e.extraBreakSfx); }
+            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); clips.Add(e.extraBreakSfx); clips.Add(e.openSfx); }
             foreach (var c in clips.Where(c => c != null).Distinct())
                 Add(settings, gAudio, c, "GardenCannon/Audio/" + c.name);
 
