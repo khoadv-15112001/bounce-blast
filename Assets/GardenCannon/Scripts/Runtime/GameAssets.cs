@@ -27,6 +27,10 @@ namespace GardenCannon
         public Sprite cannonShadow;
         public Sprite aimDot;
         public Sprite sparkle;
+        [Tooltip("Digits 0..9 for block HP labels (Art/Digits.png sliced).")]
+        public Sprite[] digits = new Sprite[0];
+        [Tooltip("GardenCannon/SpriteOverlay: digits are drawn on top of the (animated) block meshes.")]
+        public Shader digitShader;
 
         [Header("HUD")]
         public Sprite levelPlate;

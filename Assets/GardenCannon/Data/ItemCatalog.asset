@@ -25,6 +25,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 1
     showHitCount: 0
@@ -46,6 +48,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 1
     colorByVariant: 0
     showHitCount: 0
@@ -67,6 +71,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
@@ -76,27 +82,29 @@ MonoBehaviour:
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.25, b: 0.2, a: 1}
-  - label: Target Stand
+  - label: Egg Box
     typeId: 5
     kind: 0
     shape: 0
-    defaultHits: 3
-    prefab: {fileID: 1709254077376921, guid: 60a5be7bd6838a94e9119517efe367bf, type: 3}
+    defaultHits: 6
+    prefab: {fileID: 1709254077376921, guid: 4e2f49daeb39b18458c1899a31e0703a, type: 3}
     visualScale: 1
     fitFootprint: 1
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
-    stagePrefix: 
+    stagePrefix: Egg0
+    stagesCumulative: 1
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
-    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
-    breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
-    extraBreakSfx: {fileID: 0}
-    debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
+    hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
+    breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
+    extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
+    debugColor: {r: 0.75, g: 0.35, b: 0.85, a: 1}
   - label: Electric Orb
     typeId: 6
     kind: 0
@@ -109,6 +117,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
@@ -130,6 +140,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
@@ -139,27 +151,29 @@ MonoBehaviour:
     breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
     extraBreakSfx: {fileID: 0}
     debugColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
-  - label: Egg Box
+  - label: Target Stand
     typeId: 8
     kind: 0
     shape: 0
     defaultHits: 3
-    prefab: {fileID: 1709254077376921, guid: 4e2f49daeb39b18458c1899a31e0703a, type: 3}
+    prefab: {fileID: 1709254077376921, guid: 60a5be7bd6838a94e9119517efe367bf, type: 3}
     visualScale: 1
     fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
-    hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
-    breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
-    extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
-    debugColor: {r: 0.98, g: 0.95, b: 0.85, a: 1}
+    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
+    extraBreakSfx: {fileID: 0}
+    debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
   - label: Moving Target
     typeId: 9
     kind: 0
@@ -172,6 +186,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
@@ -181,27 +197,29 @@ MonoBehaviour:
     breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
     extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
-  - label: Multi Block
+  - label: Wooden Box
     typeId: 13
     kind: 0
     shape: 0
-    defaultHits: 10
-    prefab: {fileID: 1709254077376921, guid: cd8220192d4234045861d2d6137d5054, type: 3}
+    defaultHits: 4
+    prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
     visualScale: 1
     fitFootprint: 1
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
-    stagePrefix: 
+    stagePrefix: stage_
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
-    colorByVariant: 1
-    showHitCount: 1
+    colorByVariant: 0
+    showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
-    hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
-    breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
     extraBreakSfx: {fileID: 0}
-    debugColor: {r: 1, g: 1, b: 1, a: 1}
+    debugColor: {r: 0.93, g: 0.55, b: 0.16, a: 1}
   - label: Stone Corner
     typeId: 23
     kind: 2
@@ -214,6 +232,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 1
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
@@ -235,6 +255,8 @@ MonoBehaviour:
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 1
@@ -244,49 +266,53 @@ MonoBehaviour:
     breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
     extraBreakSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.8, b: 0.25, a: 1}
-  - label: Stone
+  - label: Twirler
     typeId: 25
-    kind: 1
+    kind: 4
     shape: 0
     defaultHits: 1
-    prefab: {fileID: 1709254077376921, guid: 3c1c763b628c9ee4db3a47c83213d151, type: 3}
+    prefab: {fileID: 1709254077376921, guid: 1913822878c05e049924bb85de04fb3a, type: 3}
     visualScale: 1
     fitFootprint: 1
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
     stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
     breakFx: {fileID: 0}
-    hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
+    hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
-    debugColor: {r: 0.9, g: 0.86, b: 0.78, a: 1}
-  - label: Wooden Box
+    debugColor: {r: 0.9, g: 0.2, b: 0.15, a: 1}
+  - label: Number Block
     typeId: 26
     kind: 0
     shape: 0
     defaultHits: 1
-    prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
+    prefab: {fileID: 1709254077376921, guid: cd8220192d4234045861d2d6137d5054, type: 3}
     visualScale: 1
     fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
-    stagePrefix: stage_
+    stagePrefix: 
+    stagesCumulative: 0
+    spinSpeed: 90
     autotile: 0
-    colorByVariant: 0
-    showHitCount: 0
+    colorByVariant: 1
+    showHitCount: 1
     laneSpeed: 1.5
     breakFx: {fileID: 0}
-    hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
-    breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
+    breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
-    debugColor: {r: 0.93, g: 0.55, b: 0.16, a: 1}
-  defaultsVersion: 2
+    debugColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultsVersion: 3
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
     rimMask: 15
@@ -302,8 +328,8 @@ MonoBehaviour:
     rimMask: 4
   - mesh: {fileID: 4300000, guid: bc3e3572775a1ca4f976bff872619538, type: 2}
     rimMask: 0
-  damagePerHit: 5
-  variantToAtlasTile: 11000000000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000180000001800000018000000180000001800000018000000
+  damagePerHit: 1
+  variantToAtlasTile: 1100000012000000130000001400000015000000160000001700000018000000090000000a0000000b0000000c0000000d0000000e0000000f0000001000000001000000010000000200000003000000040000000500000006000000070000000800000000000000000000000000000000000000000000000000000000000000
   atlasBaseUvCenter: {x: 0.50668335, y: 0.5168152}
   atlasMeshFullUv: 1
   atlasColumns: 8

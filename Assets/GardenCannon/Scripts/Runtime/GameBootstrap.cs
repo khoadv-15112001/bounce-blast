@@ -71,6 +71,9 @@ namespace GardenCannon
             if (aimGuide != null) aimGuide.dotSprite = a.aimDot;
             if (cannon != null) cannon.UseAnimator(a.cannonAnimator);
             if (fx != null) fx.sparkleSprite = a.sparkle;
+            DigitLabel.Digits = a.digits;
+            if (a.digitShader != null && DigitLabel.OverlayMaterial == null)
+                DigitLabel.OverlayMaterial = new Material(a.digitShader) { name = "DigitOverlay" };
 
             if (sfx != null)
             {

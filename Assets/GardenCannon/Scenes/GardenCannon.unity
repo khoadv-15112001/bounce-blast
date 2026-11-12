@@ -562,9 +562,9 @@ MonoBehaviour:
     Board: {fileID: 0}
   speedUpAfter: 6
   maxSpeedScale: 1.8
-  trailColor: {r: 0.75, g: 1, b: 0.55, a: 0.55}
-  ballsPerShot: 1
-  burstInterval: 0.08
+  trailColor: {r: 0.7, g: 1, b: 0.4, a: 0.65}
+  ballsPerShot: 5
+  burstInterval: 0.05
   allowFireWhileBallsFly: 0
   breakShake: 0.25
   bigBreakShake: 0.5
@@ -572,6 +572,7 @@ MonoBehaviour:
 
     release to shoot!'
   startLevel: 0
+  _settingsVersion: 2
 --- !u!4 &374068416
 Transform:
   m_ObjectHideFlags: 0
@@ -774,6 +775,17 @@ MonoBehaviour:
   waterSplash: {fileID: 0}
   aimTick: {fileID: 0}
   lastMoves: {fileID: 0}
+  refillLand: {fileID: 0}
+  buttonClick: {fileID: 0}
+  appear: {fileID: 0}
+  goalHit: {fileID: 0}
+  goalComplete: {fileID: 0}
+  levelWin: {fileID: 0}
+  levelWinFireworks: {fileID: 0}
+  outOfBalls: {fileID: 0}
+  levelFail: {fileID: 0}
+  music: {fileID: 0}
+  musicVolume: 0.45
   volume: 0.8
   voices: 12
   minRepeat: 0.035
@@ -1476,6 +1488,7 @@ MonoBehaviour:
   settingsButton: {fileID: 0}
   panelSprite: {fileID: 0}
   whiteSprite: {fileID: 0}
+  showGoals: 0
   levelTextColor: {r: 0.42, g: 0.14, b: 0.13, a: 1}
   panelColor: {r: 1, g: 0.965, b: 0.9, a: 1}
   panelBorderColor: {r: 0.6, g: 0.12, b: 0.15, a: 1}

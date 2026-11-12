@@ -42,6 +42,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 823731577f328974383db2ee051c8405
+    m_Address: GardenCannon/Shaders/SpriteOverlay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

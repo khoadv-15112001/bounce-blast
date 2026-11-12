@@ -41,11 +41,21 @@ namespace GardenCannon
         AudioSource _music;
         int _next;
 
+        /// <summary>Sound effects off.</summary>
         public static bool Muted
         {
             get => PlayerPrefs.GetInt("gc_muted", 0) == 1;
             set { PlayerPrefs.SetInt("gc_muted", value ? 1 : 0); PlayerPrefs.Save(); }
         }
+
+        /// <summary>Music off.</summary>
+        public static bool MusicMuted
+        {
+            get => PlayerPrefs.GetInt("gc_music_muted", 0) == 1;
+            set { PlayerPrefs.SetInt("gc_music_muted", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
+        bool _ducked;
 
         void Awake()
         {
@@ -66,15 +76,25 @@ namespace GardenCannon
         {
             if (_music == null || music == null) return;
             _music.clip = music;
-            _music.volume = Muted ? 0f : musicVolume;
+            _music.volume = MusicMuted ? 0f : musicVolume;
             if (!_music.isPlaying) _music.Play();
         }
 
         /// <summary>Duck the music (e.g. under the win jingle) and bring it back.</summary>
         public void SetMusicDuck(bool ducked)
         {
-            if (_music != null) _music.volume = Muted ? 0f : musicVolume * (ducked ? 0.3f : 1f);
+            _ducked = ducked;
+            if (_music != null) _music.volume = MusicMuted ? 0f : musicVolume * (ducked ? 0.3f : 1f);
         }
+
+        public void ToggleMusic()
+        {
+            MusicMuted = !MusicMuted;
+            SetMusicDuck(_ducked);
+            if (!MusicMuted) PlayMusic();
+        }
+
+        public void ToggleSound() => Muted = !Muted;
 
         public void Play(AudioClip clip, float vol = 1f, float pitchJitter = 0.06f) => PlayPitched(clip, vol, 1f, pitchJitter);
 

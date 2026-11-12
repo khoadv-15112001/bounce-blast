@@ -29,6 +29,7 @@ namespace GardenCannon.EditorTools
         const string GameAssetsPath = Root + "/Data/GameAssets.asset";
         const string LevelsFolder = Root + "/Levels";
         const string ScenePath = Root + "/Scenes/GardenCannon.unity";
+        const string SplashPath = Root + "/Scenes/Splash.unity";
 
         public const string GroupDefault = "Default";
         public const string GroupAudio = "AudioClips";
@@ -37,7 +38,7 @@ namespace GardenCannon.EditorTools
         public const string GroupShaders = "LocalShaders";
 
         const int RefWidth = 1440, RefHeight = 3120;
-        const int DefaultsVersion = 2;
+        const int DefaultsVersion = 3;
         const int UiLayer = 5; // built-in "UI"
 
         [MenuItem("Garden Cannon/Setup (catalog + addressables + scene)", priority = 0)]
@@ -82,7 +83,7 @@ namespace GardenCannon.EditorTools
         struct Def
         {
             public int id; public string label; public ItemKind kind; public string prefab;
-            public int hits; public string hit, brk, extra, stages; public bool color, rotate, count, fit, autotile;
+            public int hits; public string hit, brk, extra, stages; public bool color, rotate, count, fit, autotile, cumulative;
             public float speed; public Color fxColor;
         }
 
@@ -95,18 +96,20 @@ namespace GardenCannon.EditorTools
         /// </summary>
         static IEnumerable<Def> Defaults()
         {
+            // Matched against the updated gameplay video (levels 1-10 are the bundle levels):
+            // 1 star block, 26 number block (HP shown, 1 per hit), 23 stone corner, 25 twirler, 4 moving barrier, 5 egg box (2x2).
             Def d;
             d = D(1, "Block", ItemKind.Breakable, "BlockItemView", "ball_collide", "block_break", Color.white); d.color = true; yield return d;
-            d = D(26, "Wooden Box", ItemKind.Breakable, "WoodenBoxItemView", "wooden_box_hit", "wooden_box_break", new Color(.93f, .55f, .16f)); d.stages = "stage_"; yield return d;
+            d = D(26, "Number Block", ItemKind.Breakable, "MultiBlockItemView", "ball_collide", "block_break", Color.white); d.color = true; d.count = true; yield return d;
             d = D(23, "Stone Corner", ItemKind.Wedge, "HalfUnbreakableBlockItemView", "unbreakable_hit", null, new Color(.9f, .86f, .78f)); d.rotate = true; yield return d;
-            d = D(25, "Stone", ItemKind.Indestructible, "UnbreakableBlockItemView", "unbreakable_hit", null, new Color(.9f, .86f, .78f)); d.fit = true; yield return d;
+            d = D(25, "Twirler", ItemKind.Spinner, "TurningBurningItemView", "rising_bumper_bounce", null, new Color(.9f, .2f, .15f)); d.fit = true; yield return d;
             d = D(4, "Moving Barrier", ItemKind.Indestructible, "MovingBarrierItemView", "moving_barrier_hit", null, new Color(.9f, .25f, .2f)); d.fit = true; d.speed = 1.6f; yield return d;
-            d = D(5, "Target Stand", ItemKind.Breakable, "TargetStandItemView", "target_hit", "target_stand_collapse", new Color(1f, .45f, .7f)); d.hits = 3; d.fit = true; yield return d;
+            d = D(5, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.75f, .35f, .85f)); d.hits = 6; d.fit = true; d.stages = "Egg0"; d.cumulative = true; d.extra = "egg_bird_fly"; yield return d;
             d = D(24, "Container", ItemKind.Breakable, "ContainerItemView", "container_hit", "container_burst", new Color(1f, .8f, .25f)); d.count = true; d.fit = true; yield return d;
             d = D(9, "Moving Target", ItemKind.Breakable, "TargetItemView", "target_hit", "target_break", new Color(1f, .45f, .7f)); d.speed = 1.2f; yield return d;
             d = D(7, "Log Cutter", ItemKind.Breakable, "LogCutterItemView", "log_cut", "log_cutter_break", new Color(.6f, .4f, .2f)); d.hits = 2; d.fit = true; yield return d;
-            d = D(8, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.98f, .95f, .85f)); d.hits = 3; d.extra = "egg_bird_fly"; yield return d;
-            d = D(13, "Multi Block", ItemKind.Breakable, "MultiBlockItemView", "ball_collide", "block_break", Color.white); d.hits = 10; d.count = true; d.color = true; d.fit = true; yield return d;
+            d = D(8, "Target Stand", ItemKind.Breakable, "TargetStandItemView", "target_hit", "target_stand_collapse", new Color(1f, .45f, .7f)); d.hits = 3; yield return d;
+            d = D(13, "Wooden Box", ItemKind.Breakable, "WoodenBoxItemView", "wooden_box_hit", "wooden_box_break", new Color(.93f, .55f, .16f)); d.hits = 4; d.fit = true; d.stages = "stage_"; yield return d;
             d = D(6, "Electric Orb", ItemKind.Breakable, "ElectricOrbItemView", "orb_on", "orb_discharge", new Color(.4f, .7f, 1f)); d.hits = 2; d.fit = true; d.extra = "orb_off"; yield return d;
             d = D(2, "Brick Wall", ItemKind.Indestructible, "BrickWallItemView", "brick_wall_hit", null, new Color(.25f, .3f, .8f)); d.autotile = true; yield return d;
         }
@@ -132,6 +135,8 @@ namespace GardenCannon.EditorTools
             {
                 catalog.entries.Clear();
                 catalog.defaultsVersion = DefaultsVersion;
+                catalog.damagePerHit = 1;
+                catalog.variantToAtlasTile = ItemCatalog.DefaultVariantTiles();
             }
             foreach (var def in Defaults())
             {
@@ -151,7 +156,7 @@ namespace GardenCannon.EditorTools
                     label = def.label, typeId = def.id, kind = def.kind, defaultHits = def.hits,
                     prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), extraBreakSfx = LoadClip(def.extra), breakFx = null,
                     colorByVariant = def.color, rotateByVariant = def.rotate, showHitCount = def.count, fitFootprint = def.fit,
-                    stagePrefix = def.stages ?? "", autotile = def.autotile, laneSpeed = def.speed, debugColor = def.fxColor,
+                    stagePrefix = def.stages ?? "", stagesCumulative = def.cumulative, autotile = def.autotile, laneSpeed = def.speed, debugColor = def.fxColor,
                 });
             }
             catalog.entries.Sort((a, b) => a.typeId.CompareTo(b.typeId));
@@ -257,6 +262,7 @@ namespace GardenCannon.EditorTools
             if (a.cannonShadow == null) a.cannonShadow = LoadSprite("Cannon_Sh");
             if (a.aimDot == null) a.aimDot = LoadSprite("AimDot");
             if (a.sparkle == null) a.sparkle = LoadSprite("Sparkle");
+            if (a.digits == null || a.digits.Length != 10 || a.digits.Any(d => d == null)) a.digits = ImportDigits();
             if (a.levelPlate == null) a.levelPlate = LoadSprite("Level Display");
             if (a.settingsButton == null) a.settingsButton = LoadSprite("Settings Button") ?? LoadSprite("Settings_Button");
             if (a.white == null) a.white = LoadSprite("Square") ?? LoadSprite("White");
@@ -305,6 +311,8 @@ namespace GardenCannon.EditorTools
             prefabs = prefabs.Where(p => p != null).Distinct().ToList();
             foreach (var p in prefabs)
                 Add(settings, gDefault, p, "GardenCannon/Prefabs/" + p.name);
+            if (assets.digits != null && assets.digits.Length > 0 && assets.digits[0] != null)
+                Add(settings, gDefault, assets.digits[0].texture, "GardenCannon/Sprites/Digits");
             foreach (var s in new[] { assets.grassTop, assets.grassTop12x17, assets.water, assets.grassBottom, assets.cannon,
                          assets.cannonShadow, assets.aimDot, assets.sparkle, assets.levelPlate, assets.settingsButton, assets.white })
                 if (s != null) Add(settings, gDefault, s, "GardenCannon/Sprites/" + s.name);
@@ -471,11 +479,65 @@ namespace GardenCannon.EditorTools
             boot.lawnRenderer = top.Renderer;
 
             EditorSceneManager.SaveScene(scene, ScenePath);
-            var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
-            scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
-            EditorBuildSettings.scenes = scenes.ToArray();
+            SetBuildScenes();
             Selection.activeGameObject = boot.gameObject;
             Debug.Log($"[GardenCannon] Scene saved: {ScenePath}. Press Play.");
+        }
+
+        /// <summary>The game ships exactly two scenes: Splash (first) and GardenCannon.</summary>
+        [MenuItem("Garden Cannon/Set Build Scenes (Splash + GardenCannon)", priority = 21)]
+        public static void SetBuildScenes()
+        {
+            var list = new List<EditorBuildSettingsScene>();
+            if (File.Exists(SplashPath)) list.Add(new EditorBuildSettingsScene(SplashPath, true));
+            if (File.Exists(ScenePath)) list.Add(new EditorBuildSettingsScene(ScenePath, true));
+            EditorBuildSettings.scenes = list.ToArray();
+            Debug.Log("[GardenCannon] Build scenes: " + string.Join(", ", list.Select(x => Path.GetFileNameWithoutExtension(x.path))));
+        }
+
+        /// <summary>Splash scene laid out like the original Intro scene (sprites/font through Addressables).</summary>
+        [MenuItem("Garden Cannon/Create Splash Scene", priority = 4)]
+        public static void BuildSplashScene()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EnsureFolder(Root + "/Scenes");
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            // Camera like the Intro: orthographic 12.8 at the reference screen, size grows on narrower screens.
+            var camGo = new GameObject("Camera") { tag = "MainCamera" };
+            var cam = camGo.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.13f, 0.55f, 0.95f);
+            cam.nearClipPlane = 0.1f;
+            cam.farClipPlane = 50f;
+            camGo.AddComponent<AudioListener>();
+            var rig = camGo.AddComponent<CameraRig>();
+            rig.tilt = 0f;
+            rig.verticalStretch = false;
+            rig.distance = 10f;
+            rig.Apply();
+
+            var view = new GameObject("IntroView");
+            var splash = view.AddComponent<SplashView>();
+            splash.cam = cam;
+            var fg = AddrSprite("Fg", view.transform, LoadSprite("splash asset"), Vector3.zero, 0);
+            var logo = AddrSprite("Logo", view.transform, LoadSprite("logo"), new Vector3(0f, 8.98f, 0f), 1);
+            var footer = UiAnchorAt(view.transform, "LoadingAnchor", cam, UiAnchor.Edge.Bottom, 2.248f, -0.018f);
+            footer.gameObject.layer = 0;
+            splash.background = fg.Renderer;
+            splash.logo = logo.transform;
+            splash.loadingAnchor = footer;
+            var fontAsset = AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/Eigerdals Norm Heavy.otf");
+            if (fontAsset != null)
+            {
+                EnsureAddressable(fontAsset, GroupFont, "GardenCannon/Font/" + fontAsset.name);
+                splash.font = new AssetReferenceT<Font>(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(fontAsset)));
+            }
+
+            EditorSceneManager.SaveScene(scene, SplashPath);
+            SetBuildScenes();
+            Selection.activeGameObject = view;
+            Debug.Log($"[GardenCannon] Splash scene saved: {SplashPath}.");
         }
 
         static Transform UiAnchorAt(Transform parent, string name, Camera ui, UiAnchor.Edge edge, float offset, float x)
@@ -512,13 +574,13 @@ namespace GardenCannon.EditorTools
             return a;
         }
 
-        static void EnsureAddressable(UnityEngine.Object asset)
+        static void EnsureAddressable(UnityEngine.Object asset, string group = GroupDefault, string address = null)
         {
             var settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
             if (settings.FindAssetEntry(guid) != null) return;
-            var e = settings.CreateOrMoveEntry(guid, EnsureGroup(settings, GroupDefault), false, true);
-            e.SetAddress("GardenCannon/Sprites/" + asset.name, true);
+            var e = settings.CreateOrMoveEntry(guid, EnsureGroup(settings, group), false, true);
+            e.SetAddress(address ?? "GardenCannon/Sprites/" + asset.name, true);
         }
 
         // ------------------------------------------------------------------ game view size (internal API, via reflection)
@@ -586,6 +648,22 @@ namespace GardenCannon.EditorTools
                 imp.forceToMono = !music;
                 imp.SaveAndReimport();
             }
+        }
+
+        const string DigitsPath = Root + "/Art/Digits.png";
+
+        /// <summary>
+        /// Sprites Digit_0..Digit_9 of Art/Digits.png (one 1024x128 texture, 10 cells of 96x128 px generated from the
+        /// game font). The slicing lives in Digits.png.meta (the scripted spritesheet API was removed in 2022.3).
+        /// </summary>
+        static Sprite[] ImportDigits()
+        {
+            var all = AssetDatabase.LoadAllAssetsAtPath(DigitsPath).OfType<Sprite>().ToList();
+            var result = new Sprite[10];
+            for (int i = 0; i < 10; i++) result[i] = all.FirstOrDefault(s => s.name == "Digit_" + i);
+            if (result.Any(r => r == null))
+                Debug.LogWarning("[GardenCannon] " + DigitsPath + " is not sliced into Digit_0..Digit_9 (check its import settings: Sprite, Multiple).");
+            return result;
         }
 
         static Sprite LoadSprite(string name)

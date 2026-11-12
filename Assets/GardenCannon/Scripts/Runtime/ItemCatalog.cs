@@ -15,6 +15,8 @@ namespace GardenCannon
         Wedge,
         /// <summary>Round, never breaks, kicks the ball away a bit faster.</summary>
         Bumper,
+        /// <summary>Unbreakable rotating arms (twirler). Variant 0/1 = 4 arms, 2/3 = 2 arms; even = counter-clockwise.</summary>
+        Spinner,
         /// <summary>Not solid. Ball passes through and damages it once per contact.</summary>
         PassThrough,
         /// <summary>Ignored by physics and goals (decoration / unknown).</summary>
@@ -59,6 +61,10 @@ namespace GardenCannon
             public bool rotateByVariant;
             [Tooltip("Children named <prefix>N show the remaining hits N (e.g. Wooden Box stage_1..stage_4). Empty = off.")]
             public string stagePrefix = "";
+            [Tooltip("Stages are cumulative: child N stays visible while N <= hits left (Egg Box eggs).")]
+            public bool stagesCumulative;
+            [Tooltip("Spinner: degrees per second.")]
+            public float spinSpeed = 90f;
             [Tooltip("Pick the mesh of the child named 'Tile' from autotileModules by same-type neighbours (Brick Wall).")]
             public bool autotile;
             [Tooltip("Recolour BlockColorAtlas meshes using the item variant.")]
@@ -94,7 +100,7 @@ namespace GardenCannon
 
         [Header("Damage")]
         [Tooltip("Level HP values are in damage units. Each ball hit removes this many.")]
-        public int damagePerHit = 5;
+        public int damagePerHit = 1;
 
         [Header("Block colours (BlockColorAtlas: 1 tile on the first row, then 3 rows of 8)")]
         [Tooltip("Variant -> atlas tile. Tile 0 = top-left yellow, tiles 1..24 = rows 2..4 left to right.")]
@@ -126,12 +132,23 @@ namespace GardenCannon
             return Mathf.Clamp(variant, 0, 24);
         }
 
+        /// <summary>
+        /// Palette order of the original game, checked against the gameplay video (v0 blue, v1 black, v13 slate,
+        /// v15 orange, v22 red, v23 beige, v25 yellow): the palette starts at the BOTTOM-left atlas tile and goes
+        /// row by row upwards (index 16 is unused, 17..24 = second row from the top, 25 = yellow).
+        /// Returned values are tile numbers counted from the top (0 = yellow, 1..8 = 2nd row, 9..16 = 3rd, 17..24 = bottom).
+        /// </summary>
         public static int[] DefaultVariantTiles()
         {
-            // Variant 0 (no colour in data) -> blue. Others are 1-based tile numbers.
             var t = new int[32];
-            t[0] = 17;
-            for (int i = 1; i < t.Length; i++) t[i] = Mathf.Clamp(i - 1, 0, 24);
+            for (int v = 0; v < t.Length; v++)
+            {
+                if (v < 8) t[v] = 17 + v;               // bottom row: blue, black, navy, light blue, mint, purple, maroon, dark brown
+                else if (v < 16) t[v] = v + 1;          // 3rd row: brown, green, dark green, green, lime, slate, grey, orange
+                else if (v == 16) t[v] = 1;             // unused in the data, orange
+                else if (v <= 24) t[v] = v - 16;        // 2nd row: orange, pink, hot pink, indigo, purple, red, beige, white
+                else t[v] = 0;                          // 25+: yellow
+            }
             return t;
         }
 

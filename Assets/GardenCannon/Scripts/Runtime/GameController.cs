@@ -34,14 +34,15 @@ namespace GardenCannon
         [Tooltip("After this many seconds in flight the ball speeds up so a shot never drags on.")]
         public float speedUpAfter = 6f;
         public float maxSpeedScale = 1.8f;
-        public Color trailColor = new Color(0.75f, 1f, 0.55f, 0.55f);
+        public Color trailColor = new Color(0.7f, 1f, 0.4f, 0.65f);
 
         [Header("Shot")]
-        [Tooltip("Balls fired per move (the original fires one).")]
-        public int ballsPerShot = 1;
-        public float burstInterval = 0.08f;
-        [Tooltip("Can the player fire again while a ball is still flying? (original: no)")]
-        public bool allowFireWhileBallsFly;
+        [Tooltip("Balls fired per move (updated game: a stream of 5).")]
+        public int ballsPerShot = 5;
+        [Tooltip("Seconds between the balls of one shot.")]
+        public float burstInterval = 0.05f;
+        [Tooltip("Can the player fire the next shot while balls of earlier shots are still flying?")]
+        public bool allowFireWhileBallsFly = true;
 
         [Header("Feel")]
         public float breakShake = 0.25f;
@@ -70,6 +71,26 @@ namespace GardenCannon
 
         const string PrefKey = "gc_level";
 
+        // One-time upgrade of values already saved in the scene when the defaults change.
+        [SerializeField, HideInInspector] int _settingsVersion;
+        const int SettingsVersion = 3;
+
+        void OnValidate()
+        {
+            if (_settingsVersion >= SettingsVersion) return;
+            if (_settingsVersion < 2)
+            {
+                ballsPerShot = 5;          // updated game fires a stream of 5 balls
+                burstInterval = 0.05f;
+                trailColor = new Color(0.7f, 1f, 0.4f, 0.65f);
+            }
+            if (_settingsVersion < 3) allowFireWhileBallsFly = true; // shoot again while balls are flying
+            _settingsVersion = SettingsVersion;
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+        }
+
         /// <summary>Called by <see cref="GameBootstrap"/> once every reference is set.</summary>
         public void Begin()
         {
@@ -83,7 +104,7 @@ namespace GardenCannon
             {
                 hud.ButtonClicked = () => sfx?.Play(sfx.buttonClick, 0.9f, 0f);
                 hud.VariantForType = FirstVariantOfType;
-                hud.Init(Restart, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
+                hud.Init(OpenSettings, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
             }
             int start = startLevel > 0 ? startLevel : PlayerPrefs.GetInt(PrefKey, 1);
             GoTo(start);
@@ -142,6 +163,17 @@ namespace GardenCannon
         }
 
         public void Restart() => GoTo(LevelNumber);
+
+        /// <summary>Settings button: music / sound toggles, replay, close.</summary>
+        public void OpenSettings()
+        {
+            if (hud == null) return;
+            hud.ShowMenu("Settings",
+                ("Music: " + (GameAudio.MusicMuted ? "Off" : "On"), () => { sfx?.ToggleMusic(); OpenSettings(); }, false),
+                ("Sound: " + (GameAudio.Muted ? "Off" : "On"), () => { sfx?.ToggleSound(); OpenSettings(); }, false),
+                ("Replay", () => { hud.ClosePopup(); Restart(); }, true),
+                ("Close", () => hud.ClosePopup(), true));
+        }
 
         int FirstVariantOfType(int type)
         {
@@ -289,10 +321,10 @@ namespace GardenCannon
         {
             if (ball.GetComponentInChildren<TrailRenderer>(true) != null) return;
             var tr = ball.AddComponent<TrailRenderer>();
-            tr.time = 0.18f;
+            tr.time = 0.22f;
             tr.minVertexDistance = 0.05f;
             tr.widthCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-            tr.widthMultiplier = physics.Radius * 2f;
+            tr.widthMultiplier = physics.Radius * 1.8f;
             var g = new Gradient();
             g.SetKeys(new[] { new GradientColorKey(trailColor, 0f), new GradientColorKey(Color.white, 1f) },
                       new[] { new GradientAlphaKey(trailColor.a, 0f), new GradientAlphaKey(0f, 1f) });

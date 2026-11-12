@@ -172,6 +172,26 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1913822878c05e049924bb85de04fb3a
+    m_Address: GardenCannon/Prefabs/TurningBurningItemView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cb62992f7363fa04f834f5b79057f00b
+    m_Address: GardenCannon/Sprites/splash asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dc6fa7f71df5f3c40ae6b53f9b32dbfa
+    m_Address: GardenCannon/Sprites/logo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c902a70fc11295b469e43bde8e05d72e
+    m_Address: GardenCannon/Sprites/Digits
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

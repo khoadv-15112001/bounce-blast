@@ -93,6 +93,7 @@ namespace GardenCannon
                 b.Pos += n * pen;
                 float dot = Vector2.Dot(b.Vel, n);
                 if (dot < 0f) b.Vel -= 2f * dot * n;
+                if (it.Kind == ItemKind.Spinner) b.Vel += it.SurfaceVelocity(b.Pos) * 0.6f;
                 hitItem = it;
                 result = BallHit.Item;
                 break;

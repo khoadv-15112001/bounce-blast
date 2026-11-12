@@ -45,9 +45,10 @@ namespace GardenCannon
                 if (entry == null) missing.Add(data.type);
                 if (entry != null && entry.kind == ItemKind.Ignore && entry.prefab == null) continue;
 
-                var go = new GameObject($"Item_{data.type}_{data.x}_{data.y}");
-                go.transform.SetParent(transform, false);
-                var item = go.AddComponent<BoardItem>();
+                var item = AcquireItem();
+#if UNITY_EDITOR
+                item.name = $"Item_{data.type}_{data.x}_{data.y}";
+#endif
                 item.Init(this, data, entry ?? FallbackEntry(data.type), catalog, font);
                 Items.Add(item);
             }
@@ -55,7 +56,14 @@ namespace GardenCannon
                 Debug.LogWarning($"[GardenCannon] Level {level.id}: item type {t} is not in the ItemCatalog, treated as indestructible.");
 
             ApplyAutotiles();
+
+            // Level intro: items pop in row by row from the top.
+            foreach (var it in Items)
+                it.PlayIntro((level.height - 1 - it.Data.y) * 0.035f + it.Data.x * 0.01f);
         }
+
+        /// <summary>Duration of the intro pop-in for the current level.</summary>
+        public float IntroDuration => Level == null ? 0f : Level.height * 0.035f + Level.width * 0.01f + 0.3f;
 
         /// <summary>Brick walls connect to same-type neighbours; exposed sides get the brick rim.</summary>
         void ApplyAutotiles()
@@ -89,8 +97,81 @@ namespace GardenCannon
         public void Clear()
         {
             foreach (var it in Items)
-                if (it != null) Destroy(it.gameObject);
+            {
+                if (it == null) continue;
+                it.Recycle();
+                _itemPool.Push(it);
+            }
             Items.Clear();
+        }
+
+        // ------------------------------------------------------------------ pooling
+
+        readonly Stack<BoardItem> _itemPool = new Stack<BoardItem>();
+        readonly Dictionary<GameObject, Stack<PooledVisual>> _visualPool = new Dictionary<GameObject, Stack<PooledVisual>>();
+        Transform _poolRoot;
+
+        Transform PoolRoot
+        {
+            get
+            {
+                if (_poolRoot == null)
+                {
+                    _poolRoot = new GameObject("Pool").transform;
+                    _poolRoot.SetParent(transform, false);
+                    _poolRoot.gameObject.SetActive(false);
+                }
+                return _poolRoot;
+            }
+        }
+
+        BoardItem AcquireItem()
+        {
+            BoardItem item = _itemPool.Count > 0 ? _itemPool.Pop() : null;
+            if (item == null)
+            {
+                var go = new GameObject("Item");
+                go.transform.SetParent(transform, false);
+                item = go.AddComponent<BoardItem>();
+            }
+            return item;
+        }
+
+        /// <summary>Reuse an instance of <paramref name="prefab"/> (or create one), reset to the prefab's state.</summary>
+        public PooledVisual AcquireVisual(GameObject prefab, Transform parent)
+        {
+            if (!_visualPool.TryGetValue(prefab, out var stack)) _visualPool[prefab] = stack = new Stack<PooledVisual>();
+            PooledVisual v = null;
+            while (stack.Count > 0 && v == null) v = stack.Pop();
+            if (v == null)
+            {
+                var go = Instantiate(prefab, parent);
+                go.name = prefab.name;
+                VisualUtil.StripRuntimeComponents(go);
+                v = go.AddComponent<PooledVisual>();
+                v.Capture(prefab);
+                return v;
+            }
+            v.transform.SetParent(parent, false);
+            v.Restore();
+            return v;
+        }
+
+        public void ReleaseVisual(PooledVisual v)
+        {
+            if (v == null) return;
+            v.transform.SetParent(PoolRoot, false);
+            if (!_visualPool.TryGetValue(v.Prefab, out var stack)) _visualPool[v.Prefab] = stack = new Stack<PooledVisual>();
+            stack.Push(v);
+        }
+
+        /// <summary>Create instances ahead of time (e.g. during the splash / first frame) to avoid hitches.</summary>
+        public void Prewarm(GameObject prefab, int count)
+        {
+            if (prefab == null) return;
+            var tmp = new List<PooledVisual>(count);
+            for (int i = 0; i < count; i++) tmp.Add(AcquireVisual(prefab, PoolRoot));
+            foreach (var v in tmp) ReleaseVisual(v);
         }
 
         public void Tick(float dt)

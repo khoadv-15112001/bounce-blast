@@ -28,6 +28,9 @@ namespace GardenCannon
         public Sprite panelSprite;
         public Sprite whiteSprite;
 
+        [Tooltip("The original game shows no goal row (clear everything). Turn on to show remaining goals.")]
+        public bool showGoals;
+
         [Header("Colours")]
         public Color levelTextColor = new Color(0.42f, 0.14f, 0.13f);
         public Color panelColor = new Color(1f, 0.965f, 0.9f);
@@ -49,6 +52,8 @@ namespace GardenCannon
         readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
         readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
         readonly Dictionary<Transform, Vector3> _baseScale = new Dictionary<Transform, Vector3>();
+        readonly List<Transform> _punchDone = new List<Transform>();
+        readonly List<Transform> _punchKeys = new List<Transform>();
         int _uiLayer;
 
         public bool PopupOpen => _popupRoot != null;
@@ -64,7 +69,7 @@ namespace GardenCannon
             if (levelAnchor != null)
             {
                 if (levelPlate != null) VisualUtil.MakeSprite("LevelPlate", levelAnchor, levelPlate, Vector3.zero, 4.15f, 60);
-                _levelText = VisualUtil.MakeText("LevelText", levelAnchor, font, new Vector3(0f, 0.08f, -0.1f), 0.8f, levelTextColor, TextAnchor.MiddleCenter, 61);
+                _levelText = VisualUtil.MakeText("LevelText", levelAnchor, font, new Vector3(0f, 0f, -0.1f), 0.8f, levelTextColor, TextAnchor.MiddleCenter, 61);
                 var l = VisualUtil.MakeText("Prev", levelAnchor, font, new Vector3(-2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
                 l.text = "<";
                 var r = VisualUtil.MakeText("Next", levelAnchor, font, new Vector3(2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
@@ -102,8 +107,11 @@ namespace GardenCannon
         void Update()
         {
             if (_punch.Count == 0) return;
-            var done = new List<Transform>();
-            var keys = new List<Transform>(_punch.Keys);
+            var done = _punchDone;
+            var keys = _punchKeys;
+            done.Clear();
+            keys.Clear();
+            foreach (var k in _punch.Keys) keys.Add(k);
             foreach (var t in keys)
             {
                 if (t == null) { done.Add(t); continue; }
@@ -141,7 +149,7 @@ namespace GardenCannon
         {
             if (_goalsRoot != null) Destroy(_goalsRoot.gameObject);
             _goals.Clear();
-            if (goalsAnchor == null) return;
+            if (goalsAnchor == null || !showGoals) return;
             _goalsRoot = new GameObject("Goals").transform;
             _goalsRoot.SetParent(goalsAnchor, false);
 
@@ -271,6 +279,50 @@ namespace GardenCannon
             _popupRoot.localScale = Vector3.one * 0.6f;
             Punch(_popupRoot);
             _baseScale[_popupRoot] = Vector3.one;
+        }
+
+        /// <summary>Vertical button list popup (settings).</summary>
+        public void ShowMenu(string title, params (string label, Action action, bool main)[] items)
+        {
+            ClosePopup();
+            _popupRoot = new GameObject("Menu").transform;
+            _popupRoot.SetParent(transform, false);
+            _popupRoot.position = uiCamera != null ? uiCamera.transform.position + uiCamera.transform.forward * 5f : new Vector3(0, 0, -5f);
+            float bh = 1.45f, gap = 0.35f;
+            float listH = items.Length * bh + (items.Length - 1) * gap;
+            float panelH = listH + 3.2f;
+            if (whiteSprite != null)
+            {
+                var sz = whiteSprite.bounds.size;
+                var dim = VisualUtil.MakeSprite("Dim", _popupRoot, whiteSprite, Vector3.zero, 0f, 900);
+                dim.color = new Color(0f, 0f, 0f, 0.6f);
+                dim.transform.localScale = new Vector3(80f / sz.x, 120f / sz.y, 1f);
+                var border = VisualUtil.MakeSprite("Border", _popupRoot, whiteSprite, new Vector3(0, 0, -0.05f), 0f, 901);
+                border.color = panelBorderColor;
+                border.transform.localScale = new Vector3(8.4f / sz.x, (panelH + 0.4f) / sz.y, 1f);
+                var panel = VisualUtil.MakeSprite("Panel", _popupRoot, whiteSprite, new Vector3(0, 0, -0.1f), 0f, 902);
+                panel.color = panelColor;
+                panel.transform.localScale = new Vector3(8f / sz.x, panelH / sz.y, 1f);
+            }
+            var tt = VisualUtil.MakeText("Title", _popupRoot, font, new Vector3(0f, panelH * 0.5f - 1.1f, -0.2f), 1.0f, panelBorderColor, TextAnchor.MiddleCenter, 903);
+            tt.text = title;
+            float y = panelH * 0.5f - 2.4f - bh * 0.5f;
+            foreach (var (label, action, main) in items)
+            {
+                var p = new Vector3(0f, y, -0.2f);
+                if (whiteSprite != null)
+                {
+                    var b = VisualUtil.MakeSprite("Btn_" + label, _popupRoot, whiteSprite, p, 0f, 903);
+                    b.color = main ? mainButtonColor : altButtonColor;
+                    var sz = whiteSprite.bounds.size;
+                    b.transform.localScale = new Vector3(6f / sz.x, bh / sz.y, 1f);
+                }
+                var lt = VisualUtil.MakeText("Label", _popupRoot, font, p + new Vector3(0, 0, -0.1f), 0.62f, Color.white, TextAnchor.MiddleCenter, 904);
+                lt.text = label;
+                AddButton(lt.transform, new Vector2(6f, bh), action, true);
+                y -= bh + gap;
+            }
+            Relayer(_popupRoot);
         }
 
         public void ClosePopup()
