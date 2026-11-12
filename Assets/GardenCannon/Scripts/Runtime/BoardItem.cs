@@ -13,10 +13,13 @@ namespace GardenCannon
         public int MaxHits { get; private set; }
         public bool Alive { get; private set; } = true;
         public bool IsMoving => _lane;
-        public bool IsSolid => Alive && Kind != ItemKind.PassThrough && Kind != ItemKind.Ignore;
         public bool IsBreakable => Kind == ItemKind.Breakable || Kind == ItemKind.PassThrough;
+        public Rect Bounds => _bounds;
+        public Vector3 VisualCentre => transform.position + _visualOffset;
+        public IReadOnlyList<Vector2Int> Offsets => _offsets;
 
         Board _board;
+        ItemCatalog _catalog;
         readonly List<Vector2Int> _offsets = new List<Vector2Int>(); // relative to anchor
         Vector2 _anchor;            // grid coords (float while moving)
         bool _singleRect;
@@ -34,13 +37,13 @@ namespace GardenCannon
         Vector3 _visualOffset;
         TextMesh _hitText;
         float _punch;
-        float _flash;
-
-        public Rect Bounds => _bounds;
+        float _shake;
+        readonly List<(Transform t, int n)> _stages = new List<(Transform, int)>();
 
         public void Init(Board board, ItemData data, ItemCatalog.Entry entry, ItemCatalog catalog, Font font)
         {
             _board = board;
+            _catalog = catalog;
             Data = data;
             Entry = entry;
             _anchor = new Vector2(data.x, data.y);
@@ -59,15 +62,14 @@ namespace GardenCannon
             if (_lane)
             {
                 _laneVertical = data.variant == 1;
-                int length = LengthAlongAxis(_laneVertical);
-                _laneLo = data.laneMin;
-                _laneHi = Mathf.Max(_laneLo, data.laneMax - (length - 1));
-                float start = data.lanePos;
-                if (_laneVertical) _anchor.y = Mathf.Clamp(start, _laneLo, _laneHi);
-                else _anchor.x = Mathf.Clamp(start, _laneLo, _laneHi);
+                AxisRange(_laneVertical, out int minOff, out int maxOff);
+                _laneLo = data.laneMin - minOff;
+                _laneHi = Mathf.Max(_laneLo, data.laneMax - maxOff);
+                if (_laneVertical) _anchor.y = Mathf.Clamp(data.lanePos, _laneLo, _laneHi);
+                else _anchor.x = Mathf.Clamp(data.lanePos, _laneLo, _laneHi);
             }
 
-            BuildVisual(catalog, font);
+            BuildVisual(font);
             RebuildShape();
         }
 
@@ -84,18 +86,19 @@ namespace GardenCannon
             return set.Count == (maxX - minX + 1) * (maxY - minY + 1);
         }
 
-        int LengthAlongAxis(bool vertical)
+        void AxisRange(bool vertical, out int min, out int max)
         {
-            int min = int.MaxValue, max = int.MinValue;
+            min = int.MaxValue; max = int.MinValue;
             foreach (var o in _offsets)
             {
                 int v = vertical ? o.y : o.x;
                 min = Mathf.Min(min, v); max = Mathf.Max(max, v);
             }
-            return max - min + 1;
         }
 
-        void BuildVisual(ItemCatalog catalog, Font font)
+        // ------------------------------------------------------------------ visual
+
+        void BuildVisual(Font font)
         {
             var e = Entry;
             if (e == null || e.prefab == null) return;
@@ -105,12 +108,11 @@ namespace GardenCannon
             _visual = go.transform;
 
             float cell = _board.CellSize;
-            float rot = e.rotationOffset + (e.rotateByVariant ? Data.variant * 90f : 0f);
+            float rot = e.rotationOffset + (e.rotateByVariant ? 180f - 90f * (((Data.variant % 4) + 4) % 4) : 0f);
             _visual.localRotation = Quaternion.Euler(0f, 0f, rot) * _visual.localRotation;
             _visualBaseScale = Vector3.Scale(_visual.localScale, Vector3.one * (cell * Mathf.Max(0.01f, e.visualScale)));
             _visual.localScale = _visualBaseScale;
 
-            // Centre the visual on the footprint bounds.
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
             foreach (var o in _offsets) { min = Vector2.Min(min, o); max = Vector2.Max(max, o); }
             Vector2 centre = (min + max) * 0.5f;
@@ -118,11 +120,18 @@ namespace GardenCannon
             _visual.localPosition = _visualOffset;
 
             if (_lane || e.label.Contains("Barrier")) VisualUtil.ApplyOrientation(_visual, _laneVertical);
-            if (e.colorByVariant) VisualUtil.ApplyAtlasTile(_visual, catalog, catalog.AtlasTileForVariant(Data.variant));
+            if (e.colorByVariant) VisualUtil.ApplyAtlasTile(_visual, _catalog, _catalog.AtlasTileForVariant(Data.variant));
+
+            if (!string.IsNullOrEmpty(e.stagePrefix))
+            {
+                foreach (var t in _visual.GetComponentsInChildren<Transform>(true))
+                    if (t.name.StartsWith(e.stagePrefix) && int.TryParse(t.name.Substring(e.stagePrefix.Length), out int n))
+                        _stages.Add((t, n));
+                UpdateStage();
+            }
 
             if (e.fitFootprint)
             {
-                // Bounds are measured with the item parked at its anchor so they are in a known frame.
                 transform.position = Vector3.zero;
                 if (TryGetMeshBounds(go, out var b) && b.size.x > 1e-4f && b.size.y > 1e-4f)
                 {
@@ -131,18 +140,64 @@ namespace GardenCannon
                     _visualBaseScale *= k;
                     _visual.localScale = _visualBaseScale;
                     TryGetMeshBounds(go, out b);
-                    Vector3 wantCentre = _visualOffset;
-                    _visual.localPosition += new Vector3(wantCentre.x - b.center.x, wantCentre.y - b.center.y, 0f);
+                    _visual.localPosition += new Vector3(_visualOffset.x - b.center.x, _visualOffset.y - b.center.y, 0f);
                     _visualOffset = new Vector3(_visual.localPosition.x, _visual.localPosition.y, _visualOffset.z);
                 }
             }
 
             if (e.showHitCount)
             {
-                _hitText = VisualUtil.MakeText("Hits", transform, font, _visualOffset + new Vector3(0f, 0f, -3f), cell * 0.8f, Color.white, TextAnchor.MiddleCenter, 50);
+                _hitText = VisualUtil.MakeText("Hits", transform, font, _visualOffset + new Vector3(0f, 0f, -2.5f), cell * 0.7f, Color.white, TextAnchor.MiddleCenter, 50);
                 _hitText.text = Hits.ToString();
             }
         }
+
+        void UpdateStage()
+        {
+            if (_stages.Count == 0) return;
+            int maxStage = 0;
+            foreach (var s in _stages) maxStage = Mathf.Max(maxStage, s.n);
+            int show = Mathf.Clamp(Hits, 1, maxStage);
+            foreach (var s in _stages) s.t.gameObject.SetActive(s.n == show);
+        }
+
+        /// <summary>Brick wall: pick the module whose rim matches the sides without a same-type neighbour.</summary>
+        public void ApplyAutotile(int exposedMask)
+        {
+            if (_visual == null || _catalog == null || _catalog.autotileModules.Count == 0) return;
+            MeshFilter tile = null;
+            foreach (var mf in _visual.GetComponentsInChildren<MeshFilter>(true))
+                if (mf.name == "Tile") { tile = mf; break; }
+            if (tile == null) return;
+
+            ItemCatalog.AutotileModule best = null;
+            int bestRot = 0, bestScore = int.MinValue;
+            foreach (var m in _catalog.autotileModules)
+            {
+                if (m == null || m.mesh == null) continue;
+                int mask = m.rimMask;
+                for (int r = 0; r < 4; r++)
+                {
+                    int score = 4 - BitCount(mask ^ exposedMask);
+                    if (score > bestScore) { bestScore = score; best = m; bestRot = r; }
+                    mask = RotateMaskCcw(mask);
+                }
+            }
+            if (best == null) return;
+            tile.sharedMesh = best.mesh;
+            // Rotate the tile's parent around the view axis (the tile itself carries the model's own rotation).
+            var pivot = tile.transform.parent != null ? tile.transform.parent : tile.transform;
+            pivot.localRotation = Quaternion.Euler(0f, 0f, 90f * bestRot);
+        }
+
+        /// <summary>Rim on the right becomes rim on top after a 90° counter-clockwise turn, etc. Bits: T=1, R=2, B=4, L=8.</summary>
+        public static int RotateMaskCcw(int m)
+        {
+            int t = (m & 1) != 0 ? 1 : 0, r = (m & 2) != 0 ? 1 : 0, b = (m & 4) != 0 ? 1 : 0, l = (m & 8) != 0 ? 1 : 0;
+            return (r * 1) | (b * 2) | (l * 4) | (t * 8);
+        }
+
+        static int BitCount(int v) { int c = 0; while (v != 0) { c += v & 1; v >>= 1; } return c; }
 
         static bool TryGetMeshBounds(GameObject go, out Bounds bounds)
         {
@@ -164,13 +219,12 @@ namespace GardenCannon
             return any;
         }
 
-        /// <summary>World position of the anchor cell's bottom-left corner.</summary>
-        Vector2 AnchorWorld() => _board.GridToWorldCorner(_anchor);
+        // ------------------------------------------------------------------ shape
 
         void RebuildShape()
         {
             float cell = _board.CellSize;
-            Vector2 a = AnchorWorld();
+            Vector2 a = _board.GridToWorldCorner(_anchor);
             transform.position = new Vector3(a.x + cell * 0.5f, a.y + cell * 0.5f, 0f);
 
             _rects.Clear();
@@ -194,10 +248,10 @@ namespace GardenCannon
                 Vector2 tr = new Vector2(_bounds.xMax, _bounds.yMax), tl = new Vector2(_bounds.xMin, _bounds.yMax);
                 switch (((Data.variant % 4) + 4) % 4)
                 {
-                    case 0: _wedge = new[] { bl, br, tl }; break; // right angle bottom-left
-                    case 1: _wedge = new[] { bl, br, tr }; break; // bottom-right
-                    case 2: _wedge = new[] { br, tr, tl }; break; // top-right
-                    default: _wedge = new[] { bl, tr, tl }; break; // top-left
+                    case 0: _wedge = new[] { bl, tr, tl }; break; // right angle top-left
+                    case 1: _wedge = new[] { br, tr, tl }; break; // top-right
+                    case 2: _wedge = new[] { bl, br, tr }; break; // bottom-right
+                    default: _wedge = new[] { bl, br, tl }; break; // bottom-left
                 }
             }
         }
@@ -216,11 +270,14 @@ namespace GardenCannon
             }
             if (_visual != null)
             {
-                _punch = Mathf.Max(0f, _punch - dt * 6f);
-                float s = 1f + Mathf.Sin(_punch * Mathf.PI) * 0.12f;
-                _visual.localScale = _visualBaseScale * s;
+                _punch = Mathf.Max(0f, _punch - dt * 5f);
+                _shake = Mathf.Max(0f, _shake - dt * 4f);
+                // Squash on hit (wider + flatter), then settle.
+                float k = Mathf.Sin(_punch * Mathf.PI);
+                _visual.localScale = Vector3.Scale(_visualBaseScale, new Vector3(1f + 0.10f * k, 1f - 0.08f * k, 1f));
+                Vector2 jitter = _shake > 0f ? Random.insideUnitCircle * (0.06f * _shake * _board.CellSize) : Vector2.zero;
+                _visual.localPosition = _visualOffset + (Vector3)jitter;
             }
-            _flash = Mathf.Max(0f, _flash - dt);
         }
 
         /// <summary>Circle test against this item. Returns the deepest contact.</summary>
@@ -229,12 +286,11 @@ namespace GardenCannon
             normal = Vector2.zero;
             pen = 0f;
             if (!Alive || Kind == ItemKind.Ignore) return false;
-            // Cheap reject.
             if (p.x + r < _bounds.xMin || p.x - r > _bounds.xMax || p.y + r < _bounds.yMin || p.y - r > _bounds.yMax) return false;
 
             if (Kind == ItemKind.Wedge && _wedge != null)
                 return Collision2D.CirclePolygon(p, r, _wedge, out normal, out pen);
-            if (Entry != null && Entry.shape == ItemShape.Circle || Kind == ItemKind.Bumper)
+            if ((Entry != null && Entry.shape == ItemShape.Circle) || Kind == ItemKind.Bumper)
                 return Collision2D.CircleCircle(p, r, _circleCentre, _circleRadius, out normal, out pen);
 
             bool hit = false;
@@ -253,9 +309,11 @@ namespace GardenCannon
         {
             if (!Alive) return false;
             _punch = 1f;
+            _shake = 1f;
             if (!IsBreakable) return false;
             Hits--;
             if (_hitText != null) _hitText.text = Mathf.Max(0, Hits).ToString();
+            UpdateStage();
             if (Hits > 0) return false;
             Break();
             return true;
@@ -266,7 +324,7 @@ namespace GardenCannon
             Alive = false;
             if (Entry != null && Entry.breakFx != null)
             {
-                var fx = Instantiate(Entry.breakFx, transform.position + _visualOffset + new Vector3(0, 0, -1f), Quaternion.identity);
+                var fx = Instantiate(Entry.breakFx, VisualCentre + new Vector3(0, 0, -1f), Quaternion.identity);
                 fx.transform.localScale *= _board.CellSize;
                 Destroy(fx, 3f);
             }

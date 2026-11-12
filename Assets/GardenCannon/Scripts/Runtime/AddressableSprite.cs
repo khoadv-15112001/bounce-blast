@@ -99,7 +99,7 @@ namespace GardenCannon
                     s = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(UnityEditor.AssetDatabase.GUIDToAssetPath(sprite.AssetGUID));
             }
             if (s == null) return;
-            var go = new GameObject(PreviewName) { hideFlags = HideFlags.HideAndDontSave };
+            var go = new GameObject(PreviewName) { hideFlags = HideFlags.HideAndDontSave, layer = gameObject.layer };
             go.transform.SetParent(transform, false);
             var p = go.AddComponent<SpriteRenderer>();
             p.sprite = s;

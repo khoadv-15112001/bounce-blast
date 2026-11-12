@@ -9,6 +9,7 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace GardenCannon.EditorTools
 {
@@ -16,9 +17,9 @@ namespace GardenCannon.EditorTools
     /// Garden Cannon > Setup:
     ///  1. ItemCatalog + GameAssets (references to the original prefabs, sprites, SFX, font).
     ///  2. Addressables groups mirroring the original bundles in Assets/addressable:
-    ///     Default (default_assets_all), AudioClips (audioclips_assets_all), LocalLevels (locallevels_assets_all),
-    ///     LocalFont (localfont_assets_all), LocalShaders (localshaders_assets_all).
-    ///  3. A scene that only holds the camera + GameBootstrap (no direct asset references, nothing in Resources).
+    ///     Default, AudioClips, LocalLevels, LocalFont, LocalShaders.
+    ///  3. A scene laid out like the original Game scene (same world units, tilted main camera + UI camera),
+    ///     sprites referenced through Addressables only.
     ///  4. Portrait 1440x3120 Game view.
     /// </summary>
     public static class GardenCannonSetup
@@ -29,7 +30,6 @@ namespace GardenCannon.EditorTools
         const string LevelsFolder = Root + "/Levels";
         const string ScenePath = Root + "/Scenes/GardenCannon.unity";
 
-        // Group names = original bundle names without the "_assets_all" suffix.
         public const string GroupDefault = "Default";
         public const string GroupAudio = "AudioClips";
         public const string GroupLevels = "LocalLevels";
@@ -37,6 +37,8 @@ namespace GardenCannon.EditorTools
         public const string GroupShaders = "LocalShaders";
 
         const int RefWidth = 1440, RefHeight = 3120;
+        const int DefaultsVersion = 2;
+        const int UiLayer = 5; // built-in "UI"
 
         [MenuItem("Garden Cannon/Setup (catalog + addressables + scene)", priority = 0)]
         public static void SetupAll()
@@ -80,91 +82,158 @@ namespace GardenCannon.EditorTools
         struct Def
         {
             public int id; public string label; public ItemKind kind; public string prefab;
-            public int hits; public string hit, brk, fx; public bool color, rotate, count, fit;
-            public float speed; public Color debug; public ItemShape shape;
+            public int hits; public string hit, brk, stages; public bool color, rotate, count, fit, autotile;
+            public float speed; public Color fxColor;
         }
 
-        static Def D(int id, string label, ItemKind kind, string prefab, string hit = null, string brk = null) =>
-            new Def { id = id, label = label, kind = kind, prefab = prefab, hits = 1, hit = hit, brk = brk, speed = 1.5f, debug = Color.white };
+        static Def D(int id, string label, ItemKind kind, string prefab, string hit, string brk, Color fxColor) =>
+            new Def { id = id, label = label, kind = kind, prefab = prefab, hits = 1, hit = hit, brk = brk, speed = 1.5f, fxColor = fxColor };
 
         /// <summary>
-        /// Type ids come from the original level data. 1/26/23/25/4/5/24 were matched against the demo and
-        /// the data (footprints, goals, lanes); 2/6/7/8/9/13 are best guesses - edit the asset if needed.
+        /// Item ids from the level data, matched against the original game (video) and the data itself
+        /// (footprints, goals, lanes, HP). 2/6/7/8/9/13 appear from level 12 on and are best guesses.
         /// </summary>
         static IEnumerable<Def> Defaults()
         {
-            var d = D(1, "Block", ItemKind.Breakable, "BlockItemView", "ball_collide", "block_break"); d.color = true; d.debug = Color.cyan; yield return d;
-            d = D(26, "Brick Wall", ItemKind.Breakable, "BrickWallItemView", "brick_wall_hit", "brick_wall_explode"); d.fx = "BrickWallBlast"; d.debug = new Color(1f, .5f, .2f); yield return d;
-            d = D(23, "Stone Corner", ItemKind.Wedge, "HalfUnbreakableBlockItemView", "unbreakable_hit"); d.rotate = true; d.debug = Color.gray; yield return d;
-            d = D(25, "Stone", ItemKind.Indestructible, "UnbreakableBlockItemView", "unbreakable_hit"); d.fit = true; d.debug = Color.gray; yield return d;
-            d = D(4, "Moving Barrier", ItemKind.Indestructible, "MovingBarrierItemView", "moving_barrier_hit"); d.fit = true; d.speed = 1.6f; d.debug = Color.red; yield return d;
-            d = D(5, "Target Stand", ItemKind.Breakable, "TargetStandItemView", "target_hit", "target_stand_collapse"); d.hits = 3; d.fit = true; d.debug = Color.magenta; yield return d;
-            d = D(24, "Container", ItemKind.Breakable, "ContainerItemView", "container_hit", "container_burst"); d.count = true; d.fit = true; d.debug = Color.yellow; yield return d;
-            d = D(9, "Moving Target", ItemKind.Breakable, "TargetItemView", "target_hit", "target_break"); d.speed = 1.2f; d.debug = Color.magenta; yield return d;
-            d = D(7, "Log Cutter", ItemKind.Breakable, "LogCutterItemView", "log_cut", "log_cutter_break"); d.hits = 2; d.fit = true; d.debug = new Color(.6f, .4f, .2f); yield return d;
-            d = D(8, "Wooden Box", ItemKind.Breakable, "WoodenBoxItemView", "wooden_box_hit", "wooden_box_break"); d.hits = 4; d.debug = new Color(.7f, .5f, .3f); yield return d;
-            d = D(13, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break"); d.hits = 3; d.fit = true; d.debug = Color.white; yield return d;
-            d = D(6, "Electric Orb", ItemKind.Breakable, "ElectricOrbItemView", "orb_on", "orb_discharge"); d.hits = 2; d.fit = true; d.debug = Color.blue; yield return d;
-            d = D(2, "Rising Bumper", ItemKind.Bumper, "RisingBumperItemView", "rising_bumper_bounce"); d.shape = ItemShape.Circle; d.debug = Color.green; yield return d;
+            Def d;
+            d = D(1, "Block", ItemKind.Breakable, "BlockItemView", "ball_collide", "block_break", Color.white); d.color = true; yield return d;
+            d = D(26, "Wooden Box", ItemKind.Breakable, "WoodenBoxItemView", "wooden_box_hit", "wooden_box_break", new Color(.93f, .55f, .16f)); d.stages = "stage_"; yield return d;
+            d = D(23, "Stone Corner", ItemKind.Wedge, "HalfUnbreakableBlockItemView", "unbreakable_hit", null, new Color(.9f, .86f, .78f)); d.rotate = true; yield return d;
+            d = D(25, "Stone", ItemKind.Indestructible, "UnbreakableBlockItemView", "unbreakable_hit", null, new Color(.9f, .86f, .78f)); d.fit = true; yield return d;
+            d = D(4, "Moving Barrier", ItemKind.Indestructible, "MovingBarrierItemView", "moving_barrier_hit", null, new Color(.9f, .25f, .2f)); d.fit = true; d.speed = 1.6f; yield return d;
+            d = D(5, "Target Stand", ItemKind.Breakable, "TargetStandItemView", "target_hit", "target_stand_collapse", new Color(1f, .45f, .7f)); d.hits = 3; d.fit = true; yield return d;
+            d = D(24, "Container", ItemKind.Breakable, "ContainerItemView", "container_hit", "container_burst", new Color(1f, .8f, .25f)); d.count = true; d.fit = true; yield return d;
+            d = D(9, "Moving Target", ItemKind.Breakable, "TargetItemView", "target_hit", "target_break", new Color(1f, .45f, .7f)); d.speed = 1.2f; yield return d;
+            d = D(7, "Log Cutter", ItemKind.Breakable, "LogCutterItemView", "log_cut", "log_cutter_break", new Color(.6f, .4f, .2f)); d.hits = 2; d.fit = true; yield return d;
+            d = D(8, "Egg Box", ItemKind.Breakable, "EggBoxItemView", "egg_crack", "egg_box_break", new Color(.98f, .95f, .85f)); d.hits = 3; yield return d;
+            d = D(13, "Multi Block", ItemKind.Breakable, "MultiBlockItemView", "ball_collide", "block_break", Color.white); d.hits = 10; d.count = true; d.color = true; d.fit = true; yield return d;
+            d = D(6, "Electric Orb", ItemKind.Breakable, "ElectricOrbItemView", "orb_on", "orb_discharge", new Color(.4f, .7f, 1f)); d.hits = 2; d.fit = true; yield return d;
+            d = D(2, "Brick Wall", ItemKind.Indestructible, "BrickWallItemView", "brick_wall_hit", null, new Color(.25f, .3f, .8f)); d.autotile = true; yield return d;
         }
+
+        static readonly string[] AutotileMeshes =
+        {
+            "Single_module", "End_module1", "Straight_module1", "Corner_module_straight1", "Corner_module_vers_03",
+            "Double_Middle_module1", "Quad_middle_module1",
+        };
 
         public static ItemCatalog CreateOrUpdateCatalog()
         {
             EnsureFolder(Root + "/Data");
             var catalog = AssetDatabase.LoadAssetAtPath<ItemCatalog>(CatalogPath);
-            bool created = catalog == null;
-            if (created)
+            if (catalog == null)
             {
                 catalog = ScriptableObject.CreateInstance<ItemCatalog>();
                 AssetDatabase.CreateAsset(catalog, CatalogPath);
             }
 
+            bool rebuild = catalog.defaultsVersion < DefaultsVersion;
+            if (rebuild)
+            {
+                catalog.entries.Clear();
+                catalog.defaultsVersion = DefaultsVersion;
+            }
             foreach (var def in Defaults())
             {
                 var e = catalog.entries.FirstOrDefault(x => x.typeId == def.id);
-                if (e != null && !created)
+                if (e != null)
                 {
                     // Keep user edits; only fill references that are still empty.
                     if (e.prefab == null) e.prefab = LoadPrefab(def.prefab);
                     if (e.hitSfx == null) e.hitSfx = LoadClip(def.hit);
                     if (e.breakSfx == null) e.breakSfx = LoadClip(def.brk);
-                    if (e.breakFx == null) e.breakFx = LoadPrefab(def.fx);
+                    
                     continue;
                 }
                 catalog.entries.Add(new ItemCatalog.Entry
                 {
-                    label = def.label, typeId = def.id, kind = def.kind, shape = def.shape, defaultHits = def.hits,
-                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), breakFx = LoadPrefab(def.fx),
+                    label = def.label, typeId = def.id, kind = def.kind, defaultHits = def.hits,
+                    prefab = LoadPrefab(def.prefab), hitSfx = LoadClip(def.hit), breakSfx = LoadClip(def.brk), breakFx = null,
                     colorByVariant = def.color, rotateByVariant = def.rotate, showHitCount = def.count, fitFootprint = def.fit,
-                    laneSpeed = def.speed, debugColor = def.debug,
+                    stagePrefix = def.stages ?? "", autotile = def.autotile, laneSpeed = def.speed, debugColor = def.fxColor,
                 });
             }
             catalog.entries.Sort((a, b) => a.typeId.CompareTo(b.typeId));
 
-            // Where do the block mesh UVs sit inside BlockColorAtlas? (needed to recolour blocks)
-            var block = LoadPrefab("BlockItemView");
-            if (block != null)
-            {
-                foreach (var mr in block.GetComponentsInChildren<MeshRenderer>(true))
-                {
-                    var tex = mr.sharedMaterial != null && mr.sharedMaterial.HasProperty("_MainTex") ? mr.sharedMaterial.mainTexture : null;
-                    if (tex == null || !tex.name.Contains("BlockColorAtlas")) continue;
-                    var mf = mr.GetComponent<MeshFilter>();
-                    var c = VisualUtil.MeshUvCenter(mf != null ? mf.sharedMesh : null);
-                    if (c.x >= 0f)
-                    {
-                        catalog.atlasBaseUvCenter = c;
-                        catalog.atlasMeshFullUv = Mathf.Abs(c.x - 0.5f) < 0.1f && Mathf.Abs(c.y - 0.5f) < 0.1f;
-                    }
-                    break;
-                }
-            }
+            DetectBlockAtlas(catalog);
+            DetectAutotileModules(catalog);
 
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[GardenCannon] Item catalog ready: {CatalogPath} ({catalog.entries.Count} types)");
+            Debug.Log($"[GardenCannon] Item catalog ready: {CatalogPath} ({catalog.entries.Count} types{(rebuild ? ", rebuilt from defaults v" + DefaultsVersion : "")})");
             return catalog;
         }
+
+        static void DetectBlockAtlas(ItemCatalog catalog)
+        {
+            var block = LoadPrefab("BlockItemView");
+            if (block == null) return;
+            foreach (var mr in block.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                var tex = mr.sharedMaterial != null && mr.sharedMaterial.HasProperty("_MainTex") ? mr.sharedMaterial.mainTexture : null;
+                if (tex == null || !tex.name.Contains("BlockColorAtlas")) continue;
+                var mf = mr.GetComponent<MeshFilter>();
+                var c = VisualUtil.MeshUvCenter(mf != null ? mf.sharedMesh : null);
+                if (c.x >= 0f)
+                {
+                    catalog.atlasBaseUvCenter = c;
+                    catalog.atlasMeshFullUv = Mathf.Abs(c.x - 0.5f) < 0.1f && Mathf.Abs(c.y - 0.5f) < 0.1f;
+                }
+                return;
+            }
+        }
+
+        /// <summary>
+        /// For every brick wall module mesh, find which cell sides carry the raised brick rim when the mesh sits
+        /// in the prefab's "Tile" slot unrotated. Rim = vertices in the top band of the height (towards the camera).
+        /// </summary>
+        static void DetectAutotileModules(ItemCatalog catalog)
+        {
+            var prefab = LoadPrefab("BrickWallItemView");
+            if (prefab == null) return;
+            var inst = UnityEngine.Object.Instantiate(prefab);
+            inst.hideFlags = HideFlags.HideAndDontSave;
+            try
+            {
+                var tile = inst.GetComponentsInChildren<MeshFilter>(true).FirstOrDefault(m => m.name == "Tile");
+                if (tile == null) return;
+                var toRoot = inst.transform.worldToLocalMatrix * tile.transform.localToWorldMatrix;
+                catalog.autotileModules.Clear();
+                var log = new List<string>();
+                foreach (var name in AutotileMeshes)
+                {
+                    var mesh = AssetDatabase.LoadAssetAtPath<Mesh>($"Assets/Mesh/{name}.asset");
+                    if (mesh == null) continue;
+                    var verts = mesh.vertices.Select(v => toRoot.MultiplyPoint3x4(v)).ToArray();
+                    if (verts.Length == 0) continue;
+                    float minX = verts.Min(v => v.x), maxX = verts.Max(v => v.x);
+                    float minY = verts.Min(v => v.y), maxY = verts.Max(v => v.y);
+                    float top = verts.Min(v => v.z), bottom = verts.Max(v => v.z); // -z = towards the camera
+                    float cut = top + (bottom - top) * 0.2f;
+                    float cx = (minX + maxX) * 0.5f, cy = (minY + maxY) * 0.5f;
+                    float hx = Mathf.Max(1e-4f, (maxX - minX) * 0.5f), hy = Mathf.Max(1e-4f, (maxY - minY) * 0.5f);
+                    int mask = 0;
+                    foreach (var v in verts)
+                    {
+                        if (v.z > cut) continue;
+                        float nx = (v.x - cx) / hx, ny = (v.y - cy) / hy;
+                        if (ny > 0.6f && Mathf.Abs(nx) < 0.35f) mask |= 1;
+                        if (nx > 0.6f && Mathf.Abs(ny) < 0.35f) mask |= 2;
+                        if (ny < -0.6f && Mathf.Abs(nx) < 0.35f) mask |= 4;
+                        if (nx < -0.6f && Mathf.Abs(ny) < 0.35f) mask |= 8;
+                    }
+                    catalog.autotileModules.Add(new ItemCatalog.AutotileModule { mesh = mesh, rimMask = mask });
+                    log.Add($"{name}={MaskText(mask)}");
+                }
+                Debug.Log("[GardenCannon] Brick wall modules (rim sides): " + string.Join(", ", log));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(inst);
+            }
+        }
+
+        static string MaskText(int m) => m == 0 ? "none" : ((m & 1) != 0 ? "T" : "") + ((m & 2) != 0 ? "R" : "") + ((m & 4) != 0 ? "B" : "") + ((m & 8) != 0 ? "L" : "");
 
         public static GameAssets CreateOrUpdateGameAssets(ItemCatalog catalog)
         {
@@ -185,8 +254,9 @@ namespace GardenCannon.EditorTools
             if (a.cannon == null) a.cannon = LoadSprite("Cannon");
             if (a.cannonShadow == null) a.cannonShadow = LoadSprite("Cannon_Sh");
             if (a.aimDot == null) a.aimDot = LoadSprite("AimDot");
+            if (a.sparkle == null) a.sparkle = LoadSprite("Sparkle");
             if (a.levelPlate == null) a.levelPlate = LoadSprite("Level Display");
-            if (a.settingsButton == null) a.settingsButton = LoadSprite("Settings_Button") ?? LoadSprite("Settings Button");
+            if (a.settingsButton == null) a.settingsButton = LoadSprite("Settings Button") ?? LoadSprite("Settings_Button");
             if (a.white == null) a.white = LoadSprite("Square") ?? LoadSprite("White");
             if (a.ballFire == null) a.ballFire = LoadClip("ball_fire");
             if (a.ballFireRefused == null) a.ballFireRefused = LoadClip("ball_fire_refused");
@@ -212,7 +282,6 @@ namespace GardenCannon.EditorTools
             var gShaders = EnsureGroup(settings, GroupShaders);
             settings.DefaultGroup = gDefault;
 
-            // Default: root assets, prefabs, sprites.
             Add(settings, gDefault, assets, GameAssets.Address);
             Add(settings, gDefault, catalog, "GardenCannon/ItemCatalog");
             var prefabs = new List<GameObject> { assets.ballPrefab };
@@ -221,19 +290,16 @@ namespace GardenCannon.EditorTools
             foreach (var p in prefabs)
                 Add(settings, gDefault, p, "GardenCannon/Prefabs/" + p.name);
             foreach (var s in new[] { assets.grassTop, assets.grassTop12x17, assets.water, assets.grassBottom, assets.cannon,
-                         assets.cannonShadow, assets.aimDot, assets.levelPlate, assets.settingsButton, assets.white })
+                         assets.cannonShadow, assets.aimDot, assets.sparkle, assets.levelPlate, assets.settingsButton, assets.white })
                 if (s != null) Add(settings, gDefault, s, "GardenCannon/Sprites/" + s.name);
 
-            // AudioClips
             var clips = new List<AudioClip> { assets.ballFire, assets.ballFireRefused, assets.wallBounce, assets.ballCollide, assets.waterSplash, assets.aimTick, assets.lastMoves };
             foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); }
             foreach (var c in clips.Where(c => c != null).Distinct())
                 Add(settings, gAudio, c, "GardenCannon/Audio/" + c.name);
 
-            // LocalFont
             if (assets.font != null) Add(settings, gFont, assets.font, "GardenCannon/Font/" + assets.font.name);
 
-            // LocalLevels (label "levels")
             int levels = 0;
             foreach (var guid in AssetDatabase.FindAssets("t:TextAsset", new[] { LevelsFolder }))
             {
@@ -245,7 +311,6 @@ namespace GardenCannon.EditorTools
                 levels++;
             }
 
-            // LocalShaders: custom shaders used by the prefabs (kept in one bundle instead of duplicated).
             var prefabPaths = prefabs.Select(AssetDatabase.GetAssetPath).ToArray();
             int shaders = 0;
             foreach (var dep in AssetDatabase.GetDependencies(prefabPaths, true))
@@ -257,7 +322,6 @@ namespace GardenCannon.EditorTools
                 shaders++;
             }
 
-            // Drop the auto-created empty group so the group list matches the original bundles.
             var auto = settings.FindGroup("Default Local Group");
             if (auto != null && auto != gDefault && auto.entries.Count == 0) settings.RemoveGroup(auto);
 
@@ -289,7 +353,7 @@ namespace GardenCannon.EditorTools
             entry.SetAddress(address, false);
         }
 
-        // ------------------------------------------------------------------ scene
+        // ------------------------------------------------------------------ scene (layout of the original Game scene)
 
         public static void BuildScene()
         {
@@ -297,18 +361,31 @@ namespace GardenCannon.EditorTools
             EnsureFolder(Root + "/Scenes");
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // Camera: shows exactly this world rect on a 1440x3120 screen (more on other aspects).
-            var visible = new Rect(-5.645f, -6.94f, 11.29f, 24.46f);
-            var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
+            // ---- Cameras: main (tilted, world) + UI (flat, HUD layer)
+            var camGo = new GameObject("MainCamera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
-            cam.orthographic = true;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.91f, 0.87f, 0.79f);
-            cam.nearClipPlane = 0.1f;
-            cam.farClipPlane = 200f;
-            camGo.transform.position = new Vector3(0f, visible.center.y, -50f);
+            cam.nearClipPlane = 0.3f;
+            cam.farClipPlane = 100f;
+            cam.cullingMask = ~(1 << UiLayer);
+            cam.depth = 0;
             camGo.AddComponent<AudioListener>();
-            camGo.AddComponent<CameraFit>().content = visible;
+
+            var uiGo = new GameObject("UICamera");
+            uiGo.transform.position = new Vector3(0f, 0f, -10f);
+            var ui = uiGo.AddComponent<Camera>();
+            ui.orthographic = true;
+            ui.orthographicSize = 12.8f;
+            ui.clearFlags = CameraClearFlags.Depth;
+            ui.cullingMask = 1 << UiLayer;
+            ui.depth = 1;
+            ui.nearClipPlane = 0.1f;
+            ui.farClipPlane = 40f;
+
+            var rig = camGo.AddComponent<CameraRig>();
+            rig.uiCamera = ui;
+            rig.Apply();
 
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
@@ -316,73 +393,61 @@ namespace GardenCannon.EditorTools
             light.intensity = 1.1f;
             lightGo.transform.rotation = Quaternion.Euler(30f, -20f, 0f);
 
-            // ---- Background (measured on the original sprites: lawn = 9 units wide, water line at y = 0)
-            var grassTop = LoadSprite("GrassTop");
-            var grassBottom = LoadSprite("GrassBottom");
-            var water = LoadSprite("Water");
-            const float lawnLeftPx = 335f, lawnRightPx = 1372f, lawnTopPx = 528f;
-            const float bottomTopY = -1.95f;
-            float wpp = 9f / (lawnRightPx - lawnLeftPx);
-            float topW = grassTop != null ? grassTop.rect.width : 1697f, topH = grassTop != null ? grassTop.rect.height : 2048f;
-            float spriteW = topW * wpp;
-            float lawnTop = (topH - lawnTopPx) * wpp;
-            float bottomW = grassBottom != null ? grassBottom.rect.width : 1905f, bottomH = grassBottom != null ? grassBottom.rect.height : 647f;
-            float bwpp = spriteW / bottomW;
+            // ---- GrassTheme (original positions, native sprite size)
+            var theme = new GameObject("GrassTheme").transform;
+            var top = AddrSprite("Top", theme, LoadSprite("GrassTop"), new Vector3(0f, 4.1f, 0f), -8);
+            var bottom = AddrSprite("Bottom", theme, LoadSprite("GrassBottom"), new Vector3(0f, -12.37f, 0f), -10);
+            var water = AddrSprite("Water", theme, LoadSprite("Water"), new Vector3(0f, -8.48f, 0f), -11);
+            water.transform.localScale = new Vector3(0.972f, 1f, 1f);
 
-            var env = new GameObject("Environment").transform;
-            var lawn = AddrSprite("GrassTop", env, grassTop, new Vector3((topW * 0.5f - (lawnLeftPx + lawnRightPx) * 0.5f) * wpp, topH * 0.5f * wpp, 20f), spriteW, -100);
-            if (water != null)
-            {
-                float w = spriteW + 0.4f, h = water.bounds.size.y / water.bounds.size.x * w;
-                AddrSprite("Water", env, water, new Vector3(0f, 0.05f - h * 0.5f, 21f), w, -102);
-            }
-            AddrSprite("GrassBottom", env, grassBottom, new Vector3(0f, bottomTopY - bottomH * bwpp * 0.5f, 19f), spriteW, -99);
-
-            // ---- Board (items are spawned here per level)
+            // ---- Board (original GridView)
             var board = new GameObject("Board").AddComponent<Board>();
-            board.lawnWidth = 9f;
-            board.lawnTop = lawnTop;
 
-            // ---- Cannon
-            var cannonGo = new GameObject("Cannon");
-            cannonGo.transform.position = new Vector3((955f - bottomW * 0.5f) * bwpp, bottomTopY - 165f * bwpp, 0f);
-            var barrel = new GameObject("Barrel").transform;
-            barrel.SetParent(cannonGo.transform, false);
-            var cannonSprite = LoadSprite("Cannon");
-            const float cw = 1.75f;
-            float ch = cannonSprite != null ? cannonSprite.bounds.size.y / cannonSprite.bounds.size.x * cw : 2.9f;
-            float lift = ch * 0.3f;
-            var sh = AddrSprite("CannonShadow", barrel, LoadSprite("Cannon_Sh"), new Vector3(0.12f, lift - 0.15f, 0.5f), cw * 1.1f, -51);
-            sh.Renderer.color = new Color(1f, 1f, 1f, 0.7f);
-            AddrSprite("CannonBody", barrel, cannonSprite, new Vector3(0f, lift, 0f), cw, -50);
+            // ---- Cannon (original CannonBase/Piv/Rail)
+            var cannonGo = new GameObject("CannonBase");
+            cannonGo.transform.position = new Vector3(0f, -10.54f, 0f);
+            var rail = new GameObject("Rail").transform;
+            rail.SetParent(cannonGo.transform, false);
+            AddrSprite("Cannon Body", rail, LoadSprite("Cannon"), new Vector3(0.005f, 0.6548f, 0f), 50);
+            AddrSprite("Cannon Sh", rail, LoadSprite("Cannon_Sh"), new Vector3(-0.27125f, -0.0252f, 0f), 49);
             var cannon = cannonGo.AddComponent<CannonView>();
-            cannon.barrel = barrel;
-            cannon.muzzleDistance = lift + ch * 0.5f - 0.1f;
+            cannon.barrel = rail;
+            cannon.muzzleDistance = 2.5f; // original "Tip"
 
             var aim = new GameObject("AimGuide").AddComponent<AimGuide>();
             var sfx = new GameObject("Audio").AddComponent<GameAudio>();
+            var fx = new GameObject("Fx").AddComponent<FxPool>();
 
             // ---- HUD
-            var hudGo = new GameObject("HUD");
+            var hudGo = new GameObject("HUD") { layer = UiLayer };
             var hud = hudGo.AddComponent<GameHud>();
-            hud.levelAnchor = Anchor(hudGo.transform, "LevelAnchor", new Vector3(0f, lawnTop + 1.45f, -5f));
-            AddrSprite("LevelPlate", hud.levelAnchor, LoadSprite("Level Display"), Vector3.zero, 3.2f, 60);
-            hud.goalsAnchor = Anchor(hudGo.transform, "GoalsAnchor", new Vector3(0f, lawnTop + 3.1f, -5f));
-            hud.settingsAnchor = Anchor(hudGo.transform, "SettingsAnchor", new Vector3(4.55f, lawnTop + 1.45f, -5f));
-            AddrSprite("RestartButton", hud.settingsAnchor, LoadSprite("Settings_Button") ?? LoadSprite("Settings Button"), Vector3.zero, 1.25f, 60);
-            hud.movesAnchor = Anchor(hudGo.transform, "MovesAnchor", new Vector3((612f - bottomW * 0.5f) * bwpp, bottomTopY - 112f * bwpp, -5f));
+            hud.uiCamera = ui;
+            hud.levelAnchor = UiAnchorAt(hudGo.transform, "LevelDisplay", ui, UiAnchor.Edge.Top, 12.8f - 11.47f, 0f);
+            AddrSprite("LevelPlate", hud.levelAnchor, LoadSprite("Level Display"), new Vector3(0f, -0.105f, 0f), 59).gameObject.layer = UiLayer;
+            hud.settingsAnchor = UiAnchorAt(hudGo.transform, "SettingsButton", ui, UiAnchor.Edge.Top, 12.8f - 11.47f, 5.0f);
+            AddrSprite("Button", hud.settingsAnchor, LoadSprite("Settings Button") ?? LoadSprite("Settings_Button"), Vector3.zero, 15).gameObject.layer = UiLayer;
+            hud.goalsAnchor = UiAnchorAt(hudGo.transform, "Goals", ui, UiAnchor.Edge.Top, 12.8f - 11.47f + 1.75f, 0f);
+            hud.bannerAnchor = UiAnchorAt(hudGo.transform, "TutorialBanner", ui, UiAnchor.Edge.Centre, 4.2f, 0f);
+            // Move counter printed on the GrassBottom art (original MoveCountText, tilted to face the camera).
+            var moves = new GameObject("MoveCountText").transform;
+            moves.SetParent(bottom.transform, false);
+            moves.localPosition = new Vector3(-3.39f, 2.1348f, -0.05f);
+            moves.localRotation = Quaternion.Euler(-20f, 0f, 0f);
+            hud.movesAnchor = moves;
 
             // ---- Controller + bootstrap
             var gc = new GameObject("GameController").AddComponent<GameController>();
             var boot = new GameObject("GameBootstrap").AddComponent<GameBootstrap>();
-            boot.cam = cam;
+            boot.rig = rig;
+            boot.uiCamera = ui;
             boot.board = board;
             boot.cannon = cannon;
             boot.aimGuide = aim;
             boot.sfx = sfx;
+            boot.fx = fx;
             boot.hud = hud;
             boot.controller = gc;
-            boot.lawnRenderer = lawn.Renderer;
+            boot.lawnRenderer = top.Renderer;
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
@@ -392,10 +457,24 @@ namespace GardenCannon.EditorTools
             Debug.Log($"[GardenCannon] Scene saved: {ScenePath}. Press Play.");
         }
 
+        static Transform UiAnchorAt(Transform parent, string name, Camera ui, UiAnchor.Edge edge, float offset, float x)
+        {
+            var go = new GameObject(name) { layer = UiLayer };
+            go.transform.SetParent(parent, false);
+            var a = go.AddComponent<UiAnchor>();
+            a.uiCamera = ui;
+            a.edge = edge;
+            a.offset = offset;
+            a.x = x;
+            a.Apply();
+            return go.transform;
+        }
+
         /// <summary>Sprite object whose sprite is an Addressables reference (previewed in edit mode, not saved in the scene).</summary>
-        static AddressableSprite AddrSprite(string name, Transform parent, Sprite sprite, Vector3 localPos, float worldWidth, int order)
+        static AddressableSprite AddrSprite(string name, Transform parent, Sprite sprite, Vector3 localPos, int order)
         {
             var go = new GameObject(name);
+            go.layer = parent != null ? parent.gameObject.layer : 0;
             go.transform.SetParent(parent, false);
             go.transform.localPosition = localPos;
             var sr = go.AddComponent<SpriteRenderer>();
@@ -404,22 +483,12 @@ namespace GardenCannon.EditorTools
             if (sprite != null)
             {
                 var path = AssetDatabase.GetAssetPath(sprite);
-                a.sprite = new UnityEngine.AddressableAssets.AssetReferenceSprite(AssetDatabase.AssetPathToGUID(path));
+                a.sprite = new AssetReferenceSprite(AssetDatabase.AssetPathToGUID(path));
                 if (!AssetDatabase.IsMainAsset(sprite)) a.sprite.SetEditorSubObject(sprite);
-                float w = sprite.bounds.size.x;
-                if (w > 0f && worldWidth > 0f) go.transform.localScale = Vector3.one * (worldWidth / w);
                 EnsureAddressable(sprite);
             }
             a.RefreshPreview();
             return a;
-        }
-
-        static Transform Anchor(Transform parent, string name, Vector3 pos)
-        {
-            var t = new GameObject(name).transform;
-            t.SetParent(parent, false);
-            t.position = pos;
-            return t;
         }
 
         static void EnsureAddressable(UnityEngine.Object asset)

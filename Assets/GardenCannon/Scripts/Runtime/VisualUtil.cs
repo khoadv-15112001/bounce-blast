@@ -8,6 +8,20 @@ namespace GardenCannon
         static readonly int MainTexSt = Shader.PropertyToID("_MainTex_ST");
         static MaterialPropertyBlock _mpb;
 
+        // Average colour of each BlockColorAtlas tile (0 = yellow, then rows of 8), used for break particles.
+        static readonly Color[] TileColors =
+        {
+            new Color(.95f,.85f,.10f),
+            new Color(.95f,.50f,.05f), new Color(1f,.50f,.60f), new Color(1f,.25f,.50f), new Color(.40f,.10f,.90f),
+            new Color(.75f,.05f,.95f), new Color(.85f,.15f,.12f), new Color(.95f,.72f,.47f), new Color(.92f,.88f,.87f),
+            new Color(.43f,.25f,.10f), new Color(.10f,.55f,.05f), new Color(.10f,.35f,.10f), new Color(.10f,.55f,.20f),
+            new Color(.60f,.85f,.20f), new Color(.25f,.28f,.35f), new Color(.55f,.57f,.68f), new Color(.95f,.42f,.05f),
+            new Color(.05f,.20f,.85f), new Color(.12f,.12f,.13f), new Color(.00f,.05f,.55f), new Color(.30f,.80f,1f),
+            new Color(.35f,.92f,.75f), new Color(.30f,.00f,.60f), new Color(.50f,.12f,.10f), new Color(.28f,.18f,.10f),
+        };
+
+        public static Color AtlasTileColor(int tile) => TileColors[Mathf.Clamp(tile, 0, TileColors.Length - 1)];
+
         /// <summary>Atlas tile index -> (column, row counted from the top).</summary>
         public static Vector2Int TileToColRow(int tile, int columns)
         {

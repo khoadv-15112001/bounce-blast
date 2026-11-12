@@ -52,7 +52,7 @@ namespace GardenCannon
             }
             var s = _pool[index];
             s.enabled = true;
-            s.transform.position = new Vector3(pos.x, pos.y, -2f);
+            s.transform.position = new Vector3(pos.x, pos.y, -0.25f);
             float w = dotSprite != null ? dotSprite.bounds.size.x : 1f;
             s.transform.localScale = Vector3.one * (size / Mathf.Max(0.0001f, w));
             var c = color;

@@ -55,8 +55,12 @@ namespace GardenCannon
             [Range(0.5f, 1.1f)] public float fitFill = 0.96f;
             [Tooltip("Extra Z rotation (degrees) applied to the prefab.")]
             public float rotationOffset;
-            [Tooltip("Rotate the prefab by variant * 90 degrees (wedges).")]
+            [Tooltip("Wedges: rotate the prefab to the variant's corner (0 TL, 1 TR, 2 BR, 3 BL). The mesh's own right angle is bottom-right.")]
             public bool rotateByVariant;
+            [Tooltip("Children named <prefix>N show the remaining hits N (e.g. Wooden Box stage_1..stage_4). Empty = off.")]
+            public string stagePrefix = "";
+            [Tooltip("Pick the mesh of the child named 'Tile' from autotileModules by same-type neighbours (Brick Wall).")]
+            public bool autotile;
             [Tooltip("Recolour BlockColorAtlas meshes using the item variant.")]
             public bool colorByVariant;
             [Tooltip("Show remaining hits as a number on the item.")]
@@ -71,6 +75,20 @@ namespace GardenCannon
         }
 
         public List<Entry> entries = new List<Entry>();
+
+        [Tooltip("Version of the built-in defaults this catalog was generated from (Setup rebuilds older ones).")]
+        public int defaultsVersion;
+
+        /// <summary>Autotile module: a mesh and the sides (bits T=1, R=2, B=4, L=8) that show a brick rim at rotation 0.</summary>
+        [Serializable]
+        public class AutotileModule
+        {
+            public Mesh mesh;
+            public int rimMask;
+        }
+
+        [Header("Brick wall autotile (filled by Setup from the original module meshes)")]
+        public List<AutotileModule> autotileModules = new List<AutotileModule>();
 
         [Header("Damage")]
         [Tooltip("Level HP values are in damage units. Each ball hit removes this many.")]

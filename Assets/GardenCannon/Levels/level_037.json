@@ -27,7 +27,7 @@
   {
    "type": 13,
    "x": 1,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -59,35 +59,35 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 6,
-     "y": 1
+     "y": -1
     },
     {
      "x": 0,
-     "y": 2
+     "y": -2
     },
     {
      "x": 6,
-     "y": 2
+     "y": -2
     },
     {
      "x": 0,
-     "y": 3
+     "y": -3
     },
     {
      "x": 6,
-     "y": 3
+     "y": -3
     },
     {
      "x": 0,
-     "y": 4
+     "y": -4
     },
     {
      "x": 6,
-     "y": 4
+     "y": -4
     }
    ],
    "hasLane": false,
@@ -98,7 +98,7 @@
   {
    "type": 6,
    "x": 2,
-   "y": 2,
+   "y": 9,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -122,63 +122,63 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 4,
-     "y": 1
+     "y": -1
     },
     {
      "x": 0,
-     "y": 2
+     "y": -2
     },
     {
      "x": 4,
-     "y": 2
+     "y": -2
     },
     {
      "x": 0,
-     "y": 3
+     "y": -3
     },
     {
      "x": 4,
-     "y": 3
+     "y": -3
     },
     {
      "x": 0,
-     "y": 4
+     "y": -4
     },
     {
      "x": 4,
-     "y": 4
+     "y": -4
     },
     {
      "x": 0,
-     "y": 5
+     "y": -5
     },
     {
      "x": 4,
-     "y": 5
+     "y": -5
     },
     {
      "x": 0,
-     "y": 6
+     "y": -6
     },
     {
      "x": 1,
-     "y": 6
+     "y": -6
     },
     {
      "x": 2,
-     "y": 6
+     "y": -6
     },
     {
      "x": 3,
-     "y": 6
+     "y": -6
     },
     {
      "x": 4,
-     "y": 6
+     "y": -6
     }
    ],
    "hasLane": false,
@@ -189,35 +189,35 @@
   {
    "type": 9,
    "x": 3,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 1,
    "hp": 0,
    "maxHp": 0,
    "footprint": [],
    "hasLane": true,
-   "lanePos": 3.0,
-   "laneMin": 3,
-   "laneMax": 7
+   "lanePos": 8.0,
+   "laneMin": 4,
+   "laneMax": 8
   },
   {
    "type": 9,
    "x": 5,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 1,
    "hp": 0,
    "maxHp": 0,
    "footprint": [],
    "hasLane": true,
-   "lanePos": 3.0,
-   "laneMin": 3,
-   "laneMax": 7
+   "lanePos": 8.0,
+   "laneMin": 4,
+   "laneMax": 8
   },
   {
    "type": 26,
    "x": 1,
-   "y": 6,
+   "y": 5,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -231,7 +231,7 @@
   {
    "type": 26,
    "x": 7,
-   "y": 6,
+   "y": 5,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -245,7 +245,7 @@
   {
    "type": 26,
    "x": 1,
-   "y": 7,
+   "y": 4,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -259,21 +259,21 @@
   {
    "type": 9,
    "x": 4,
-   "y": 7,
+   "y": 4,
    "layers": 1,
    "variant": 1,
    "hp": 0,
    "maxHp": 0,
    "footprint": [],
    "hasLane": true,
-   "lanePos": 7.0,
-   "laneMin": 3,
-   "laneMax": 7
+   "lanePos": 4.0,
+   "laneMin": 4,
+   "laneMax": 8
   },
   {
    "type": 26,
    "x": 7,
-   "y": 7,
+   "y": 4,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -287,7 +287,7 @@
   {
    "type": 26,
    "x": 1,
-   "y": 8,
+   "y": 3,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -301,7 +301,7 @@
   {
    "type": 26,
    "x": 7,
-   "y": 8,
+   "y": 3,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -315,7 +315,7 @@
   {
    "type": 26,
    "x": 1,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -329,7 +329,7 @@
   {
    "type": 26,
    "x": 2,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -343,7 +343,7 @@
   {
    "type": 26,
    "x": 3,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -357,7 +357,7 @@
   {
    "type": 26,
    "x": 4,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -371,7 +371,7 @@
   {
    "type": 26,
    "x": 5,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -385,7 +385,7 @@
   {
    "type": 26,
    "x": 6,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -399,7 +399,7 @@
   {
    "type": 26,
    "x": 7,
-   "y": 9,
+   "y": 2,
    "layers": 1,
    "variant": 15,
    "hp": 5,
@@ -413,7 +413,7 @@
   {
    "type": 4,
    "x": 1,
-   "y": 11,
+   "y": 0,
    "layers": 1,
    "variant": 0,
    "hp": 0,

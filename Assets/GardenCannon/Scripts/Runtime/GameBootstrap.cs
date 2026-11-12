@@ -19,13 +19,15 @@ namespace GardenCannon
         public string levelsLabel = LevelLibrary.Label;
 
         [Header("Scene")]
-        public Camera cam;
+        public CameraRig rig;
+        public Camera uiCamera;
         public Board board;
         public CannonView cannon;
         public AimGuide aimGuide;
         public GameAudio sfx;
         public GameHud hud;
         public GameController controller;
+        public FxPool fx;
         [Tooltip("Lawn sprite renderer, swapped to the 12x17 lawn for 12-column levels.")]
         public SpriteRenderer lawnRenderer;
 
@@ -34,8 +36,6 @@ namespace GardenCannon
 
         IEnumerator Start()
         {
-            if (cam == null) cam = Camera.main;
-
             _assetsHandle = Addressables.LoadAssetAsync<GameAssets>(gameAssetsAddress);
             _levelsHandle = Addressables.LoadAssetsAsync<TextAsset>(levelsLabel, null);
             yield return _assetsHandle;
@@ -69,6 +69,7 @@ namespace GardenCannon
         void Wire(GameAssets a)
         {
             if (aimGuide != null) aimGuide.dotSprite = a.aimDot;
+            if (fx != null) fx.sparkleSprite = a.sparkle;
 
             if (sfx != null)
             {
@@ -83,6 +84,7 @@ namespace GardenCannon
 
             if (hud != null)
             {
+                hud.uiCamera = uiCamera;
                 hud.font = a.font;
                 hud.whiteSprite = a.white;
                 hud.panelSprite = a.white;
@@ -91,7 +93,8 @@ namespace GardenCannon
                 hud.settingsButton = null;
             }
 
-            controller.cam = cam;
+            controller.rig = rig;
+            controller.fx = fx;
             controller.board = board;
             controller.cannon = cannon;
             controller.aimGuide = aimGuide;

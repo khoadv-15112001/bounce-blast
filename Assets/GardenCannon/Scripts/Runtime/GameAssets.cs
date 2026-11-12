@@ -26,6 +26,7 @@ namespace GardenCannon
         public Sprite cannon;
         public Sprite cannonShadow;
         public Sprite aimDot;
+        public Sprite sparkle;
 
         [Header("HUD")]
         public Sprite levelPlate;

@@ -12,7 +12,8 @@ The layout below was reverse engineered from the data:
   LevelModel (root table)
     0  width        : ubyte
     1  height       : ubyte
-    2  cells        : [Cell]       row-major, index = row * width + col, row 0 = bottom
+    2  cells        : [Cell]       row-major, index = row * width + col, row 0 = TOP
+                                   (the original GridView origin is the top-left corner)
     3  goal         : Goal
     4  version      : int          (1 or 66, unused by the game)
 
@@ -39,6 +40,10 @@ The layout below was reverse engineered from the data:
 
 Move counts come from the LevelAssetConfig MonoBehaviour in the same bundle
 (LevelPath[i]._moveCount for level i + 1).
+
+Output JSON uses Unity-style coordinates: x = column, y = row counted from the BOTTOM
+(y = height - 1 - row). Footprint offsets and vertical lanes (variant 1) are flipped the same way.
+Wedge variants keep their original meaning: 0 = top-left corner, 1 = top-right, 2 = bottom-right, 3 = bottom-left.
 """
 import argparse
 import json
@@ -147,6 +152,18 @@ def parse_item(t, cell_row, cell_col, warnings):
     return item
 
 
+def flip_rows(item, height):
+    """Data rows count from the top; the game uses y counted from the bottom."""
+    item["y"] = height - 1 - item["y"]
+    for o in item["footprint"]:
+        o["y"] = -o["y"]
+    if item["hasLane"] and item["variant"] == 1:  # vertical lane: values are rows
+        lo, hi = item["laneMin"], item["laneMax"]
+        item["laneMin"], item["laneMax"] = height - 1 - hi, height - 1 - lo
+        item["lanePos"] = round(height - 1 - item["lanePos"], 4)
+    return item
+
+
 def parse_level(data, warnings):
     root = FlatTable(data, struct.unpack_from("<I", data, 0)[0])
     w, h = root.u8(0), root.u8(1)
@@ -157,9 +174,9 @@ def parse_level(data, warnings):
     for idx, cell in enumerate(cells):
         r, c = divmod(idx, w)
         for it in cell.vec_tables(0):
-            items.append(parse_item(it, r, c, warnings))
+            items.append(flip_rows(parse_item(it, r, c, warnings), h))
         for it in cell.vec_tables(1):
-            fi = parse_item(it, r, c, warnings)
+            fi = flip_rows(parse_item(it, r, c, warnings), h)
             fi["floor"] = True
             items.append(fi)
     goals = []

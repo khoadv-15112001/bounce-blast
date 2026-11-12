@@ -5,18 +5,23 @@ using UnityEngine;
 namespace GardenCannon
 {
     /// <summary>
-    /// World-space HUD built from SpriteRenderers + TextMesh (the project's uGUI/TMP assemblies are stubs).
-    /// Anchors are placed by the scene builder and can be moved in the scene.
+    /// HUD built from SpriteRenderers + TextMesh (the project's uGUI/TMP assemblies are stubs).
+    /// Level plate, goals, restart button, tutorial banner and popups live on the UI layer (UI camera);
+    /// the move counter sits on the GrassBottom art in the world, like the original MoveCountText.
     /// </summary>
     public class GameHud : MonoBehaviour
     {
-        [Header("Anchors")]
-        public Transform levelAnchor;
-        public Transform goalsAnchor;
-        public Transform movesAnchor;
-        public Transform settingsAnchor;
+        [Header("Cameras")]
+        public Camera uiCamera;
 
-        [Header("Art")]
+        [Header("Anchors")]
+        public Transform levelAnchor;      // UI
+        public Transform goalsAnchor;      // UI
+        public Transform settingsAnchor;   // UI
+        public Transform bannerAnchor;     // UI
+        public Transform movesAnchor;      // world (on GrassBottom)
+
+        [Header("Art (set at runtime from GameAssets)")]
         public Font font;
         public Sprite levelPlate;
         public Sprite settingsButton;
@@ -26,116 +31,192 @@ namespace GardenCannon
         [Header("Colours")]
         public Color levelTextColor = new Color(0.42f, 0.14f, 0.13f);
         public Color panelColor = new Color(1f, 0.965f, 0.9f);
+        public Color panelBorderColor = new Color(0.6f, 0.12f, 0.15f);
         public Color mainButtonColor = new Color(0.97f, 0.77f, 0.22f);
         public Color altButtonColor = new Color(0.5f, 0.75f, 0.23f);
 
         class Button
         {
-            public Bounds Area;
+            public Transform Target;
+            public Vector2 Size;
             public Action OnClick;
             public bool Popup;
         }
 
         readonly List<Button> _buttons = new List<Button>();
         TextMesh _levelText, _movesText, _movesShadow;
-        Transform _goalsRoot, _popupRoot;
-        readonly Dictionary<int, TextMesh> _goalTexts = new Dictionary<int, TextMesh>();
-        Camera _cam;
+        Transform _goalsRoot, _popupRoot, _bannerRoot;
+        readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
+        readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
+        readonly Dictionary<Transform, Vector3> _baseScale = new Dictionary<Transform, Vector3>();
+        int _uiLayer;
 
         public bool PopupOpen => _popupRoot != null;
 
-        public void Init(Camera cam, Action restart, Action prev, Action next)
+        public void Init(Action restart, Action prev, Action next)
         {
-            _cam = cam;
+            _uiLayer = gameObject.layer;
             _buttons.Clear();
 
             if (levelAnchor != null)
             {
-                if (levelPlate != null) VisualUtil.MakeSprite("LevelPlate", levelAnchor, levelPlate, Vector3.zero, 3.2f, 60);
-                _levelText = VisualUtil.MakeText("LevelText", levelAnchor, font, new Vector3(0f, 0.02f, -0.1f), 0.62f, levelTextColor, TextAnchor.MiddleCenter, 61);
-                var l = VisualUtil.MakeText("Prev", levelAnchor, font, new Vector3(-2.2f, 0f, -0.1f), 0.8f, Color.white, TextAnchor.MiddleCenter, 61);
+                if (levelPlate != null) VisualUtil.MakeSprite("LevelPlate", levelAnchor, levelPlate, Vector3.zero, 4.15f, 60);
+                _levelText = VisualUtil.MakeText("LevelText", levelAnchor, font, new Vector3(0f, 0.08f, -0.1f), 0.8f, levelTextColor, TextAnchor.MiddleCenter, 61);
+                var l = VisualUtil.MakeText("Prev", levelAnchor, font, new Vector3(-2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
                 l.text = "<";
-                var r = VisualUtil.MakeText("Next", levelAnchor, font, new Vector3(2.2f, 0f, -0.1f), 0.8f, Color.white, TextAnchor.MiddleCenter, 61);
+                var r = VisualUtil.MakeText("Next", levelAnchor, font, new Vector3(2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
                 r.text = ">";
-                AddButton(new Bounds(l.transform.position, new Vector3(0.9f, 0.9f, 10f)), prev);
-                AddButton(new Bounds(r.transform.position, new Vector3(0.9f, 0.9f, 10f)), next);
+                AddButton(l.transform, new Vector2(1.1f, 1.3f), prev);
+                AddButton(r.transform, new Vector2(1.1f, 1.3f), next);
+                Relayer(levelAnchor);
             }
             if (settingsAnchor != null)
             {
-                var s = settingsButton != null
-                    ? VisualUtil.MakeSprite("RestartButton", settingsAnchor, settingsButton, Vector3.zero, 1.25f, 60)
-                    : null;
-                if (s == null && settingsAnchor.GetComponentInChildren<SpriteRenderer>(true) == null)
+                if (settingsButton != null) VisualUtil.MakeSprite("RestartButton", settingsAnchor, settingsButton, Vector3.zero, 1.5f, 60);
+                else if (settingsAnchor.GetComponentInChildren<SpriteRenderer>(true) == null)
                 {
-                    var t = VisualUtil.MakeText("Restart", settingsAnchor, font, Vector3.zero, 0.7f, Color.white);
+                    var t = VisualUtil.MakeText("Restart", settingsAnchor, font, Vector3.zero, 0.8f, Color.white);
                     t.text = "R";
                 }
-                AddButton(new Bounds(settingsAnchor.position, new Vector3(1.3f, 1.3f, 10f)), restart);
+                AddButton(settingsAnchor, new Vector2(1.6f, 1.6f), restart);
+                Relayer(settingsAnchor);
             }
             if (movesAnchor != null)
             {
-                _movesShadow = VisualUtil.MakeText("MovesShadow", movesAnchor, font, new Vector3(0.04f, -0.05f, 0f), 1.0f, new Color(0.42f, 0.29f, 0.16f), TextAnchor.MiddleCenter, 61);
-                _movesText = VisualUtil.MakeText("Moves", movesAnchor, font, new Vector3(0f, 0f, -0.1f), 1.0f, Color.white, TextAnchor.MiddleCenter, 62);
+                _movesShadow = VisualUtil.MakeText("MovesShadow", movesAnchor, font, new Vector3(0.05f, -0.07f, 0.05f), 1.45f, new Color(0.42f, 0.29f, 0.16f), TextAnchor.MiddleCenter, 61);
+                _movesText = VisualUtil.MakeText("Moves", movesAnchor, font, Vector3.zero, 1.45f, Color.white, TextAnchor.MiddleCenter, 62);
             }
         }
 
-        void AddButton(Bounds b, Action a, bool popup = false) => _buttons.Add(new Button { Area = b, OnClick = a, Popup = popup });
+        void AddButton(Transform t, Vector2 size, Action a, bool popup = false) =>
+            _buttons.Add(new Button { Target = t, Size = size, OnClick = a, Popup = popup });
+
+        void Relayer(Transform root)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = _uiLayer;
+        }
+
+        void Update()
+        {
+            if (_punch.Count == 0) return;
+            var done = new List<Transform>();
+            var keys = new List<Transform>(_punch.Keys);
+            foreach (var t in keys)
+            {
+                if (t == null) { done.Add(t); continue; }
+                float v = Mathf.Max(0f, _punch[t] - Time.deltaTime * 4f);
+                _punch[t] = v;
+                t.localScale = _baseScale[t] * (1f + 0.35f * Mathf.Sin(v * Mathf.PI));
+                if (v <= 0f) done.Add(t);
+            }
+            foreach (var t in done) { _punch.Remove(t); }
+        }
+
+        void Punch(Transform t)
+        {
+            if (t == null) return;
+            if (!_baseScale.ContainsKey(t)) _baseScale[t] = t.localScale;
+            _punch[t] = 1f;
+        }
 
         public void SetLevel(int number) { if (_levelText != null) _levelText.text = "Level " + number; }
 
-        public void SetMoves(int moves)
+        public void SetMoves(int moves, bool punch = false)
         {
             if (_movesText != null) _movesText.text = moves.ToString();
             if (_movesShadow != null) _movesShadow.text = moves.ToString();
             if (_movesText != null) _movesText.color = moves <= 5 ? new Color(1f, 0.55f, 0.5f) : Color.white;
+            if (punch && movesAnchor != null) Punch(movesAnchor);
         }
+
+        // ---------------- Goals ----------------
+
+        public Func<int, int> VariantForType;
 
         /// <summary>Goal row: a small copy of each item prefab plus a counter.</summary>
         public void BuildGoals(IList<GoalData> goals, ItemCatalog catalog)
         {
             if (_goalsRoot != null) Destroy(_goalsRoot.gameObject);
-            _goalTexts.Clear();
+            _goals.Clear();
             if (goalsAnchor == null) return;
             _goalsRoot = new GameObject("Goals").transform;
             _goalsRoot.SetParent(goalsAnchor, false);
 
-            const float slot = 1.9f;
+            const float slot = 2.2f;
             float width = goals.Count * slot;
             if (whiteSprite != null)
             {
                 var bg = VisualUtil.MakeSprite("GoalsBg", _goalsRoot, whiteSprite, new Vector3(0f, 0f, 1f), 0f, 55);
                 bg.color = new Color(0.2f, 0.1f, 0.03f, 0.45f);
                 var sz = whiteSprite.bounds.size;
-                bg.transform.localScale = new Vector3((width + 0.3f) / sz.x, 1.15f / sz.y, 1f);
+                bg.transform.localScale = new Vector3((width + 0.4f) / sz.x, 1.3f / sz.y, 1f);
             }
             for (int i = 0; i < goals.Count; i++)
             {
                 var g = goals[i];
                 float x = -width * 0.5f + slot * (i + 0.5f);
                 var e = catalog.Get(g.type);
+                Transform iconT = null;
                 if (e != null && e.prefab != null)
                 {
                     var icon = Instantiate(e.prefab, _goalsRoot);
                     VisualUtil.StripRuntimeComponents(icon);
-                    icon.transform.localPosition = new Vector3(x - 0.45f, 0f, 0f);
-                    icon.transform.localScale = Vector3.Scale(icon.transform.localScale, Vector3.one * 0.75f / Mathf.Max(1f, FootprintGuess(e)));
+                    icon.transform.localPosition = new Vector3(x - 0.5f, 0f, 0f);
+                    icon.transform.localScale = Vector3.Scale(icon.transform.localScale, Vector3.one * 0.85f);
                     VisualUtil.ApplyOrientation(icon.transform, false);
-                    if (e.colorByVariant) VisualUtil.ApplyAtlasTile(icon.transform, catalog, catalog.AtlasTileForVariant(FirstVariant(g.type)));
+                    if (e.colorByVariant) VisualUtil.ApplyAtlasTile(icon.transform, catalog, catalog.AtlasTileForVariant(VariantForType != null ? VariantForType(g.type) : 0));
                     foreach (var anim in icon.GetComponentsInChildren<Animator>(true)) anim.enabled = false;
+                    iconT = icon.transform;
                 }
-                var t = VisualUtil.MakeText("Goal_" + g.type, _goalsRoot, font, new Vector3(x + 0.35f, 0f, -1f), 0.55f, Color.white, TextAnchor.MiddleCenter, 62);
-                _goalTexts[g.type] = t;
+                var t = VisualUtil.MakeText("Goal_" + g.type, _goalsRoot, font, new Vector3(x + 0.45f, 0f, -1f), 0.65f, Color.white, TextAnchor.MiddleCenter, 62);
+                _goals[g.type] = (t, iconT);
             }
+            Relayer(_goalsRoot);
         }
 
-        // Filled by GameController so the goal icon uses the level's block colour.
-        public Func<int, int> VariantForType;
-        int FirstVariant(int type) => VariantForType != null ? VariantForType(type) : 0;
-        static float FootprintGuess(ItemCatalog.Entry e) => e.label.Contains("Container") ? 2.5f : (e.label.Contains("Stand") || e.label.Contains("Unbreakable") ? 1.6f : 1f);
-
-        public void SetGoal(int type, int remaining)
+        public void SetGoal(int type, int remaining, bool punch = false)
         {
-            if (_goalTexts.TryGetValue(type, out var t)) t.text = remaining > 0 ? remaining.ToString() : "✓";
+            if (!_goals.TryGetValue(type, out var g)) return;
+            g.text.text = remaining > 0 ? remaining.ToString() : "✓";
+            if (punch) { Punch(g.text.transform); Punch(g.icon); }
+        }
+
+        /// <summary>World position of a goal icon on screen, projected onto the given camera's view (for fly-to effects).</summary>
+        public bool TryGetGoalScreenPos(int type, out Vector3 screen)
+        {
+            screen = default;
+            if (uiCamera == null || !_goals.TryGetValue(type, out var g) || g.text == null) return false;
+            screen = uiCamera.WorldToScreenPoint(g.icon != null ? g.icon.position : g.text.transform.position);
+            return true;
+        }
+
+        // ---------------- Tutorial banner ----------------
+
+        public void ShowBanner(string text)
+        {
+            HideBanner();
+            if (bannerAnchor == null) return;
+            _bannerRoot = new GameObject("Banner").transform;
+            _bannerRoot.SetParent(bannerAnchor, false);
+            if (whiteSprite != null)
+            {
+                var sz = whiteSprite.bounds.size;
+                var border = VisualUtil.MakeSprite("Border", _bannerRoot, whiteSprite, new Vector3(0, 0, 0.1f), 0f, 70);
+                border.color = panelBorderColor;
+                border.transform.localScale = new Vector3(7.4f / sz.x, 2.5f / sz.y, 1f);
+                var fill = VisualUtil.MakeSprite("Fill", _bannerRoot, whiteSprite, Vector3.zero, 0f, 71);
+                fill.color = panelColor;
+                fill.transform.localScale = new Vector3(7.0f / sz.x, 2.1f / sz.y, 1f);
+            }
+            var t = VisualUtil.MakeText("Text", _bannerRoot, font, new Vector3(0, 0, -0.1f), 0.62f, panelBorderColor, TextAnchor.MiddleCenter, 72);
+            t.text = text;
+            Relayer(_bannerRoot);
+        }
+
+        public void HideBanner()
+        {
+            if (_bannerRoot != null) Destroy(_bannerRoot.gameObject);
+            _bannerRoot = null;
         }
 
         // ---------------- Popup ----------------
@@ -145,26 +226,25 @@ namespace GardenCannon
             ClosePopup();
             _popupRoot = new GameObject("Popup").transform;
             _popupRoot.SetParent(transform, false);
-            Vector3 c = _cam != null ? new Vector3(_cam.transform.position.x, _cam.transform.position.y, -30f) : new Vector3(0, 6, -30f);
+            Vector3 c = uiCamera != null ? uiCamera.transform.position + uiCamera.transform.forward * 5f : new Vector3(0, 0, -5f);
             _popupRoot.position = c;
 
             if (whiteSprite != null)
             {
+                var sz = whiteSprite.bounds.size;
                 var dim = VisualUtil.MakeSprite("Dim", _popupRoot, whiteSprite, Vector3.zero, 0f, 900);
                 dim.color = new Color(0f, 0f, 0f, 0.6f);
-                var sz = whiteSprite.bounds.size;
-                dim.transform.localScale = new Vector3(60f / sz.x, 80f / sz.y, 1f);
+                dim.transform.localScale = new Vector3(80f / sz.x, 120f / sz.y, 1f);
+                var border = VisualUtil.MakeSprite("Border", _popupRoot, whiteSprite, new Vector3(0, 0, -0.05f), 0f, 901);
+                border.color = panelBorderColor;
+                border.transform.localScale = new Vector3(10.4f / sz.x, 8.6f / sz.y, 1f);
+                var panel = VisualUtil.MakeSprite("Panel", _popupRoot, whiteSprite, new Vector3(0, 0, -0.1f), 0f, 902);
+                panel.color = panelColor;
+                panel.transform.localScale = new Vector3(10f / sz.x, 8.2f / sz.y, 1f);
             }
-            var panel = VisualUtil.MakeSprite("Panel", _popupRoot, panelSprite != null ? panelSprite : whiteSprite, new Vector3(0, 0, -0.1f), 0f, 901);
-            panel.color = panelColor;
-            if (panel.sprite != null)
-            {
-                var sz = panel.sprite.bounds.size;
-                panel.transform.localScale = new Vector3(10.5f / sz.x, 8.2f / sz.y, 1f);
-            }
-            var tt = VisualUtil.MakeText("Title", _popupRoot, font, new Vector3(0f, 2.6f, -0.2f), 1.0f, titleColor, TextAnchor.MiddleCenter, 902);
+            var tt = VisualUtil.MakeText("Title", _popupRoot, font, new Vector3(0f, 2.7f, -0.2f), 1.1f, titleColor, TextAnchor.MiddleCenter, 903);
             tt.text = title;
-            var bt = VisualUtil.MakeText("Body", _popupRoot, font, new Vector3(0f, 0.9f, -0.2f), 0.5f, new Color(0.35f, 0.23f, 0.12f), TextAnchor.MiddleCenter, 902);
+            var bt = VisualUtil.MakeText("Body", _popupRoot, font, new Vector3(0f, 0.8f, -0.2f), 0.55f, new Color(0.35f, 0.23f, 0.12f), TextAnchor.MiddleCenter, 903);
             bt.text = body;
 
             float bw = 4.2f, gap = 0.4f;
@@ -172,18 +252,22 @@ namespace GardenCannon
             for (int i = 0; i < buttons.Length; i++)
             {
                 var (label, action, main) = buttons[i];
-                Vector3 p = new Vector3(-total * 0.5f + bw * (i + 0.5f) + gap * i, -2.2f, -0.2f);
+                Vector3 p = new Vector3(-total * 0.5f + bw * (i + 0.5f) + gap * i, -2.4f, -0.2f);
                 if (whiteSprite != null)
                 {
-                    var b = VisualUtil.MakeSprite("Btn_" + label, _popupRoot, whiteSprite, p, 0f, 902);
+                    var b = VisualUtil.MakeSprite("Btn_" + label, _popupRoot, whiteSprite, p, 0f, 903);
                     b.color = main ? mainButtonColor : altButtonColor;
                     var sz = whiteSprite.bounds.size;
-                    b.transform.localScale = new Vector3(bw / sz.x, 1.5f / sz.y, 1f);
+                    b.transform.localScale = new Vector3(bw / sz.x, 1.6f / sz.y, 1f);
                 }
-                var lt = VisualUtil.MakeText("Label", _popupRoot, font, p + new Vector3(0, 0, -0.1f), 0.62f, Color.white, TextAnchor.MiddleCenter, 903);
+                var lt = VisualUtil.MakeText("Label", _popupRoot, font, p + new Vector3(0, 0, -0.1f), 0.7f, Color.white, TextAnchor.MiddleCenter, 904);
                 lt.text = label;
-                AddButton(new Bounds(_popupRoot.TransformPoint(p), new Vector3(bw, 1.5f, 100f)), action, true);
+                AddButton(lt.transform, new Vector2(bw, 1.6f), action, true);
             }
+            Relayer(_popupRoot);
+            _popupRoot.localScale = Vector3.one * 0.6f;
+            Punch(_popupRoot);
+            _baseScale[_popupRoot] = Vector3.one;
         }
 
         public void ClosePopup()
@@ -193,22 +277,26 @@ namespace GardenCannon
             _buttons.RemoveAll(b => b.Popup);
         }
 
-        /// <summary>Returns true when the pointer hit a HUD button (and runs it).</summary>
-        public bool HandleClick(Vector2 world)
+        /// <summary>Screen click -> HUD button. Returns true when the click was used by the HUD.</summary>
+        public bool HandleClick(Vector3 screenPos)
         {
+            if (uiCamera == null) return false;
+            Vector2 world = uiCamera.ScreenToWorldPoint(screenPos);
             bool popup = PopupOpen;
             for (int i = _buttons.Count - 1; i >= 0; i--)
             {
                 var b = _buttons[i];
                 if (popup && !b.Popup) continue;
-                var area = b.Area;
-                if (world.x >= area.min.x && world.x <= area.max.x && world.y >= area.min.y && world.y <= area.max.y)
+                if (b.Target == null) continue;
+                Vector2 c = b.Target.position;
+                Vector2 half = b.Size * 0.5f * (b.Popup && _popupRoot != null ? _popupRoot.lossyScale.x : 1f);
+                if (Mathf.Abs(world.x - c.x) <= half.x && Mathf.Abs(world.y - c.y) <= half.y)
                 {
                     b.OnClick?.Invoke();
                     return true;
                 }
             }
-            return popup; // a click anywhere on an open popup is consumed
+            return popup;
         }
     }
 }

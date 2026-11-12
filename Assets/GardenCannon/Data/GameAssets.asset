@@ -22,6 +22,7 @@ MonoBehaviour:
   cannon: {fileID: 21300000, guid: 565c32d378d3bb8409ccd925b7c07905, type: 2}
   cannonShadow: {fileID: 21300000, guid: 69bfce6722a3bb445bee829c17761a79, type: 2}
   aimDot: {fileID: 21300000, guid: 7ac385630043a9b469303d9803b26d71, type: 2}
+  sparkle: {fileID: 21300000, guid: 3ebd9f9f82f2def4b9e8a561a1755555, type: 2}
   levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
   settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
   white: {fileID: 21300000, guid: 243e36b186531734b9905acb677ee060, type: 2}

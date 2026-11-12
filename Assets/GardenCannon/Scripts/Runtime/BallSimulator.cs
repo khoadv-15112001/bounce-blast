@@ -12,6 +12,8 @@ namespace GardenCannon
         public Vector2 Vel;
         public Transform View;
         public bool Dead;
+        public float Age;
+        public float SpeedScale = 1f;
         public readonly HashSet<BoardItem> Inside = new HashSet<BoardItem>();
     }
 
@@ -26,7 +28,7 @@ namespace GardenCannon
         [Tooltip("Ball radius in cells.")]
         public float radiusCells = 0.22f;
         [Tooltip("Ball speed in cells per second.")]
-        public float speedCells = 16f;
+        public float speedCells = 17f;
         [Tooltip("Minimum share of the speed kept on the Y axis (prevents endless horizontal bouncing).")]
         [Range(0f, 0.5f)] public float minVerticalRatio = 0.18f;
         [Tooltip("Max distance per sub-step, as a fraction of the radius.")]
@@ -98,7 +100,7 @@ namespace GardenCannon
             if (result == BallHit.PassThrough) result = BallHit.None; // already reported
 
             // Keep speed constant and avoid near-horizontal loops.
-            float speed = Speed;
+            float speed = Speed * b.SpeedScale;
             float minVy = speed * minVerticalRatio;
             if (Mathf.Abs(b.Vel.y) < minVy) b.Vel.y = (b.Vel.y >= 0f ? 1f : -1f) * minVy;
             b.Vel = b.Vel.normalized * speed;

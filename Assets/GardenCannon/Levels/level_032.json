@@ -23,7 +23,7 @@
   {
    "type": 25,
    "x": 0,
-   "y": 0,
+   "y": 11,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -35,11 +35,11 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 1,
-     "y": 1
+     "y": -1
     }
    ],
    "hasLane": false,
@@ -50,7 +50,7 @@
   {
    "type": 26,
    "x": 3,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -64,7 +64,7 @@
   {
    "type": 26,
    "x": 4,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -78,7 +78,7 @@
   {
    "type": 26,
    "x": 5,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -92,7 +92,7 @@
   {
    "type": 26,
    "x": 6,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -106,7 +106,7 @@
   {
    "type": 26,
    "x": 7,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -120,7 +120,7 @@
   {
    "type": 26,
    "x": 8,
-   "y": 1,
+   "y": 10,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -134,7 +134,7 @@
   {
    "type": 26,
    "x": 3,
-   "y": 2,
+   "y": 9,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -148,7 +148,7 @@
   {
    "type": 13,
    "x": 4,
-   "y": 2,
+   "y": 9,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -172,31 +172,31 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 0,
-     "y": 2
+     "y": -2
     },
     {
      "x": -4,
-     "y": 3
+     "y": -3
     },
     {
      "x": -3,
-     "y": 3
+     "y": -3
     },
     {
      "x": -2,
-     "y": 3
+     "y": -3
     },
     {
      "x": -1,
-     "y": 3
+     "y": -3
     },
     {
      "x": 0,
-     "y": 3
+     "y": -3
     }
    ],
    "hasLane": false,
@@ -207,7 +207,7 @@
   {
    "type": 26,
    "x": 3,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -221,7 +221,7 @@
   {
    "type": 26,
    "x": 5,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -235,7 +235,7 @@
   {
    "type": 26,
    "x": 6,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -249,7 +249,7 @@
   {
    "type": 26,
    "x": 7,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -263,7 +263,7 @@
   {
    "type": 26,
    "x": 8,
-   "y": 3,
+   "y": 8,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -277,7 +277,7 @@
   {
    "type": 26,
    "x": 0,
-   "y": 4,
+   "y": 7,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -291,7 +291,7 @@
   {
    "type": 26,
    "x": 1,
-   "y": 4,
+   "y": 7,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -305,7 +305,7 @@
   {
    "type": 26,
    "x": 2,
-   "y": 4,
+   "y": 7,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -319,7 +319,7 @@
   {
    "type": 26,
    "x": 3,
-   "y": 4,
+   "y": 7,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -333,7 +333,91 @@
   {
    "type": 26,
    "x": 5,
-   "y": 4,
+   "y": 7,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 5,
+   "y": 6,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 0,
+   "y": 5,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 1,
+   "y": 5,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 2,
+   "y": 5,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 3,
+   "y": 5,
+   "layers": 1,
+   "variant": 2,
+   "hp": 10,
+   "maxHp": 10,
+   "footprint": [],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 26,
+   "x": 4,
+   "y": 5,
    "layers": 1,
    "variant": 2,
    "hp": 10,
@@ -359,93 +443,9 @@
    "laneMax": 0
   },
   {
-   "type": 26,
-   "x": 0,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
-   "type": 26,
-   "x": 1,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
-   "type": 26,
-   "x": 2,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
-   "type": 26,
-   "x": 3,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
-   "type": 26,
-   "x": 4,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
-   "type": 26,
-   "x": 5,
-   "y": 6,
-   "layers": 1,
-   "variant": 2,
-   "hp": 10,
-   "maxHp": 10,
-   "footprint": [],
-   "hasLane": false,
-   "lanePos": 0.0,
-   "laneMin": 0,
-   "laneMax": 0
-  },
-  {
    "type": 25,
    "x": 7,
-   "y": 6,
+   "y": 5,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -457,11 +457,11 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 1,
-     "y": 1
+     "y": -1
     }
    ],
    "hasLane": false,
@@ -472,7 +472,7 @@
   {
    "type": 4,
    "x": 4,
-   "y": 7,
+   "y": 4,
    "layers": 1,
    "variant": 1,
    "hp": 0,
@@ -480,18 +480,18 @@
    "footprint": [
     {
      "x": 0,
-     "y": 1
+     "y": -1
     }
    ],
    "hasLane": true,
-   "lanePos": 7.0,
-   "laneMin": 7,
-   "laneMax": 11
+   "lanePos": 4.0,
+   "laneMin": 0,
+   "laneMax": 4
   },
   {
    "type": 5,
    "x": 0,
-   "y": 8,
+   "y": 3,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -503,11 +503,11 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 1,
-     "y": 1
+     "y": -1
     }
    ],
    "hasLane": false,
@@ -518,7 +518,7 @@
   {
    "type": 5,
    "x": 7,
-   "y": 8,
+   "y": 3,
    "layers": 1,
    "variant": 0,
    "hp": 0,
@@ -530,11 +530,11 @@
     },
     {
      "x": 0,
-     "y": 1
+     "y": -1
     },
     {
      "x": 1,
-     "y": 1
+     "y": -1
     }
    ],
    "hasLane": false,
@@ -545,7 +545,7 @@
   {
    "type": 23,
    "x": 0,
-   "y": 11,
+   "y": 0,
    "layers": 1,
    "variant": 3,
    "hp": 0,
@@ -559,7 +559,7 @@
   {
    "type": 23,
    "x": 8,
-   "y": 11,
+   "y": 0,
    "layers": 1,
    "variant": 2,
    "hp": 0,
