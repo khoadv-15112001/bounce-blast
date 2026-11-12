@@ -65,3 +65,7 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Output of Tools/ExportSprites.ps1
+/SpriteExport/
+/SpineExport/
