@@ -2,9 +2,12 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1045 &1
 EditorBuildSettings:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
+  serializedVersion: 2
   m_Scenes:
+  - enabled: 1
+    path: Assets/GardenCannon/Scenes/GardenCannon.unity
+    guid: 406bbf95bd484c14e83cc0717a225142
   - enabled: 1
     path: Assets/Spyke/Scenes/Intro.unity
     guid: 7636f38167431c94c900d9d26abc438d
@@ -35,4 +38,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Spyke/Scenes/Game.unity
     guid: d58fc97887c8a784982fe91c883f8ee5
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: bc3d74ccffe7f784881cd8e8c11cfaf5, type: 2}

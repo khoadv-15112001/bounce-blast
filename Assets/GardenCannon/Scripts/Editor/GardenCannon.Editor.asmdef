@@ -2,7 +2,10 @@
     "name": "GardenCannon.Editor",
     "rootNamespace": "GardenCannon.EditorTools",
     "references": [
-        "GardenCannon.Runtime"
+        "GardenCannon.Runtime",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [
         "Editor"

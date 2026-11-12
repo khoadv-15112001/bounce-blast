@@ -65,7 +65,7 @@ namespace GardenCannon
                 var s = settingsButton != null
                     ? VisualUtil.MakeSprite("RestartButton", settingsAnchor, settingsButton, Vector3.zero, 1.25f, 60)
                     : null;
-                if (s == null)
+                if (s == null && settingsAnchor.GetComponentInChildren<SpriteRenderer>(true) == null)
                 {
                     var t = VisualUtil.MakeText("Restart", settingsAnchor, font, Vector3.zero, 0.7f, Color.white);
                     t.text = "R";

@@ -78,38 +78,42 @@ namespace GardenCannon
         public int difficulty;
     }
 
-    /// <summary>Loads converted levels from Resources/GardenCannon/Levels.</summary>
+    /// <summary>
+    /// Level JSONs (Addressables group LocalLevels, label "levels"). Filled once by <see cref="GameBootstrap"/>
+    /// with every TextAsset loaded from the label; files are matched by name (index, level_001, ...).
+    /// </summary>
     public static class LevelLibrary
     {
-        public const string ResourceFolder = "GardenCannon/Levels/";
-        static LevelIndex _index;
+        public const string Label = "levels";
+        public const string IndexName = "index";
 
-        public static LevelIndex Index
+        static readonly Dictionary<string, TextAsset> _files = new Dictionary<string, TextAsset>();
+        static LevelIndex _index = new LevelIndex();
+
+        public static bool Ready { get; private set; }
+        public static LevelIndex Index => _index;
+        public static int Count => _index.levels.Count;
+
+        public static void Initialize(IEnumerable<TextAsset> assets)
         {
-            get
-            {
-                if (_index == null)
-                {
-                    var ta = Resources.Load<TextAsset>(ResourceFolder + "index");
-                    _index = ta != null ? JsonUtility.FromJson<LevelIndex>(ta.text) : new LevelIndex();
-                    if (ta == null) Debug.LogError("[GardenCannon] Missing Resources/" + ResourceFolder + "index.json. Run Tools/ConvertLevels.py.");
-                }
-                return _index;
-            }
+            _files.Clear();
+            foreach (var ta in assets)
+                if (ta != null) _files[ta.name] = ta;
+            _index = _files.TryGetValue(IndexName, out var idx) ? JsonUtility.FromJson<LevelIndex>(idx.text) : new LevelIndex();
+            if (_index.levels.Count == 0)
+                Debug.LogError("[GardenCannon] No level index in Addressables label '" + Label + "'. Run Garden Cannon > Setup.");
+            Ready = true;
         }
-
-        public static int Count => Index.levels.Count;
 
         /// <param name="number">1-based level number.</param>
         public static LevelData Load(int number)
         {
             if (Count == 0) return null;
             number = Mathf.Clamp(number, 1, Count);
-            var entry = Index.levels[number - 1];
-            var ta = Resources.Load<TextAsset>(ResourceFolder + entry.file);
-            if (ta == null)
+            var entry = _index.levels[number - 1];
+            if (!_files.TryGetValue(entry.file, out var ta))
             {
-                Debug.LogError("[GardenCannon] Missing level file " + entry.file);
+                Debug.LogError("[GardenCannon] Missing level file " + entry.file + " in Addressables label '" + Label + "'.");
                 return null;
             }
             var level = JsonUtility.FromJson<LevelData>(ta.text);

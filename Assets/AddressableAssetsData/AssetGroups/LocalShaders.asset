@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: LocalShaders
+  m_EditorClassIdentifier: 
+  m_GroupName: LocalShaders
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 607a989cf0735a944a7491e648539735
+  m_SerializeEntries:
+  - m_GUID: 544df8fea5222174b8d6637ebf4ff9a8
+    m_Address: GardenCannon/Shaders/Spyke_StandardCustomLightDir
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cb222c5624fc1eb42b5a3af6dcc9ba1e
+    m_Address: GardenCannon/Shaders/Spyke_ContainerRingFill
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cf969fa014bfc8a4bb86c4c4cabfec1c
+    m_Address: GardenCannon/Shaders/Spyke_ElectricOrbScroll
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 248c0a55cd07dc9418887d80c625d32e
+    m_Address: GardenCannon/Shaders/TextMeshPro_Distance Field
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d3e9339f22347684a89de366c96d1846
+    m_Address: GardenCannon/Shaders/Spyke_RisingBumperClippedToon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 355bdb2499060564c849256df4bc1b42, type: 2}
+    - {fileID: 11400000, guid: 0bdd555863560364589d579fc90c3e7b, type: 2}

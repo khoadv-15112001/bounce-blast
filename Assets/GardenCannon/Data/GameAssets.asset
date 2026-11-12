@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcfb08089ed4e1046bf5ad494c0abce4, type: 3}
+  m_Name: GameAssets
+  m_EditorClassIdentifier: 
+  catalog: {fileID: 11400000, guid: facaf1e593e056948abd60ca762eb5bb, type: 2}
+  ballPrefab: {fileID: 1709254077376921, guid: d992778b95c59c842baca27016eedfca, type: 3}
+  font: {fileID: 12800000, guid: cd7cde3d0b16f59458708cd5f1bff7f3, type: 3}
+  grassTop: {fileID: 21300000, guid: 2400012cdf561f441adde09f46c83258, type: 2}
+  grassTop12x17: {fileID: 21300000, guid: e1286e39ff6c4db4184c9f04d3f44ee9, type: 2}
+  water: {fileID: 21300000, guid: 4a31591c0147d494fa5c19b87b67a199, type: 2}
+  grassBottom: {fileID: 21300000, guid: 6cc941804e6d4c84fa0d36457a874f24, type: 2}
+  cannon: {fileID: 21300000, guid: 565c32d378d3bb8409ccd925b7c07905, type: 2}
+  cannonShadow: {fileID: 21300000, guid: 69bfce6722a3bb445bee829c17761a79, type: 2}
+  aimDot: {fileID: 21300000, guid: 7ac385630043a9b469303d9803b26d71, type: 2}
+  levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
+  settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
+  white: {fileID: 21300000, guid: 243e36b186531734b9905acb677ee060, type: 2}
+  ballFire: {fileID: 8300000, guid: c978c86e3854cd64690840e55596708b, type: 3}
+  ballFireRefused: {fileID: 8300000, guid: 2c9fa71280d41eb409fd25448b274266, type: 3}
+  wallBounce: {fileID: 8300000, guid: 70accf0368e813a459aecd1cd177ab03, type: 3}
+  ballCollide: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
+  waterSplash: {fileID: 8300000, guid: 0585ebf9d0d4ae04eb2f0abf9f148e3f, type: 3}
+  aimTick: {fileID: 8300000, guid: f74090485c0d9bc4ca52a97ba89fa1bc, type: 3}
+  lastMoves: {fileID: 8300000, guid: 8c03fb5d35a3c26458b3f06198010a21, type: 3}

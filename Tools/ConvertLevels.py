@@ -1,10 +1,10 @@
 """
 Convert the level bundle (Assets/addressable/locallevels_assets_all.bundle) into
-JSON files that the Unity game (Assets/GardenCannon) loads from Resources.
+JSON files that the Unity game loads through Addressables (group LocalLevels).
 
 Usage (needs `pip install UnityPy`):
     python Tools/ConvertLevels.py
-    python Tools/ConvertLevels.py --bundle path/to/locallevels.bundle --out Assets/GardenCannon/Resources/GardenCannon/Levels
+    python Tools/ConvertLevels.py --bundle path/to/locallevels.bundle --out Assets/GardenCannon/Levels
 
 Each level TextAsset (id_1 .. id_N) is a FlatBuffer without a shipped schema.
 The layout below was reverse engineered from the data:
@@ -48,7 +48,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_BUNDLE = os.path.join(ROOT, "Assets", "addressable", "locallevels_assets_all.bundle")
-DEFAULT_OUT = os.path.join(ROOT, "Assets", "GardenCannon", "Resources", "GardenCannon", "Levels")
+DEFAULT_OUT = os.path.join(ROOT, "Assets", "GardenCannon", "Levels")
 
 
 class FlatTable:

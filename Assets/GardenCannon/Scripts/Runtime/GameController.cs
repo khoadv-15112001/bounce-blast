@@ -58,8 +58,13 @@ namespace GardenCannon
 
         const string PrefKey = "gc_level";
 
-        void Start()
+        bool _started;
+
+        /// <summary>Called by <see cref="GameBootstrap"/> once every reference is set.</summary>
+        public void Begin()
         {
+            if (_started) return;
+            _started = true;
             if (cam == null) cam = Camera.main;
             _font = hud != null ? hud.font : null;
             physics.Board = board;
@@ -133,6 +138,7 @@ namespace GardenCannon
 
         void Update()
         {
+            if (!_started) return;
             float dt = Mathf.Min(Time.deltaTime, 1f / 30f);
             HandleInput();
             board.Tick(dt);

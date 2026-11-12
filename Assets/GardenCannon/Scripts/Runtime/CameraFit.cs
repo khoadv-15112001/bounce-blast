@@ -8,7 +8,7 @@ namespace GardenCannon
     public class CameraFit : MonoBehaviour
     {
         [Tooltip("World rectangle that must always be visible.")]
-        public Rect content = new Rect(-7.36f, -6.95f, 14.72f, 24.72f);
+        public Rect content = new Rect(-5.645f, -6.94f, 11.29f, 24.46f);
         [Tooltip("Vertical alignment when the screen is taller than the content (0 = bottom, 1 = top).")]
         [Range(0f, 1f)] public float verticalAlign = 0.5f;
 
