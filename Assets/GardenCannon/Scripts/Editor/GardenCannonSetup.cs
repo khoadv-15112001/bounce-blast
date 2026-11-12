@@ -135,6 +135,7 @@ namespace GardenCannon.EditorTools
             {
                 catalog.entries.Clear();
                 catalog.defaultsVersion = DefaultsVersion;
+                catalog.behaviourVersion = 0;   // obstacle rules are re-applied by GameAssetsAutoFix
                 catalog.damagePerHit = 1;
                 catalog.variantToAtlasTile = ItemCatalog.DefaultVariantTiles();
             }
@@ -308,7 +309,7 @@ namespace GardenCannon.EditorTools
             Add(settings, gDefault, catalog, "GardenCannon/ItemCatalog");
             if (assets.cannonAnimator != null) Add(settings, gDefault, assets.cannonAnimator, "GardenCannon/Animators/" + assets.cannonAnimator.name);
             var prefabs = new List<GameObject> { assets.ballPrefab };
-            foreach (var e in catalog.entries) { prefabs.Add(e.prefab); prefabs.Add(e.breakFx); prefabs.Add(e.hitFx); prefabs.Add(e.openFx); prefabs.Add(e.hatchFx); }
+            foreach (var e in catalog.entries) { prefabs.Add(e.prefab); prefabs.Add(e.breakFx); prefabs.Add(e.hitFx); prefabs.Add(e.openFx); prefabs.Add(e.hatchFx); prefabs.Add(e.partFx); }
             prefabs.Add(assets.splashFx);
             prefabs = prefabs.Where(p => p != null).Distinct().ToList();
             foreach (var p in prefabs)
@@ -325,7 +326,7 @@ namespace GardenCannon.EditorTools
                 assets.lastMoves, assets.refillLand, assets.buttonClick, assets.appear, assets.goalHit, assets.goalComplete,
                 assets.levelWin, assets.levelWinFireworks, assets.outOfBalls, assets.levelFail, assets.music,
             };
-            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); clips.Add(e.extraBreakSfx); clips.Add(e.openSfx); }
+            foreach (var e in catalog.entries) { clips.Add(e.hitSfx); clips.Add(e.breakSfx); clips.Add(e.extraBreakSfx); clips.Add(e.openSfx); clips.Add(e.partBreakSfx); clips.Add(e.altSfx); }
             foreach (var c in clips.Where(c => c != null).Distinct())
                 Add(settings, gAudio, c, "GardenCannon/Audio/" + c.name);
 
@@ -625,7 +626,7 @@ namespace GardenCannon.EditorTools
         static GameObject LoadPrefab(string name) =>
             string.IsNullOrEmpty(name) ? null : AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/GameObject/{name}.prefab");
 
-        static AudioClip LoadClip(string name) =>
+        public static AudioClip LoadClip(string name) =>
             string.IsNullOrEmpty(name) ? null : AssetDatabase.LoadAssetAtPath<AudioClip>($"Assets/AudioClip/{name}.ogg");
 
         const string ExtractedAudio = Root + "/Audio";

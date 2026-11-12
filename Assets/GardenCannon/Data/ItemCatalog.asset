@@ -40,12 +40,20 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   - label: Brick Wall
     typeId: 2
-    kind: 1
+    kind: 0
     shape: 0
-    defaultHits: 1
+    defaultHits: 3
     prefab: {fileID: 1709254077376921, guid: b750d37a8c725b24391261bd4ab0c6a9, type: 3}
     visualScale: 1
     fitFootprint: 0
@@ -61,13 +69,21 @@ MonoBehaviour:
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
-    breakFx: {fileID: 0}
+    breakFx: {fileID: 2389019736332780245, guid: bb68423b44cf41b47a78dbe01db35d83, type: 3}
     hitFx: {fileID: 0}
     openFx: {fileID: 0}
     hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
-    breakSfx: {fileID: 0}
+    breakSfx: {fileID: 8300000, guid: 149c886980ff22248b81d4ed8c5481fa, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 2
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.25, g: 0.3, b: 0.8, a: 1}
   - label: Moving Barrier
     typeId: 4
@@ -96,6 +112,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.25, b: 0.2, a: 1}
   - label: Egg Box
     typeId: 5
@@ -124,6 +148,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
     breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
     extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.75, g: 0.35, b: 0.85, a: 1}
   - label: Electric Orb
     typeId: 6
@@ -132,7 +164,7 @@ MonoBehaviour:
     defaultHits: 2
     prefab: {fileID: 1709254077376921, guid: aae0f6e7d2ce4cf4e8fab1ba8a22c8e8, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -151,7 +183,15 @@ MonoBehaviour:
     hatchFx: {fileID: 0}
     hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
     breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
-    extraBreakSfx: {fileID: 8300000, guid: 3c225e7bc75948649864ad143a4bc342, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 4
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 8300000, guid: 3c225e7bc75948649864ad143a4bc342, type: 3}
     debugColor: {r: 0.4, g: 0.7, b: 1, a: 1}
   - label: Log Cutter
     typeId: 7
@@ -160,7 +200,7 @@ MonoBehaviour:
     defaultHits: 2
     prefab: {fileID: 1709254077376921, guid: fb5276f11e2c416439d983df4cbc1b72, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -180,12 +220,20 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
     breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 3
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
   - label: Target Stand
     typeId: 8
     kind: 0
     shape: 0
-    defaultHits: 3
+    defaultHits: 2
     prefab: {fileID: 1709254077376921, guid: 60a5be7bd6838a94e9119517efe367bf, type: 3}
     visualScale: 1
     fitFootprint: 0
@@ -208,6 +256,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 6
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
   - label: Moving Target
     typeId: 9
@@ -236,6 +292,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 6
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
   - label: Wooden Box
     typeId: 13
@@ -244,7 +308,7 @@ MonoBehaviour:
     defaultHits: 4
     prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -264,6 +328,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
     breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 5
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    partFx: {fileID: 6347052287175827291, guid: bab0b502ad86bff4bb1abf05c227bdd3, type: 3}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.93, g: 0.55, b: 0.16, a: 1}
   - label: Stone Corner
     typeId: 23
@@ -292,6 +364,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.86, b: 0.78, a: 1}
   - label: Container
     typeId: 24
@@ -300,7 +380,7 @@ MonoBehaviour:
     defaultHits: 1
     prefab: {fileID: 1709254077376921, guid: 68ccb75b24dc88647b49cba26e220ade, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -320,6 +400,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
     breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 1
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 1, g: 0.8, b: 0.25, a: 1}
   - label: Twirler
     typeId: 25
@@ -348,6 +436,14 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 0.9, g: 0.2, b: 0.15, a: 1}
   - label: Number Block
     typeId: 26
@@ -376,8 +472,17 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   defaultsVersion: 4
+  behaviourVersion: 1
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
     rimMask: 15

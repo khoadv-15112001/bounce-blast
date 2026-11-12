@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GardenCannon
 {
     /// <summary>A level item on the board: physics shape, HP, lane movement and its visual.</summary>
-    public class BoardItem : MonoBehaviour
+    public partial class BoardItem : MonoBehaviour
     {
         public ItemData Data { get; private set; }
         public ItemCatalog.Entry Entry { get; private set; }
@@ -23,7 +23,18 @@ namespace GardenCannon
         Quaternion _spinVisualBase;
         public Rect Bounds => _bounds;
 
-        public enum HitResult { None, Damaged, Opened, Hatched, Broken }
+        public enum HitResult
+        {
+            None, Damaged, Opened, Hatched, Broken,
+            /// <summary>Solid but the hit changed nothing (orb already on, burning fuse).</summary>
+            Blocked,
+            /// <summary>One part broke (crate, log); the item is still alive. See <see cref="LastPartPos"/>.</summary>
+            PartBroken,
+            /// <summary>An electric orb switched on. See <see cref="LastPartPos"/>.</summary>
+            Activated,
+            /// <summary>Brick wall: the fuse is lit, it explodes a moment later.</summary>
+            Fused,
+        }
 
         readonly List<Renderer> _rings = new List<Renderer>();
         static readonly int FillId = Shader.PropertyToID("_Fill");
@@ -100,6 +111,7 @@ namespace GardenCannon
             MaxHits = data.hp > 0 ? Mathf.Max(1, Mathf.CeilToInt(data.hp / (float)damage)) : Mathf.Max(1, entry != null ? entry.defaultHits : 1);
             if (data.layers > 1 && data.hp <= 0) MaxHits *= data.layers;
             Hits = MaxHits;
+            InitBehaviour();
 
             _lane = data.hasLane && data.laneMax > data.laneMin;
             if (_lane)
@@ -136,11 +148,13 @@ namespace GardenCannon
             _doorsClosed = false;
             _doorOpen = -1f;
             LastHitHatched = false;
+            ResetBehaviour();
         }
 
         /// <summary>Give the visual back to the board pool and park this object.</summary>
         public void Recycle()
         {
+            ReleaseParts();
             if (_pooled != null) _board.ReleaseVisual(_pooled);
             _pooled = null;
             _visual = null;
@@ -178,6 +192,7 @@ namespace GardenCannon
         {
             var e = Entry;
             if (e == null || e.prefab == null) return;
+            if (UsesCellParts) { BuildCellParts(); return; }
             _pooled = _board.AcquireVisual(e.prefab, transform);
             var go = _pooled.gameObject;
             _visual = go.transform;
@@ -194,6 +209,7 @@ namespace GardenCannon
             _visualOffset = new Vector3(centre.x * cell, centre.y * cell, 0f);
             _visual.localPosition = _visualOffset;
 
+            if (Behaviour == ItemBehaviour.LogCutter) PlaceLogCutter();
             if (_lane || e.label.Contains("Barrier")) VisualUtil.ApplyOrientation(_visual, _laneVertical);
             if (e.colorByVariant) VisualUtil.ApplyAtlasTile(_visual, _catalog, _catalog.AtlasTileForVariant(Data.variant));
 
@@ -205,7 +221,7 @@ namespace GardenCannon
                 UpdateStage();
             }
 
-            if (e.fitFootprint)
+            if (e.fitFootprint && !BehaviourOwnsLayout)
             {
                 transform.position = Vector3.zero;
                 if (TryGetMeshBounds(go, out var b) && b.size.x > 1e-4f && b.size.y > 1e-4f)
@@ -219,6 +235,8 @@ namespace GardenCannon
                     _visualOffset = new Vector3(_visual.localPosition.x, _visual.localPosition.y, _visualOffset.z);
                 }
             }
+
+            BuildBehaviourVisual();
 
             // Container progress ring (Spyke/ContainerRingFill): show remaining HP.
             foreach (var r in _visual.GetComponentsInChildren<Renderer>(true))
@@ -439,6 +457,7 @@ namespace GardenCannon
                 if (_laneVertical) _anchor.y = v; else _anchor.x = v;
                 RebuildShape();
             }
+            TickBehaviour(dt);
             if (Kind == ItemKind.Spinner)
             {
                 _spinAngle += _spinDir * (Entry != null ? Entry.spinSpeed : 90f) * dt;
@@ -480,7 +499,7 @@ namespace GardenCannon
         {
             normal = Vector2.zero;
             pen = 0f;
-            if (!Alive || Kind == ItemKind.Ignore) return false;
+            if (!Alive || Shielded || Kind == ItemKind.Ignore) return false;
             if (p.x + r < _bounds.xMin || p.x - r > _bounds.xMax || p.y + r < _bounds.yMin || p.y - r > _bounds.yMax) return false;
 
             if (Kind == ItemKind.Wedge && _wedge != null)
@@ -551,6 +570,7 @@ namespace GardenCannon
             _shake = 1f;
             PlayHitAnimation();
             if (!IsBreakable) return HitResult.None;
+            if (TryBehaviourHit(point, out var special)) return special;
 
             if (Entry != null && Entry.eggBox)
             {
@@ -584,6 +604,7 @@ namespace GardenCannon
             SetHitLabel(Mathf.Max(0, Hits));
             UpdateRings();
             UpdateStage();
+            UpdateTargetState();
             return Hits > 0 ? HitResult.Damaged : BreakResult();
         }
 

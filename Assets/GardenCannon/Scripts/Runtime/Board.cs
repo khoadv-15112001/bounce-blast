@@ -32,6 +32,13 @@ namespace GardenCannon
 
         Vector2 _gridOrigin; // world position of the bottom-left corner of cell (0,0)
 
+        /// <summary>Obstacle events raised during <see cref="Tick"/> (brick wall explosion, orbs switching off).</summary>
+        public System.Action<BoardItem, BoardItem.ItemEvent> ItemEvent;
+        public void RaiseItemEvent(BoardItem item, BoardItem.ItemEvent ev) => ItemEvent?.Invoke(item, ev);
+
+        // Containers and the grid cells they cover (they never move).
+        readonly List<(BoardItem item, HashSet<Vector2Int> cells)> _containers = new List<(BoardItem, HashSet<Vector2Int>)>();
+
         public Vector2 GridToWorldCorner(Vector2 grid) => _gridOrigin + grid * CellSize;
         public Vector2 GridToWorldCentre(Vector2 grid) => _gridOrigin + (grid + new Vector2(0.5f, 0.5f)) * CellSize;
 
@@ -61,6 +68,12 @@ namespace GardenCannon
 
             ApplyAutotiles();
 
+            _containers.Clear();
+            foreach (var it in Items)
+                if (it.Behaviour == ItemBehaviour.Container)
+                    _containers.Add((it, new HashSet<Vector2Int>(it.Data.Cells())));
+            UpdateShields();
+
             // Level intro: items pop in row by row from the top.
             foreach (var it in Items)
                 it.PlayIntro((level.height - 1 - it.Data.y) * 0.035f + it.Data.x * 0.01f);
@@ -70,18 +83,21 @@ namespace GardenCannon
         public float IntroDuration => Level == null ? 0f : Level.height * 0.035f + Level.width * 0.01f + 0.3f;
 
         /// <summary>Brick walls connect to same-type neighbours; exposed sides get the brick rim.</summary>
+        /// <summary>Re-pick brick wall modules after walls were destroyed (open sides get the rim).</summary>
+        public void RefreshAutotiles() => ApplyAutotiles();
+
         void ApplyAutotiles()
         {
             var byType = new Dictionary<int, HashSet<Vector2Int>>();
             foreach (var it in Items)
             {
-                if (it.Entry == null || !it.Entry.autotile) continue;
+                if (it.Entry == null || !it.Entry.autotile || !it.Alive) continue;
                 if (!byType.TryGetValue(it.Data.type, out var set)) byType[it.Data.type] = set = new HashSet<Vector2Int>();
                 foreach (var c in it.Data.Cells()) set.Add(c);
             }
             foreach (var it in Items)
             {
-                if (it.Entry == null || !it.Entry.autotile) continue;
+                if (it.Entry == null || !it.Entry.autotile || !it.Alive) continue;
                 var set = byType[it.Data.type];
                 var c = new Vector2Int(it.Data.x, it.Data.y);
                 int mask = 0;
@@ -181,6 +197,36 @@ namespace GardenCannon
         public void Tick(float dt)
         {
             for (int i = 0; i < Items.Count; i++) Items[i].Tick(dt);
+            UpdateShields();
+        }
+
+        /// <summary>Items under a live container are hidden and can't be hit; they pop out when it breaks.</summary>
+        void UpdateShields()
+        {
+            if (_containers.Count == 0) return;
+            foreach (var it in Items)
+            {
+                if (!it.Alive || it.Behaviour == ItemBehaviour.Container) continue;
+                var c = it.CentreCell;
+                bool covered = false;
+                foreach (var (box, cells) in _containers)
+                    if (box.Alive && cells.Contains(c)) { covered = true; break; }
+                it.SetShielded(covered);
+            }
+        }
+
+        /// <summary>Live, reachable items whose shape comes within <paramref name="radius"/> of <paramref name="p"/>.</summary>
+        public void ItemsNear(Vector2 p, float radius, List<BoardItem> result, BoardItem except = null)
+        {
+            result.Clear();
+            foreach (var it in Items)
+            {
+                if (it == except || !it.Alive || it.Shielded || it.Kind == ItemKind.Ignore) continue;
+                var b = it.Bounds;
+                float dx = Mathf.Max(b.xMin - p.x, 0f, p.x - b.xMax);
+                float dy = Mathf.Max(b.yMin - p.y, 0f, p.y - b.yMax);
+                if (dx * dx + dy * dy <= radius * radius) result.Add(it);
+            }
         }
 
         void OnDrawGizmos()

@@ -257,6 +257,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bb68423b44cf41b47a78dbe01db35d83
+    m_Address: GardenCannon/Prefabs/VFX_BrickWall_Blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

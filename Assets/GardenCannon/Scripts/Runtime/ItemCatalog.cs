@@ -23,6 +23,27 @@ namespace GardenCannon
         Ignore,
     }
 
+    /// <summary>
+    /// Special obstacle logic on top of <see cref="ItemKind"/>. The original scripts were not recovered, so these rules
+    /// are guesses from the prefabs, sounds and level data; every number is editable in the ItemCatalog.
+    /// </summary>
+    public enum ItemBehaviour
+    {
+        Default,
+        /// <summary>Yellow crate over other items: they are hidden and can't be hit until its HP badge reaches 0.</summary>
+        Container,
+        /// <summary>Hit 1 cracks, hit 2 exposes the dynamite, hit 3 lights the fuse: it explodes and hits everything around.</summary>
+        BrickWall,
+        /// <summary>Machine at one end of a row of logs (variant 0 right, 1 left, 2 bottom, 3 top). Each hit feeds and cuts one log; the machine breaks after the last one.</summary>
+        LogCutter,
+        /// <summary>One orb per cell. A hit switches an orb on; when all are on they discharge and the item breaks. Orbs switch off again if the chain stalls.</summary>
+        ElectricOrb,
+        /// <summary>One crate per cell, each with its own hits; the item is done when every crate is broken.</summary>
+        WoodenBox,
+        /// <summary>The target shows its broken mesh after the first hit (Target Stand / Moving Target).</summary>
+        TargetStand,
+    }
+
     public enum ItemShape
     {
         /// <summary>Axis-aligned rectangles built from the footprint cells.</summary>
@@ -89,6 +110,22 @@ namespace GardenCannon
             public AudioClip breakSfx;
             [Tooltip("Optional second sound on break (e.g. egg box bird flying away).")]
             public AudioClip extraBreakSfx;
+            [Header("Obstacle behaviour (guessed rules, tweak freely)")]
+            public ItemBehaviour behaviour = ItemBehaviour.Default;
+            [Tooltip("Wooden Box: hits per crate (cell).")]
+            public int cellHits = 2;
+            [Tooltip("Brick Wall: seconds the fuse burns before the dynamite explodes.")]
+            public float fuseTime = 0.7f;
+            [Tooltip("Brick Wall: explosion radius in cells (1.5 = the 8 neighbours).")]
+            public float blastRadius = 1.5f;
+            [Tooltip("Electric Orb: seconds without a new orb switching on before all orbs switch off again (0 = never).")]
+            public float orbResetTime = 8f;
+            [Tooltip("Sound when one part breaks (a crate, a log being cut).")]
+            public AudioClip partBreakSfx;
+            [Tooltip("Effect when one part breaks (a crate).")]
+            public GameObject partFx;
+            [Tooltip("Extra sound (Electric Orb: orbs switching off).")]
+            public AudioClip altSfx;
             [Tooltip("Colour used for debug gizmos / goal fallback icon.")]
             public Color debugColor = Color.white;
         }
@@ -97,6 +134,8 @@ namespace GardenCannon
 
         [Tooltip("Version of the built-in defaults this catalog was generated from (Setup rebuilds older ones).")]
         public int defaultsVersion;
+        [Tooltip("Version of the obstacle behaviour defaults applied to the entries (editor auto-fix).")]
+        public int behaviourVersion;
 
         /// <summary>Autotile module: a mesh and the sides (bits T=1, R=2, B=4, L=8) that show a brick rim at rotation 0.</summary>
         [Serializable]

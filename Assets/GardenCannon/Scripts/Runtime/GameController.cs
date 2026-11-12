@@ -102,6 +102,7 @@ namespace GardenCannon
             _font = hud != null ? hud.font : null;
             physics.Board = board;
             physics.OnContact = OnBallContact;
+            board.ItemEvent = OnItemEvent;
             sfx?.PlayMusic();
             if (hud != null)
             {
@@ -361,9 +362,15 @@ namespace GardenCannon
                 return;
             }
             if (item == null) return;
+            ApplyHit(item, ball.Pos, ball);
+        }
+
+        /// <summary>One hit on an item (a ball, or an explosion when <paramref name="ball"/> is null) with its feedback.</summary>
+        void ApplyHit(BoardItem item, Vector2 point, Ball ball)
+        {
             var e = item.Entry;
             Color c = ItemColor(item);
-            var result = item.HitAt(ball.Pos);
+            var result = item.HitAt(point);
             bool broke = result == BoardItem.HitResult.Broken;
             float cell = board.CellSize;
             if (item.LastHitHatched)
@@ -385,16 +392,19 @@ namespace GardenCannon
                 return;
             }
             if (result == BoardItem.HitResult.Hatched) return;
+            if (HandleObstacleResult(item, result, point, c)) return;
             if (broke)
             {
                 // Consecutive breaks by the same ball climb in pitch (combo feel).
-                float pitch = 1f + Mathf.Min(ball.Combo, 10) * 0.045f;
-                ball.Combo++;
+                int combo = ball != null ? ball.Combo++ : 0;
+                float pitch = 1f + Mathf.Min(combo, 10) * 0.045f;
                 sfx?.PlayPitched(e?.breakSfx != null ? e.breakSfx : sfx.ballCollide, 0.9f, pitch, 0.02f);
                 if (e?.extraBreakSfx != null) sfx?.Play(e.extraBreakSfx, 0.7f);
                 int tile = e != null && e.colorByVariant ? catalog.AtlasTileForVariant(item.Data.variant) : -1;
-                if (fx == null || !fx.PlayPrefab(e?.breakFx, item.VisualCentre, cell, catalog, tile))
-                    fx?.Break(item.VisualCentre, c, cell, Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
+                var breakPos = item.Behaviour == ItemBehaviour.WoodenBox ? item.LastPartPos : item.VisualCentre;
+                if (item.Behaviour == ItemBehaviour.ElectricOrb) DischargeOrbs(item);
+                if (fx == null || !fx.PlayPrefab(e?.breakFx, breakPos, cell, catalog, tile))
+                    fx?.Break(breakPos, c, cell, Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
                 rig?.Shake(item.Offsets.Count > 1 ? bigBreakShake : breakShake);
                 OnItemBroken(item);
             }
@@ -402,7 +412,88 @@ namespace GardenCannon
             {
                 sfx?.Play(e?.hitSfx != null ? e.hitSfx : sfx.ballCollide, 0.65f);
                 if (fx == null || !fx.PlayPrefab(e?.hitFx, item.VisualCentre, cell))
-                    fx?.Hit(new Vector3(ball.Pos.x, ball.Pos.y, 0f), item.IsBreakable ? c : new Color(0.9f, 0.9f, 0.85f), cell);
+                    fx?.Hit(new Vector3(point.x, point.y, 0f), item.IsBreakable ? c : new Color(0.9f, 0.9f, 0.85f), cell);
+            }
+        }
+
+        // ---------------- Obstacles ----------------
+
+        static readonly Color WoodChips = new Color(0.72f, 0.5f, 0.28f);
+        static readonly Color OrbBlue = new Color(0.45f, 0.85f, 1f);
+        readonly List<BoardItem> _near = new List<BoardItem>();
+        readonly List<Vector3> _partPos = new List<Vector3>();
+
+        /// <summary>Feedback for the obstacle-only hit results. Returns true when handled.</summary>
+        bool HandleObstacleResult(BoardItem item, BoardItem.HitResult result, Vector2 point, Color c)
+        {
+            var e = item.Entry;
+            float cell = board.CellSize;
+            switch (result)
+            {
+                case BoardItem.HitResult.Blocked:
+                    sfx?.Play(sfx.ballCollide, 0.45f);
+                    fx?.Hit(new Vector3(point.x, point.y, 0f), new Color(0.9f, 0.9f, 0.85f), cell * 0.8f);
+                    return true;
+                case BoardItem.HitResult.Activated:
+                    // Electric orb switched on.
+                    sfx?.Play(e?.hitSfx, 0.8f);
+                    fx?.Hit(item.LastPartPos, OrbBlue, cell * 1.2f);
+                    fx?.Sparkle(item.LastPartPos, 5, cell * 0.6f, 1.2f);
+                    return true;
+                case BoardItem.HitResult.PartBroken:
+                    // A crate of the wooden box / a log fed into the cutter.
+                    sfx?.Play(e?.partBreakSfx != null ? e.partBreakSfx : e?.hitSfx, 0.8f);
+                    if (fx == null || !fx.PlayPrefab(e?.partFx, item.LastPartPos, cell))
+                        fx?.Break(item.LastPartPos, item.Behaviour == ItemBehaviour.LogCutter ? WoodChips : c, cell, 1f);
+                    rig?.Shake(breakShake * 0.6f);
+                    return true;
+                case BoardItem.HitResult.Fused:
+                    // Brick wall: the dynamite fuse is lit.
+                    sfx?.Play(e?.hitSfx, 0.8f);
+                    fx?.Sparkle(item.VisualCentre, 6, cell * 0.5f, 1.4f);
+                    return true;
+            }
+            return false;
+        }
+
+        void OnItemEvent(BoardItem item, BoardItem.ItemEvent ev)
+        {
+            var e = item.Entry;
+            float cell = board.CellSize;
+            switch (ev)
+            {
+                case BoardItem.ItemEvent.Exploded:
+                {
+                    sfx?.PlayPitched(e?.breakSfx != null ? e.breakSfx : sfx.ballCollide, 1f, 1f, 0.05f);
+                    if (fx == null || !fx.PlayPrefab(e?.breakFx, item.VisualCentre, cell))
+                        fx?.Break(item.VisualCentre, new Color(0.55f, 0.35f, 0.25f), cell, 1.5f);
+                    rig?.Shake(bigBreakShake);
+                    // The blast hits everything around once (other walls go on cracking / exploding: chain reaction).
+                    float radius = cell * Mathf.Max(0.5f, e != null ? e.blastRadius - 0.5f : 1f);
+                    board.ItemsNear(item.VisualCentre, radius, _near, item);
+                    var hits = new List<BoardItem>(_near);
+                    foreach (var other in hits)
+                        if (other.Alive && !other.IsFuseBurning) ApplyHit(other, item.VisualCentre, null);
+                    board.RefreshAutotiles();
+                    OnItemBroken(item);
+                    break;
+                }
+                case BoardItem.ItemEvent.OrbsReset:
+                    sfx?.Play(e?.altSfx, 0.8f);
+                    item.PartPositions(_partPos);
+                    foreach (var p in _partPos) fx?.Hit(p, new Color(0.4f, 0.45f, 0.6f), cell * 0.7f);
+                    break;
+            }
+        }
+
+        /// <summary>All orbs flash when the electric orb item discharges.</summary>
+        void DischargeOrbs(BoardItem item)
+        {
+            item.PartPositions(_partPos);
+            foreach (var p in _partPos)
+            {
+                fx?.Hit(p, OrbBlue, board.CellSize * 1.5f);
+                fx?.Sparkle(p, 4, board.CellSize * 0.7f, 1.4f);
             }
         }
 
