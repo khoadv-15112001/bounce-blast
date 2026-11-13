@@ -252,11 +252,16 @@ namespace GardenCannon
                     if (t.name == "Doors") _doors = t;
                     else if (t.name == "cover1") _door1 = t;
                     else if (t.name == "cover2") _door2 = t;
+                    else if (t.name == "Door") { _door1 = t; _hingeDoors = true; }
+                    else if (t.name == "Door.001") { _door2 = t; _hingeDoors = true; }
                     else if (t.name.Length == 5 && t.name.StartsWith("Egg0")) _eggs.Add(t);
                 }
+                if (_eggs.Count == 0 && e.eggPrefab != null) CreateEggSlots();
                 _eggs.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
                 SetupEggSlots();
-                _doorsClosed = _doors != null && _doors.gameObject.activeSelf;
+                _doorsClosed = (_doors != null && _doors.gameObject.activeSelf) || (_hingeDoors && _door1 != null && _door1.gameObject.activeSelf);
+                if (_door1 != null) _door1Rot = _door1.localRotation;
+                if (_door2 != null) _door2Rot = _door2.localRotation;
                 if (_door1 != null) _door1Base = _door1.localPosition;
                 if (_door2 != null) _door2Base = _door2.localPosition;
                 MaxHits = Hits = Mathf.Max(1, _eggs.Count + (_doorsClosed ? 1 : 0));
@@ -284,6 +289,8 @@ namespace GardenCannon
                 _labelVisible = true;
                 SetHitLabel(Hits);
             }
+
+            BuildShadow();
 
             if (Kind == ItemKind.Spinner)
             {
@@ -430,6 +437,7 @@ namespace GardenCannon
 
         void ApplyIntroScale(float k)
         {
+            ScaleShadows(k);
             if (_label != null && _labelVisible) _label.transform.localScale = Vector3.one * k;
             if (_visual != null) _visual.localScale = _visualBaseScale * k;
         }
@@ -466,7 +474,21 @@ namespace GardenCannon
                 _spinAngle += _spinDir * (Entry != null ? Entry.spinSpeed : 90f) * dt;
                 if (_spinVisual != null) _spinVisual.rotation = Quaternion.AngleAxis(_spinAngle - 45f + (Entry != null ? Entry.spinVisualOffset : 0f), Vector3.forward) * _spinVisualBase;
             }
-            if (_doorOpen >= 0f && _doorOpen < 1f)
+            if (_doorOpen >= 0f && _doorOpen < 1f && _hingeDoors)
+            {
+                // Balloon box: both lid halves flip open on their outer hinge, then disappear.
+                _doorOpen = Mathf.Min(1f, _doorOpen + dt / 0.4f);
+                float t = _doorOpen;
+                float ang = (1f - (1f - t) * (1f - t)) * 150f;
+                if (_door1 != null) _door1.localRotation = _door1Rot * Quaternion.Euler(0f, 0f, ang * HingeSign(_door1));
+                if (_door2 != null) _door2.localRotation = _door2Rot * Quaternion.Euler(0f, 0f, ang * HingeSign(_door2));
+                if (t >= 1f)
+                {
+                    if (_door1 != null) _door1.gameObject.SetActive(false);
+                    if (_door2 != null) _door2.gameObject.SetActive(false);
+                }
+            }
+            else if (_doorOpen >= 0f && _doorOpen < 1f)
             {
                 // Lid halves slide out sideways, pop up a little, then disappear.
                 _doorOpen = Mathf.Min(1f, _doorOpen + dt / 0.35f);

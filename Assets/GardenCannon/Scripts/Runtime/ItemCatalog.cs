@@ -92,6 +92,8 @@ namespace GardenCannon
             public Material[] eggMaterials = new Material[0];
             [Tooltip("Egg box: slot model height in cells.")]
             public float eggSize = 0.62f;
+            [Tooltip("Soft ground shadow under the item (new 3D art).")]
+            public bool castShadow;
             [Tooltip("Egg box: sound when the lid opens.")]
             public AudioClip openSfx;
             [Tooltip("Spinner: degrees per second.")]

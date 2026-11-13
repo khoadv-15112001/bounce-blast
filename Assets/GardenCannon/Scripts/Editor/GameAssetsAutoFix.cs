@@ -23,7 +23,7 @@ namespace GardenCannon.EditorTools
             EditorApplication.delayCall += Run;
         }
 
-        const int BehaviourVersion = 5;
+        const int BehaviourVersion = 6;
 
         /// <summary>Only replaces the old defaults (an edit made in GameAssets afterwards is kept).</summary>
         static bool ApplyAudioAndBalloons(GameAssets assets)
@@ -105,13 +105,21 @@ namespace GardenCannon.EditorTools
             {
                 switch (e.typeId)
                 {
+                    case 5: // Egg box -> balloon box (balloons in the tray, lid halves on hinges)
+                    {
+                        var p = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon Box.prefab");
+                        if (p == null) break;
+                        e.prefab = p; e.modelEuler = up; e.fitFootprint = false; e.castShadow = true;
+                        e.openFx = null; e.hatchFx = null; e.breakFx = null;   // re-hooked by HookVfx (wooden pieces)
+                        break;
+                    }
                     case 1: // Block with a star
                         e.colorPrefabs = Colours("Star_Block_");
-                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        if (e.colorPrefabs.Length > 0) { e.modelEuler = up; e.castShadow = true; }
                         break;
                     case 26: // Number block
                         e.colorPrefabs = Colours("Block_");
-                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        if (e.colorPrefabs.Length > 0) { e.modelEuler = up; e.castShadow = true; }
                         break;
                     case 23: // Stone corner: the new triangle has its right angle top-right
                     {
@@ -126,7 +134,7 @@ namespace GardenCannon.EditorTools
                         var p = Art("Elements/Stone_Block_1x1");
                         if (p == null) break;
                         e.prefab = p; e.modelEuler = up; e.autotile = false; e.fitFootprint = false;
-                        e.kind = ItemKind.Indestructible; e.behaviour = ItemBehaviour.Default;
+                        e.kind = ItemKind.Indestructible; e.behaviour = ItemBehaviour.Default; e.castShadow = true;
                         e.breakFx = null;
                         break;
                     }
@@ -134,7 +142,7 @@ namespace GardenCannon.EditorTools
                     {
                         var s = new[] { Art("Obstacles/Slider_2"), Art("Obstacles/Slider_3"), Art("Obstacles/Slider_4") }.Where(x => x != null).ToArray();
                         if (s.Length == 0) break;
-                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.castShadow = true;
                         break;
                     }
                     case 25: // Twirler -> spinner with 2 / 4 arms (arms along the model axes)
@@ -148,14 +156,14 @@ namespace GardenCannon.EditorTools
                     {
                         var p = Art("Obstacles/Wooden block");
                         if (p == null) break;
-                        e.prefab = p; e.modelEuler = up; e.stagePrefix = "Wood "; e.stagesCumulative = true; e.cellHits = 2;
+                        e.prefab = p; e.modelEuler = up; e.stagePrefix = "Wood "; e.stagesCumulative = true; e.cellHits = 2; e.castShadow = true;
                         break;
                     }
                     case 24: // Container -> wooden crate stretched over the footprint, HP number on top
                     {
                         var s = new[] { Art("Obstacles/Wooden_Crate_2x2"), Art("Obstacles/Wooden_Crate_2x3"), Art("Obstacles/Wooden_Crate_4x3") }.Where(x => x != null).ToArray();
                         if (s.Length == 0) break;
-                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.showHitCount = true;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.showHitCount = true; e.castShadow = true;
                         break;
                     }
                 }
@@ -272,6 +280,12 @@ namespace GardenCannon.EditorTools
                 {
                     case 1: case 26: Set(ref e.breakFx, "VFX_Block_Blast"); break;
                     case 5:
+                        if (e.prefab != null && e.prefab.name.Contains("Baloon"))
+                        {
+                            // Balloon box: the egg shell / pink lid effects don't fit, use wooden pieces.
+                            Set(ref e.breakFx, "VFX_WoodenBox_Blast");
+                            break;
+                        }
                         Set(ref e.openFx, "VFX_EggBox_Lid");
                         Set(ref e.hatchFx, "VFX_EggBox_Egg");
                         Set(ref e.breakFx, "VFX_EggBox_Blast");

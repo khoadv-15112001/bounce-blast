@@ -61,7 +61,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _GCExposure: 1.08
+    - _GCExposure: 1.2
     - _GCRim: 0.15
     - _GCSaturation: 1.25
     - _GlossMapScale: 1
@@ -99,7 +99,7 @@ Material:
     - _CustomLightColor3: {r: 0.735849, g: 0.7184941, b: 0.7184941, a: 1}
     - _CustomSpecColor4: {r: 0.29178533, g: 0.29178533, b: 0.7830189, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GCAmbient: {r: 0.45136172, g: 0.45136172, b: 0.46226418, a: 1}
+    - _GCAmbient: {r: 0.56, g: 0.56, b: 0.58, a: 1}
     - _OcclusionColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
     - _SpecularColor: {r: 1.1502018, g: 1.3808492, b: 1.5336025, a: 1}
   m_BuildTextureStacks: []
