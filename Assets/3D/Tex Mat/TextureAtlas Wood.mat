@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
+  - _SPECULARHIGHLIGHTS_ON
   - _USECUSTOMLIGHT2_ON
   - _USECUSTOMLIGHT3_ON
   - _USECUSTOMLIGHTDIR_ON
@@ -60,17 +61,17 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _GCExposure: 0.713
-    - _GCRim: 0.547
+    - _GCExposure: 0.82
+    - _GCRim: 0.454
     - _GCSaturation: 1.18
     - _GlossMapScale: 1
     - _Glossiness: 0.605
-    - _GlossyReflections: 0.658
+    - _GlossyReflections: 1
     - _LightPitch: -45
-    - _LightPitch2: -13.8
+    - _LightPitch2: 90
     - _LightPitch3: 8
     - _LightYaw: 209
-    - _LightYaw2: 220
+    - _LightYaw2: 167
     - _LightYaw3: 323
     - _Metallic: 1
     - _Mode: 0
@@ -80,7 +81,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecPitch4: 20
     - _SpecYaw4: 149
-    - _SpecularHighlights: 0
+    - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _StencilRef: 1
     - _UVSec: 0
@@ -94,11 +95,11 @@ Material:
     - _AtlasGrid: {r: 8, g: 4, b: 0, a: 0}
     - _Color: {r: 0.86627805, g: 0.8999227, b: 0.9716981, a: 1}
     - _CustomLightColor: {r: 1.8407236, g: 1.6897036, b: 1.6583878, a: 1}
-    - _CustomLightColor2: {r: 0.21763763, g: 0.21763763, b: 0.21763763, a: 1}
+    - _CustomLightColor2: {r: 0.735849, g: 0.6213065, b: 0.6213065, a: 1}
     - _CustomLightColor3: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
     - _CustomSpecColor4: {r: 0.29178533, g: 0.29178533, b: 0.7830189, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GCAmbient: {r: 0.4, g: 0.4, b: 0.44, a: 1}
+    - _GCAmbient: {r: 0.5, g: 0.5, b: 0.52, a: 1}
     - _OcclusionColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
     - _SpecularColor: {r: 1.1502018, g: 1.3808492, b: 1.5336025, a: 1}
   m_BuildTextureStacks: []

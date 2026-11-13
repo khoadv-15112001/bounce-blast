@@ -50,6 +50,8 @@ namespace GardenCannon
         void ResetBehaviour()
         {
             ReleaseParts();
+            HideShadows();
+            _hingeDoors = false;
             Shielded = false;
             if (_label != null) _label.gameObject.SetActive(true);
             _fuse = -1f;
@@ -104,6 +106,7 @@ namespace GardenCannon
             Shielded = shielded;
             if (_visual != null) _visual.gameObject.SetActive(!shielded);
             if (_label != null && _labelVisible) _label.gameObject.SetActive(!shielded);
+            foreach (var s in _shadows) if (s != null && s.enabled) s.gameObject.SetActive(!shielded);
             if (!shielded) PlayIntro(0f);
         }
 
@@ -415,6 +418,7 @@ namespace GardenCannon
             public int hits;
             public bool active;
             public Transform fxActive;
+            public SpriteRenderer shadow;
             public readonly List<(Transform t, int n)> stages = new List<(Transform, int)>();
         }
 
@@ -467,6 +471,7 @@ namespace GardenCannon
                 }
                 if (part.fxActive != null) part.fxActive.gameObject.SetActive(false);
                 UpdatePartStage(part, hitsPerCell);
+                if (e.castShadow) part.shadow = ShowShadow(_parts.Count, new Vector2(o.x * cell, o.y * cell), new Vector2(cell, cell));
                 _parts.Add(part);
             }
         }
@@ -514,6 +519,7 @@ namespace GardenCannon
                 return HitResult.Damaged;
             }
             p.visual.gameObject.SetActive(false);
+            if (p.shadow != null) { p.shadow.enabled = false; p.shadow.gameObject.SetActive(false); }
             var alive = new List<Vector2Int>();
             foreach (var q in _parts) if (q.hits > 0) alive.Add(q.off);
             if (alive.Count == 0) return BreakResult();
@@ -641,6 +647,189 @@ namespace GardenCannon
             n = 0;
             int us = name.LastIndexOf('_');
             return us >= 0 && int.TryParse(name.Substring(us + 1), out n);
+        }
+
+        // ------------------------------------------------------------------ egg box slots (balloons)
+
+        /// <summary>Body material of the slot model hatched by the last hit (the released balloon uses the same colour).</summary>
+        public Material LastHatchMaterial { get; private set; }
+
+        const string SlotName = "SlotModel";
+
+        /// <summary>
+        /// Replace the egg meshes of every slot by the entry's eggPrefab (balloon, string hidden), coloured per slot.
+        /// The models are kept on the pooled visual and reused.
+        /// </summary>
+        void SetupEggSlots()
+        {
+            var e = Entry;
+            LastHatchMaterial = null;
+            if (e == null || e.eggPrefab == null) return;
+            float cell = _board.CellSize;
+            for (int i = 0; i < _eggs.Count; i++)
+            {
+                var slot = _eggs[i];
+                slot.gameObject.SetActive(true);
+                Transform model = null;
+                for (int c = 0; c < slot.childCount; c++)
+                {
+                    var ch = slot.GetChild(c);
+                    if (ch.name == SlotName) model = ch;
+                    else ch.gameObject.SetActive(false);   // original egg mesh + its shadow
+                }
+                if (model == null)
+                {
+                    model = Instantiate(e.eggPrefab, slot, false).transform;
+                    model.name = SlotName;
+                    VisualUtil.StripRuntimeComponents(model.gameObject);
+                    HideStrings(model);
+                }
+                model.gameObject.SetActive(true);
+                // Stands out of the tray, leaning towards the camera; height = eggSize cells.
+                model.rotation = Quaternion.Euler(-55f, 0f, 0f);
+                float h = BodyHeight(e.eggPrefab);
+                float parentScale = Mathf.Max(1e-4f, slot.lossyScale.x);
+                model.localScale = Vector3.one * (e.eggSize * cell / Mathf.Max(1e-4f, h) / parentScale);
+                model.localPosition = Vector3.zero;
+                if (e.eggMaterials != null && e.eggMaterials.Length > 0)
+                {
+                    var body = model.GetComponent<Renderer>();
+                    var m = e.eggMaterials[(i + Data.x * 3 + Data.y * 5) % e.eggMaterials.Length];
+                    if (body != null && m != null) body.sharedMaterial = m;
+                }
+            }
+        }
+
+        static Material SlotMaterial(Transform slot)
+        {
+            var model = slot.Find(SlotName);
+            var r = model != null ? model.GetComponent<Renderer>() : null;
+            return r != null ? r.sharedMaterial : null;
+        }
+
+        /// <summary>The balloon model carries a long "string" child: not wanted in the game.</summary>
+        public static void HideStrings(Transform root)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                if (t != root && t.name.ToLowerInvariant().Contains("string")) t.gameObject.SetActive(false);
+        }
+
+        /// <summary>Height of the prefab's own (root) mesh at scale 1.</summary>
+        static float BodyHeight(GameObject prefab)
+        {
+            var mf = prefab.GetComponent<MeshFilter>();
+            return mf != null && mf.sharedMesh != null ? mf.sharedMesh.bounds.size.y : 1f;
+        }
+
+        // ------------------------------------------------------------------ balloon box
+
+        bool _hingeDoors;
+        Quaternion _door1Rot, _door2Rot;
+
+        /// <summary>Lid half on the left of the box opens counter-clockwise, the right one clockwise (model space).</summary>
+        static float HingeSign(Transform door) => door.localPosition.x < 0f ? 1f : -1f;
+
+        /// <summary>
+        /// The balloon box has no egg slots: make a 3x3 grid inside the tray (model space, 1 unit = 1 cell, box = 2x2),
+        /// named like the original Egg01..Egg09 so the egg box logic is unchanged. Kept on the pooled visual.
+        /// </summary>
+        void CreateEggSlots()
+        {
+            const float step = 0.6f, height = 0.28f;
+            int n = 1;
+            for (int row = 0; row < 3; row++)
+                for (int col = 0; col < 3; col++, n++)
+                {
+                    var slot = new GameObject("Egg0" + n).transform;
+                    slot.SetParent(_visual, false);
+                    // -Z of the art is the top of the screen.
+                    slot.localPosition = new Vector3((col - 1) * step, height, (row - 1) * step);
+                    _eggs.Add(slot);
+                }
+        }
+
+        // ------------------------------------------------------------------ ground shadows
+
+        readonly List<SpriteRenderer> _shadows = new List<SpriteRenderer>();
+        static Sprite _shadowSprite;
+        const int ShadowOrder = -6;   // over the 3D lawn (-7), under every other sprite
+        static readonly Color ShadowColor = new Color(0f, 0.06f, 0f, 0.42f);
+
+        /// <summary>One soft shadow under the whole footprint (or per crate for cell parts).</summary>
+        void BuildShadow()
+        {
+            if (Entry == null || !Entry.castShadow || UsesCellParts) return;
+            float cell = _board.CellSize;
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
+            foreach (var o in _offsets) { min = Vector2.Min(min, o); max = Vector2.Max(max, o); }
+            Vector2 centre = (min + max) * 0.5f * cell;
+            Vector2 size = (max - min + Vector2.one) * cell;
+            ShowShadow(0, centre, size);
+        }
+
+        SpriteRenderer ShowShadow(int index, Vector2 centre, Vector2 size)
+        {
+            while (_shadows.Count <= index)
+            {
+                var go = new GameObject("Shadow");
+                go.transform.SetParent(transform, false);
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = ShadowSprite();
+                sr.drawMode = SpriteDrawMode.Sliced;
+                sr.sortingOrder = ShadowOrder;
+                sr.color = ShadowColor;
+                _shadows.Add(sr);
+            }
+            var s = _shadows[index];
+            float cell = _board.CellSize;
+            s.gameObject.SetActive(true);
+            s.enabled = true;
+            // Short contact shadow: the same size as the item, peeking out a little below it.
+            // A hair in front of the 3D lawn (both at z = 0 fought for depth: striped shadows in the game camera).
+            s.transform.localPosition = new Vector3(centre.x, centre.y - 0.1f * cell, -0.03f);
+            s.transform.localRotation = Quaternion.identity;
+            s.transform.localScale = Vector3.one;
+            s.size = new Vector2(size.x * 0.96f, size.y * 0.96f);
+            return s;
+        }
+
+        void HideShadows()
+        {
+            foreach (var s in _shadows)
+                if (s != null) { s.enabled = false; s.gameObject.SetActive(false); }
+        }
+
+        void ScaleShadows(float k)
+        {
+            foreach (var s in _shadows)
+                if (s != null && s.enabled) s.transform.localScale = Vector3.one * k;
+        }
+
+        /// <summary>Soft rounded rectangle, 9-sliced so it stretches over any footprint (generated once).</summary>
+        static Sprite ShadowSprite()
+        {
+            if (_shadowSprite != null) return _shadowSprite;
+            const int size = 64, border = 16;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "ItemShadow" };
+            var px = new Color32[size * size];
+            const float radius = 12f, soft = 9f;
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    // Signed distance to a rounded square, positive outside.
+                    float qx = Mathf.Abs(x + 0.5f - size * 0.5f) - (size * 0.5f - radius - 2f);
+                    float qy = Mathf.Abs(y + 0.5f - size * 0.5f) - (size * 0.5f - radius - 2f);
+                    float outside = new Vector2(Mathf.Max(qx, 0f), Mathf.Max(qy, 0f)).magnitude + Mathf.Min(Mathf.Max(qx, qy), 0f) - radius;
+                    float a = Mathf.Clamp01(0.5f - outside / soft);
+                    a = a * a * (3f - 2f * a);
+                    px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+                }
+            tex.SetPixels32(px);
+            tex.Apply(false, true);
+            _shadowSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect,
+                new Vector4(border, border, border, border));
+            _shadowSprite.name = "ItemShadow";
+            return _shadowSprite;
         }
 
         // ------------------------------------------------------------------ shared

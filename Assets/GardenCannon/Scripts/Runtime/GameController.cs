@@ -24,6 +24,7 @@ namespace GardenCannon
         public ItemCatalog catalog;
         public GameObject ballPrefab;
         [HideInInspector] public SceneArt3D sceneArt;
+        [HideInInspector] public AmmoBelt ammoBelt;
         public SpriteRenderer lawnRenderer;
         public Sprite lawn9x12;
         public Sprite lawn12x17;
@@ -129,6 +130,7 @@ namespace GardenCannon
             PlayerPrefs.Save();
 
             ClearBalls();
+            sfx?.StopJingles();
             _burstLeft = 0;
             _aiming = false;
             aimGuide?.Hide();
@@ -150,6 +152,7 @@ namespace GardenCannon
                     Debug.LogWarning($"[GardenCannon] Goal type {it.Data.type} is mapped to {it.Kind} in the ItemCatalog; set it to Breakable.");
 
             MovesLeft = Mathf.Max(1, level.moves);
+            ammoBelt?.Fill(MovesLeft);
             CurrentState = State.Aiming;
             cannon?.SetAngle(0f);
             cannon?.PlayRefill();
@@ -283,12 +286,16 @@ namespace GardenCannon
                 return;
             }
             MovesLeft--;
+            ammoBelt?.Feed(MovesLeft);
             hud?.SetMoves(MovesLeft, true);
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
             if (MovesLeft == 5) sfx?.Play(sfx.lastMoves, 0.8f, 0f);
             _burstLeft = Mathf.Max(1, ballsPerShot);
             _burstTimer = 0f;
+            _firstOfVolley = true;
         }
+
+        bool _firstOfVolley;
 
         void SpawnBall()
         {
@@ -302,7 +309,9 @@ namespace GardenCannon
             _balls.Add(b);
             cannon.Kick();
             rig?.Shake(0.08f);
-            sfx?.Play(sfx.ballFire, 0.8f);
+            // Cannon blast: full on the first ball of the volley, softer for the ones right behind it.
+            sfx?.Play(sfx.ballFire, _firstOfVolley ? 0.9f : 0.4f);
+            _firstOfVolley = false;
         }
 
         Transform AcquireBallView()
@@ -403,7 +412,7 @@ namespace GardenCannon
                 var eggPos = new Vector3(item.LastHatchPos.x, item.LastHatchPos.y, 0f);
                 if (fx == null || !fx.PlayPrefab(e?.hatchFx, eggPos, cell))
                     fx?.Hit(item.LastHatchPos, new Color(1f, 0.97f, 0.9f), cell * 1.4f);
-                fx?.Bird(item.LastHatchPos, cell);
+                fx?.Bird(item.LastHatchPos, cell, item.LastHatchMaterial);
                 sfx?.Play(e?.hitSfx, 0.8f);
                 sfx?.Play(e?.extraBreakSfx, 0.6f);
             }
@@ -566,7 +575,7 @@ namespace GardenCannon
             PlayerPrefs.SetInt(PrefKey, next > LevelLibrary.Count ? 1 : next);
             PlayerPrefs.Save();
             sfx?.SetMusicDuck(true);
-            sfx?.Play(sfx.levelWin, 1f, 0f);
+            sfx?.PlayJingle(sfx.levelWin, 1f);
             StartCoroutine(WinSequence());
         }
 
@@ -575,7 +584,7 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
-            sfx?.Play(sfx.levelWinFireworks, 0.8f, 0f);
+            sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
             fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
             yield return new WaitForSeconds(0.5f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
@@ -592,7 +601,7 @@ namespace GardenCannon
             aimGuide?.Hide();
             hud?.HideBanner();
             sfx?.SetMusicDuck(true);
-            sfx?.Play(sfx.outOfBalls, 0.9f, 0f);
+            sfx?.PlayJingle(sfx.outOfBalls, 0.9f);
             StartCoroutine(LoseSequence());
         }
 
@@ -601,7 +610,7 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.8f);
             if (CurrentState != State.Lost || level != LevelNumber) yield break;
-            sfx?.Play(sfx.levelFail, 0.9f, 0f);
+            sfx?.PlayJingle(sfx.levelFail, 0.9f);
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");

@@ -23,7 +23,59 @@ namespace GardenCannon.EditorTools
             EditorApplication.delayCall += Run;
         }
 
-        const int BehaviourVersion = 4;
+        const int BehaviourVersion = 6;
+
+        /// <summary>Only replaces the old defaults (an edit made in GameAssets afterwards is kept).</summary>
+        static bool ApplyAudioAndBalloons(GameAssets assets)
+        {
+            bool changed = false;
+            var bgm = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/BGM_Ingame_Universal_02.wav");
+            if (bgm != null && (assets.music == null || assets.music.name == "Music - Core Game Play"))
+            {
+                GardenCannonSetup.ConfigureExtractedAudioPublic();   // long BGM: streamed
+                assets.music = bgm;
+                changed = true;
+            }
+            var blast = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/cannon_blast.ogg");
+            if (blast != null && (assets.ballFire == null || assets.ballFire.name == "ball_fire"))
+            {
+                assets.ballFire = blast;
+                changed = true;
+            }
+            var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
+            var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
+            // Balloon flying away: balloon_fly instead of the bird sound.
+            var fly = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/ballon_fly.ogg");
+            if (fly != null && eggBox != null && (eggBox.extraBreakSfx == null || eggBox.extraBreakSfx.name == "egg_bird_fly"))
+            {
+                eggBox.extraBreakSfx = fly;
+                EditorUtility.SetDirty(assets.catalog);
+                changed = true;
+            }
+            if (balloon != null && eggBox != null && eggBox.eggPrefab == null)
+            {
+                // Balloons in the egg box tray instead of eggs.
+                eggBox.eggPrefab = balloon;
+                eggBox.eggMaterials = AssetDatabase.FindAssets("t:Material", new[] { "Assets/3D/Mat baloon" })
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => !p.Contains("MAIN"))
+                    .Select(AssetDatabase.LoadAssetAtPath<Material>)
+                    .Where(m => m != null).ToArray();
+                EditorUtility.SetDirty(assets.catalog);
+                changed = true;
+            }
+            if (balloon != null && (assets.balloonPrefab == null || assets.balloonMaterials == null || assets.balloonMaterials.Length == 0))
+            {
+                assets.balloonPrefab = balloon;
+                assets.balloonMaterials = AssetDatabase.FindAssets("t:Material", new[] { "Assets/3D/Mat baloon" })
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => !p.Contains("MAIN"))
+                    .Select(AssetDatabase.LoadAssetAtPath<Material>)
+                    .Where(m => m != null).ToArray();
+                changed = true;
+            }
+            return changed;
+        }
 
         const string Art3D = "Assets/3D/Prefab/";
 
@@ -53,13 +105,21 @@ namespace GardenCannon.EditorTools
             {
                 switch (e.typeId)
                 {
+                    case 5: // Egg box -> balloon box (balloons in the tray, lid halves on hinges)
+                    {
+                        var p = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon Box.prefab");
+                        if (p == null) break;
+                        e.prefab = p; e.modelEuler = up; e.fitFootprint = false; e.castShadow = true;
+                        e.openFx = null; e.hatchFx = null; e.breakFx = null;   // re-hooked by HookVfx (wooden pieces)
+                        break;
+                    }
                     case 1: // Block with a star
                         e.colorPrefabs = Colours("Star_Block_");
-                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        if (e.colorPrefabs.Length > 0) { e.modelEuler = up; e.castShadow = true; }
                         break;
                     case 26: // Number block
                         e.colorPrefabs = Colours("Block_");
-                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        if (e.colorPrefabs.Length > 0) { e.modelEuler = up; e.castShadow = true; }
                         break;
                     case 23: // Stone corner: the new triangle has its right angle top-right
                     {
@@ -74,7 +134,7 @@ namespace GardenCannon.EditorTools
                         var p = Art("Elements/Stone_Block_1x1");
                         if (p == null) break;
                         e.prefab = p; e.modelEuler = up; e.autotile = false; e.fitFootprint = false;
-                        e.kind = ItemKind.Indestructible; e.behaviour = ItemBehaviour.Default;
+                        e.kind = ItemKind.Indestructible; e.behaviour = ItemBehaviour.Default; e.castShadow = true;
                         e.breakFx = null;
                         break;
                     }
@@ -82,7 +142,7 @@ namespace GardenCannon.EditorTools
                     {
                         var s = new[] { Art("Obstacles/Slider_2"), Art("Obstacles/Slider_3"), Art("Obstacles/Slider_4") }.Where(x => x != null).ToArray();
                         if (s.Length == 0) break;
-                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.castShadow = true;
                         break;
                     }
                     case 25: // Twirler -> spinner with 2 / 4 arms (arms along the model axes)
@@ -96,14 +156,14 @@ namespace GardenCannon.EditorTools
                     {
                         var p = Art("Obstacles/Wooden block");
                         if (p == null) break;
-                        e.prefab = p; e.modelEuler = up; e.stagePrefix = "Wood "; e.stagesCumulative = true; e.cellHits = 2;
+                        e.prefab = p; e.modelEuler = up; e.stagePrefix = "Wood "; e.stagesCumulative = true; e.cellHits = 2; e.castShadow = true;
                         break;
                     }
                     case 24: // Container -> wooden crate stretched over the footprint, HP number on top
                     {
                         var s = new[] { Art("Obstacles/Wooden_Crate_2x2"), Art("Obstacles/Wooden_Crate_2x3"), Art("Obstacles/Wooden_Crate_4x3") }.Where(x => x != null).ToArray();
                         if (s.Length == 0) break;
-                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.showHitCount = true;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.showHitCount = true; e.castShadow = true;
                         break;
                     }
                 }
@@ -220,6 +280,12 @@ namespace GardenCannon.EditorTools
                 {
                     case 1: case 26: Set(ref e.breakFx, "VFX_Block_Blast"); break;
                     case 5:
+                        if (e.prefab != null && e.prefab.name.Contains("Baloon"))
+                        {
+                            // Balloon box: the egg shell / pink lid effects don't fit, use wooden pieces.
+                            Set(ref e.breakFx, "VFX_WoodenBox_Blast");
+                            break;
+                        }
                         Set(ref e.openFx, "VFX_EggBox_Lid");
                         Set(ref e.hatchFx, "VFX_EggBox_Egg");
                         Set(ref e.breakFx, "VFX_EggBox_Blast");
@@ -326,6 +392,15 @@ namespace GardenCannon.EditorTools
                 AssetDatabase.SaveAssets();
                 GardenCannonSetup.SetupAddressables(assets.catalog, assets);
                 Debug.Log("[GardenCannon] Obstacle behaviours applied to the ItemCatalog (v" + BehaviourVersion + ").");
+            }
+
+            // New music / shot sound and the egg box balloons (checked every time: the files may import later).
+            if (ApplyAudioAndBalloons(assets))
+            {
+                EditorUtility.SetDirty(assets);
+                AssetDatabase.SaveAssets();
+                GardenCannonSetup.SetupAddressables(assets.catalog, assets);
+                Debug.Log("[GardenCannon] Music BGM_Ingame_Universal_02, shot sound cannon_blast and egg box balloons assigned.");
             }
 
             // Original item effects: extract them from Game.unity once, then hook them into the catalog.

@@ -79,6 +79,24 @@ namespace GardenCannon
                 fx.splashFx = a.splashFx;
             }
             if (fx != null) fx.birdFrames = a.birdFrames;
+            if (controller != null && a.ballPrefab != null && cannon != null)
+            {
+                // Balls waiting on the right of the cannon; one rolls in on each shot.
+                var belt = controller.ammoBelt;
+                if (belt == null)
+                {
+                    belt = new GameObject("AmmoBelt").AddComponent<AmmoBelt>();
+                    belt.transform.SetParent(transform, false);
+                }
+                belt.ballPrefab = a.ballPrefab;
+                belt.cannon = cannon.transform;
+                controller.ammoBelt = belt;
+            }
+            if (fx != null)
+            {
+                fx.balloonPrefab = a.balloonPrefab;
+                fx.balloonMaterials = a.balloonMaterials;
+            }
             if (a.cannon3D != null || a.bg3D != null || a.grass3D != null)
             {
                 var art = GetComponent<SceneArt3D>();

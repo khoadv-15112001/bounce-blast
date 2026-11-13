@@ -24,6 +24,8 @@ namespace GardenCannon
         public Vector3 movesPlateLocal = new Vector3(3.81f, 0f, -0.065f);
         [Tooltip("Moves number size on the plate (1 = original size, which overflowed the plate).")]
         public float movesScale = 0.78f;
+        [Tooltip("Extra shift of the moves number on its plate (world units).")]
+        public Vector2 movesOffset = new Vector2(0f, -0.06f);
         [Tooltip("Lawn stops this far above the water line (the river's top edge).")]
         public float lawnAboveWater = 0.2f;
         [Tooltip("Drawn just after the lawn sprite (GrassTop is -8) and before every other sprite.")]
@@ -46,7 +48,7 @@ namespace GardenCannon
                 {
                     // Put the moves number on the plate of the new BG (slightly in front of it).
                     Vector3 p = _bg.transform.TransformPoint(movesPlateLocal);
-                    hud.movesAnchor.position = new Vector3(p.x, p.y, -0.05f);
+                    hud.movesAnchor.position = new Vector3(p.x + movesOffset.x, p.y + movesOffset.y, -0.05f);
                     hud.movesAnchor.localScale = Vector3.one * movesScale;
                 }
             }

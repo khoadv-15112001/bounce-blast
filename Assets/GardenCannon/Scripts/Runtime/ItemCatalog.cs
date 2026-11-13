@@ -86,6 +86,14 @@ namespace GardenCannon
             public bool stagesCumulative;
             [Tooltip("Egg box: first hit opens the lid (child 'Doors'), every following hit hatches the egg nearest to the ball (children Egg01..Egg09) and a bird flies away. Hits = 1 + eggs.")]
             public bool eggBox;
+            [Tooltip("Egg box: model shown in each egg slot instead of the egg (balloon). Empty = original eggs.")]
+            public GameObject eggPrefab;
+            [Tooltip("Egg box: colours for the slot models (one per slot, cycled).")]
+            public Material[] eggMaterials = new Material[0];
+            [Tooltip("Egg box: slot model height in cells.")]
+            public float eggSize = 0.62f;
+            [Tooltip("Soft ground shadow under the item (new 3D art).")]
+            public bool castShadow;
             [Tooltip("Egg box: sound when the lid opens.")]
             public AudioClip openSfx;
             [Tooltip("Spinner: degrees per second.")]

@@ -48,6 +48,12 @@ namespace GardenCannon
 
         readonly List<Button> _buttons = new List<Button>();
         TextMesh _levelText, _movesText, _movesShadow;
+        readonly List<TextMesh> _movesOutline = new List<TextMesh>();
+        [Tooltip("Outline around the moves number (world units, before the anchor scale).")]
+        public float movesOutline = 0.085f;
+        public Color movesOutlineColor = new Color(0.36f, 0.2f, 0.07f);
+        [Tooltip("Font size of the moves number (TextMesh, the other texts use 64).")]
+        public int movesFontSize = 55;
         Transform _goalsRoot, _popupRoot, _bannerRoot;
         readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
         readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
@@ -91,8 +97,20 @@ namespace GardenCannon
             }
             if (movesAnchor != null)
             {
-                _movesShadow = VisualUtil.MakeText("MovesShadow", movesAnchor, font, new Vector3(0.05f, -0.07f, 0.05f), 1.45f, new Color(0.42f, 0.29f, 0.16f), TextAnchor.MiddleCenter, 61);
+                // Drop shadow, then a dark outline all around (12 copies), then the white number on top.
+                _movesShadow = VisualUtil.MakeText("MovesShadow", movesAnchor, font, new Vector3(0.06f, -0.11f, 0.06f), 1.45f, new Color(0.2f, 0.11f, 0.03f, 0.85f), TextAnchor.MiddleCenter, 60);
+                _movesOutline.Clear();
+                for (int i = 0; i < 12; i++)
+                {
+                    float a = i * Mathf.PI * 2f / 12f;
+                    var off = new Vector3(Mathf.Cos(a) * movesOutline, Mathf.Sin(a) * movesOutline, 0.03f);
+                    _movesOutline.Add(VisualUtil.MakeText("MovesOutline", movesAnchor, font, off, 1.45f, movesOutlineColor, TextAnchor.MiddleCenter, 61));
+                }
                 _movesText = VisualUtil.MakeText("Moves", movesAnchor, font, Vector3.zero, 1.45f, Color.white, TextAnchor.MiddleCenter, 62);
+                // Same character size, smaller font size: the number shrinks to 55/64 (outline and shadow too).
+                _movesText.fontSize = movesFontSize;
+                if (_movesShadow != null) _movesShadow.fontSize = movesFontSize;
+                foreach (var o in _movesOutline) if (o != null) o.fontSize = movesFontSize;
             }
         }
 
@@ -136,6 +154,7 @@ namespace GardenCannon
         {
             if (_movesText != null) _movesText.text = moves.ToString();
             if (_movesShadow != null) _movesShadow.text = moves.ToString();
+            foreach (var o in _movesOutline) if (o != null) o.text = moves.ToString();
             if (_movesText != null) _movesText.color = moves <= 5 ? new Color(1f, 0.55f, 0.5f) : Color.white;
             if (punch && movesAnchor != null) Punch(movesAnchor);
         }

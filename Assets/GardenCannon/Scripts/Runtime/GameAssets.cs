@@ -46,6 +46,9 @@ namespace GardenCannon
 
         [Header("3D scenery (Assets/3D/Prefab/Elements)")]
         public GameObject cannon3D;
+        [Tooltip("Egg box: balloon floating away instead of the bird (Assets/3D/Prefab/Baloon).")]
+        public GameObject balloonPrefab;
+        public Material[] balloonMaterials = new Material[0];
         public GameObject bg3D;
         public GameObject grass3D;
 

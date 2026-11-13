@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2819826513664649899}
   - component: {fileID: 6364127834655366713}
   - component: {fileID: 4472160738302413796}
-  - component: {fileID: 9169707850750244994}
+  - component: {fileID: 261538083072297592}
   m_Layer: 0
   m_Name: Wooden_Crate_4x3
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &9169707850750244994
+--- !u!65 &261538083072297592
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -103,5 +103,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 8.006842, y: 2.0888367, z: 6.007677}
-  m_Center: {x: 0.00000023841858, y: 1.0444183, z: 0}
+  m_Size: {x: 4, y: 1.0435258, z: 3.0012712}
+  m_Center: {x: 0.00000029802322, y: 0.5217629, z: 0}
