@@ -137,6 +137,7 @@ namespace GardenCannon
                 else if (t.name == "Frame") frame = t.GetComponent<MeshFilter>();
                 else if (t.name == "Badge") badge = t;
             }
+            if (panels == null && frame == null) { FitCrate(); return; }
             // Visual units = cells (the visual root is scaled by the cell size), origin = footprint centre.
             Vector2 centre = new Vector2(_visualOffset.x, _visualOffset.y) / _board.CellSize;
             var set = new HashSet<Vector2Int>(_offsets);
@@ -155,6 +156,33 @@ namespace GardenCannon
             // The badge sat 1.65 above the ground in the original layout: put it on our lid.
             if (badge != null) badge.localPosition = new Vector3(0f, 0f, 1.65f - ContainerHeight - 0.06f);
             // Inside items must not poke out of the lid: they are hidden while shielded (see Board).
+        }
+
+        /// <summary>New crate art: turn the crate to the footprint's orientation and stretch it over the rectangle.</summary>
+        void FitCrate()
+        {
+            float cell = _board.CellSize;
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
+            foreach (var o in _offsets) { min = Vector2.Min(min, o); max = Vector2.Max(max, o); }
+            Vector2 size = (max - min + Vector2.one) * cell * 0.98f;
+            if (!TryGetMeshBounds(_visual.gameObject, out var b) || b.size.x < 1e-4f || b.size.y < 1e-4f) return;
+            if (Mathf.Abs(size.x - size.y) > 0.01f && (b.size.x > b.size.y) != (size.x > size.y))
+            {
+                _visual.localRotation = Quaternion.Euler(0f, 0f, 90f) * _visual.localRotation;
+                TryGetMeshBounds(_visual.gameObject, out b);
+            }
+            float sx = size.x / b.size.x, sy = size.y / b.size.y, sz = Mathf.Min(1.25f, Mathf.Sqrt(sx * sy));
+            // Scale along the local axes that map to world x / y / z.
+            var s = _visual.localScale;
+            var q = _visual.rotation;
+            Vector3 ax = q * Vector3.right, ay = q * Vector3.up, az = q * Vector3.forward;
+            float Pick(Vector3 d) => Mathf.Abs(d.x) > 0.7f ? sx : Mathf.Abs(d.y) > 0.7f ? sy : sz;
+            _visualBaseScale = new Vector3(s.x * Pick(ax), s.y * Pick(ay), s.z * Pick(az));
+            _visual.localScale = _visualBaseScale;
+            TryGetMeshBounds(_visual.gameObject, out b);
+            Vector3 want = transform.position + _visualOffset;
+            _visual.position += new Vector3(want.x - b.center.x, want.y - b.center.y, 0f);
+            _visualOffset = _visual.localPosition;
         }
 
         /// <summary>
@@ -424,9 +452,10 @@ namespace GardenCannon
             int hitsPerCell = Behaviour == ItemBehaviour.WoodenBox ? Mathf.Max(1, e.cellHits) : 1;
             foreach (var o in _offsets)
             {
-                var pv = _board.AcquireVisual(e.prefab, _partRoot);
+                var pv = _board.AcquireVisual(PickPrefab(), _partRoot);
                 var t = pv.transform;
                 t.localPosition = new Vector3((o.x - centre.x) * cell, (o.y - centre.y) * cell, 0f);
+                t.localRotation = Quaternion.Euler(e.modelEuler) * t.localRotation;
                 t.localScale = Vector3.Scale(t.localScale, Vector3.one * (cell * Mathf.Max(0.01f, e.visualScale)));
                 var part = new Part { off = o, visual = pv, hits = hitsPerCell };
                 foreach (var c in t.GetComponentsInChildren<Transform>(true))
@@ -455,11 +484,18 @@ namespace GardenCannon
             return best;
         }
 
-        static void UpdatePartStage(Part p, int maxHits)
+        void UpdatePartStage(Part p, int maxHits)
         {
             if (p.stages.Count == 0) return;
             int maxStage = 0;
             foreach (var s in p.stages) maxStage = Mathf.Max(maxStage, s.n);
+            if (Entry != null && Entry.stagesCumulative)
+            {
+                // New wooden block: planks "Wood 1..3" come off as the crate takes hits.
+                int keep = maxHits <= 1 ? maxStage : Mathf.RoundToInt(maxStage * (p.hits - 1) / (float)(maxHits - 1));
+                foreach (var s in p.stages) s.t.gameObject.SetActive(s.n <= keep);
+                return;
+            }
             int show = Mathf.Clamp(Mathf.CeilToInt(maxStage * p.hits / (float)Mathf.Max(1, maxHits)), 1, maxStage);
             foreach (var s in p.stages) s.t.gameObject.SetActive(s.n == show);
         }
@@ -517,6 +553,94 @@ namespace GardenCannon
         {
             result.Clear();
             foreach (var p in _parts) if (p.visual != null) result.Add(p.visual.transform.position);
+        }
+
+        // ------------------------------------------------------------------ 3D art prefab picking
+
+        float _pickedRotation;   // extra Z rotation for the picked prefab (vertical sliders)
+
+        /// <summary>
+        /// Prefab for this item: by colour (blocks), by size suffix (sliders, spinners, crates) or the entry's prefab.
+        /// </summary>
+        GameObject PickPrefab()
+        {
+            _pickedRotation = 0f;
+            var e = Entry;
+            if (e == null) return null;
+            if (e.colorPrefabs != null && e.colorPrefabs.Length > 0)
+            {
+                Color want = VisualUtil.AtlasTileColor(_catalog.AtlasTileForVariant(Data.variant));
+                GameObject best = null;
+                float bestD = float.MaxValue;
+                foreach (var cp in e.colorPrefabs)
+                {
+                    if (cp == null || cp.prefab == null) continue;
+                    float d = ColorDistance(want, cp.color);
+                    if (d < bestD) { bestD = d; best = cp.prefab; }
+                }
+                if (best != null) return best;
+            }
+            if (e.sizePrefabs != null && e.sizePrefabs.Length > 0)
+            {
+                Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue), max = new Vector2Int(int.MinValue, int.MinValue);
+                foreach (var o in _offsets) { min = Vector2Int.Min(min, o); max = Vector2Int.Max(max, o); }
+                int w = max.x - min.x + 1, h = max.y - min.y + 1;
+                GameObject best = null;
+                float bestScore = float.MaxValue;
+                foreach (var p in e.sizePrefabs)
+                {
+                    if (p == null) continue;
+                    float score;
+                    if (TryParseSize(p.name, out int a, out int bb))
+                    {
+                        // Footprint WxH: compare the aspect ratio (either orientation).
+                        float want = Mathf.Log(Mathf.Max(w, h) / (float)Mathf.Min(w, h));
+                        float have = Mathf.Log(Mathf.Max(a, bb) / (float)Mathf.Min(a, bb));
+                        score = Mathf.Abs(want - have) + 0.01f * Mathf.Abs(Mathf.Max(a, bb) - Mathf.Max(w, h));
+                    }
+                    else if (TryParseSuffix(p.name, out int n))
+                    {
+                        int key = Kind == ItemKind.Spinner ? ((((Data.variant % 4) + 4) % 4) < 2 ? 4 : 2) : Mathf.Max(w, h);
+                        score = Mathf.Abs(n - key);
+                    }
+                    else continue;
+                    if (score < bestScore) { bestScore = score; best = p; }
+                }
+                if (best != null)
+                {
+                    // Bars are modelled horizontally: turn them for vertical footprints.
+                    if (Kind != ItemKind.Spinner && Behaviour != ItemBehaviour.Container && h > w) _pickedRotation = 90f;
+                    return best;
+                }
+            }
+            return e.prefab;
+        }
+
+        static float ColorDistance(Color a, Color b)
+        {
+            // Weighted RGB distance plus a hue term so oranges / browns don't all collapse onto one colour.
+            float dr = a.r - b.r, dg = a.g - b.g, db = a.b - b.b;
+            Color.RGBToHSV(a, out float ha, out float sa, out float va);
+            Color.RGBToHSV(b, out float hb, out float sb, out float vb);
+            float dh = Mathf.Abs(ha - hb); dh = Mathf.Min(dh, 1f - dh);
+            float hueW = Mathf.Min(sa, sb);   // hue only matters for saturated colours
+            return 2f * dr * dr + 4f * dg * dg + 3f * db * db + 6f * hueW * dh * dh + 0.5f * (sa - sb) * (sa - sb);
+        }
+
+        static bool TryParseSize(string name, out int a, out int b)
+        {
+            a = b = 0;
+            int us = name.LastIndexOf('_');
+            if (us < 0) return false;
+            var parts = name.Substring(us + 1).Split('x');
+            return parts.Length == 2 && int.TryParse(parts[0], out a) && int.TryParse(parts[1], out b) && a > 0 && b > 0;
+        }
+
+        static bool TryParseSuffix(string name, out int n)
+        {
+            n = 0;
+            int us = name.LastIndexOf('_');
+            return us >= 0 && int.TryParse(name.Substring(us + 1), out n);
         }
 
         // ------------------------------------------------------------------ shared

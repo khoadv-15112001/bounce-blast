@@ -53,6 +53,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _GCArtLights: 1
     - _AtlasAlbedo: 0
     - _BumpScale: 0.2
     - _ClipAboveY: 0

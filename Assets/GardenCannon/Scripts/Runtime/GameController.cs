@@ -23,6 +23,7 @@ namespace GardenCannon
         public FxPool fx;
         public ItemCatalog catalog;
         public GameObject ballPrefab;
+        [HideInInspector] public SceneArt3D sceneArt;
         public SpriteRenderer lawnRenderer;
         public Sprite lawn9x12;
         public Sprite lawn12x17;
@@ -140,6 +141,7 @@ namespace GardenCannon
             }
 
             board.Build(level, catalog, _font);
+            sceneArt?.RebuildLawn();
 
             _goals.Clear();
             foreach (var g in level.goals) _goals[g.type] = g.count;
@@ -319,8 +321,30 @@ namespace GardenCannon
                 t = go.transform;
                 AddTrail(go);
             }
-            t.localScale = ballPrefab.transform.localScale * (ballVisualScale * board.CellSize);
+            // Size the model so it matches the physics ball (works for the original and the new 3D ball).
+            t.localScale = ballPrefab.transform.localScale * (ballVisualScale * 2f * physics.Radius / BallMeshSize());
             return t;
+        }
+
+        float _ballMeshSize = -1f;
+        GameObject _ballMeshPrefab;
+
+        /// <summary>Largest extent of the ball prefab's meshes at scale 1 (cached per prefab).</summary>
+        float BallMeshSize()
+        {
+            if (_ballMeshPrefab == ballPrefab && _ballMeshSize > 0f) return _ballMeshSize;
+            _ballMeshPrefab = ballPrefab;
+            float size = 0f;
+            var root = ballPrefab.transform;
+            foreach (var mf in ballPrefab.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (mf.sharedMesh == null) continue;
+                var s = mf.sharedMesh.bounds.size;
+                var ls = mf.transform == root ? Vector3.one : mf.transform.lossyScale;
+                size = Mathf.Max(size, s.x * ls.x, s.y * ls.y, s.z * ls.z);
+            }
+            _ballMeshSize = size > 1e-4f ? size : board.CellSize;
+            return _ballMeshSize;
         }
 
         void AddTrail(GameObject ball)

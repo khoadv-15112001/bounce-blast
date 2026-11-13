@@ -55,6 +55,7 @@ Shader "Spyke/StandardCustomLightDir" {
 		_GCRim ("Fresnel Rim", Range(0, 1)) = 0.15
 		_GCSaturation ("Saturation", Range(0, 2)) = 1.25
 		_GCExposure ("Exposure", Range(0.5, 1.5)) = 1.08
+		[Toggle] _GCArtLights ("Lights tuned on Y-up art (Assets/3D): turn them with the model", Float) = 0
 	}
 
 	SubShader {
@@ -95,6 +96,11 @@ Shader "Spyke/StandardCustomLightDir" {
 			float _GCRim;
 			float _GCSaturation;
 			float _GCExposure;
+			float _GCArtLights;
+
+			// The 3D art is laid flat for the tilted camera with Euler(90, 180, 0): x -> -x, y -> -z, z -> -y.
+			// Its materials were lit in the art scene (top = +Y), so turn their light directions the same way.
+			float3 ArtToWorld(float3 d) { return _GCArtLights > 0.5 ? float3(-d.x, -d.z, -d.y) : d; }
 
 			struct appdata {
 				float4 vertex : POSITION;
@@ -165,6 +171,7 @@ Shader "Spyke/StandardCustomLightDir" {
 				float3 l2 = DirFromYawPitch(_LightYaw2, _LightPitch2);
 				float3 l3 = DirFromYawPitch(_LightYaw3, _LightPitch3);
 				float3 l4 = DirFromYawPitch(_SpecYaw4, _SpecPitch4);
+				l1 = ArtToWorld(l1); l2 = ArtToWorld(l2); l3 = ArtToWorld(l3); l4 = ArtToWorld(l4);
 
 				half3 diffuse = _GCAmbient.rgb;
 				diffuse += _CustomLightColor.rgb * saturate(dot(n, l1)) * step(0.5, _UseCustomLightDir);
