@@ -15,8 +15,8 @@ MonoBehaviour:
   catalog: {fileID: 11400000, guid: facaf1e593e056948abd60ca762eb5bb, type: 2}
   ballPrefab: {fileID: 421987626604424971, guid: 78ad0ff12e59fc5459f747730226dd91, type: 3}
   font: {fileID: 12800000, guid: cd7cde3d0b16f59458708cd5f1bff7f3, type: 3}
-  grassTop: {fileID: 21300000, guid: 2400012cdf561f441adde09f46c83258, type: 2}
-  grassTop12x17: {fileID: 21300000, guid: e1286e39ff6c4db4184c9f04d3f44ee9, type: 2}
+  grassTop: {fileID: 21300000, guid: 080e78b5ef7c47c28e75f54579fa93ad, type: 3}
+  grassTop12x17: {fileID: 21300000, guid: 080e78b5ef7c47c28e75f54579fa93ad, type: 3}
   water: {fileID: 21300000, guid: 4a31591c0147d494fa5c19b87b67a199, type: 2}
   grassBottom: {fileID: 21300000, guid: 6cc941804e6d4c84fa0d36457a874f24, type: 2}
   cannon: {fileID: 21300000, guid: 565c32d378d3bb8409ccd925b7c07905, type: 2}

@@ -23,7 +23,7 @@ namespace GardenCannon.EditorTools
             EditorApplication.delayCall += Run;
         }
 
-        const int BehaviourVersion = 6;
+        const int BehaviourVersion = 7;
 
         /// <summary>Only replaces the old defaults (an edit made in GameAssets afterwards is kept).</summary>
         static bool ApplyAudioAndBalloons(GameAssets assets)
@@ -42,6 +42,11 @@ namespace GardenCannon.EditorTools
                 assets.ballFire = blast;
                 changed = true;
             }
+            // New circus theme lawn with the checker baked in: 9-column and 12-column boards.
+            var lawn = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/GrassTop.png");
+            var lawn12 = lawn;   // one picture for both board sizes: the checker is drawn underneath per level
+            if (lawn != null && assets.grassTop != lawn) { assets.grassTop = lawn; changed = true; }
+            if (lawn12 != null && assets.grassTop12x17 != lawn12) { assets.grassTop12x17 = lawn12; changed = true; }
             var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
             var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
             // Balloon flying away: balloon_fly instead of the bird sound.
@@ -126,7 +131,9 @@ namespace GardenCannon.EditorTools
                         var p = Art("Elements/Stone_Block_triangle");
                         if (p == null) break;
                         // Unity mirrors X on import, so after the model turn the right angle is bottom-right like the original.
-                        e.prefab = p; e.modelEuler = up; e.rotationOffset = 0f; e.rotateByVariant = true; e.fitFootprint = false;
+                        // The triangle mesh is bevelled (0.92 of a cell, off-centre): fit it to the cell so its right angle
+                        // sits in the cell corner for every rotation.
+                        e.prefab = p; e.modelEuler = up; e.rotationOffset = 0f; e.rotateByVariant = true; e.fitFootprint = true; e.fitFill = 1f;
                         break;
                     }
                     case 2: // Brick wall -> stone block (the new art has no dynamite: solid again)
@@ -400,7 +407,7 @@ namespace GardenCannon.EditorTools
                 EditorUtility.SetDirty(assets);
                 AssetDatabase.SaveAssets();
                 GardenCannonSetup.SetupAddressables(assets.catalog, assets);
-                Debug.Log("[GardenCannon] Music BGM_Ingame_Universal_02, shot sound cannon_blast and egg box balloons assigned.");
+                Debug.Log("[GardenCannon] Music, shot sound, egg box balloons and the circus lawn (Art/GrassTop.png) assigned.");
             }
 
             // Original item effects: extract them from Game.unity once, then hook them into the catalog.

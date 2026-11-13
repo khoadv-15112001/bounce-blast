@@ -451,8 +451,8 @@ MonoBehaviour:
     defaultHits: 1
     prefab: {fileID: 4035289072431779865, guid: 261eb61e5e9a55e4eb01535962b48b23, type: 3}
     visualScale: 1
-    fitFootprint: 0
-    fitFill: 0.96
+    fitFootprint: 1
+    fitFill: 1
     rotationOffset: 0
     rotateByVariant: 1
     stagePrefix: 
@@ -651,7 +651,7 @@ MonoBehaviour:
     altSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   defaultsVersion: 4
-  behaviourVersion: 6
+  behaviourVersion: 7
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
     rimMask: 15

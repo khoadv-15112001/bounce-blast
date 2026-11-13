@@ -27,9 +27,11 @@ namespace GardenCannon
         [Tooltip("Extra shift of the moves number on its plate (world units).")]
         public Vector2 movesOffset = new Vector2(0f, -0.06f);
         [Tooltip("Lawn stops this far above the water line (the river's top edge).")]
-        public float lawnAboveWater = 0.2f;
+        public float lawnAboveWater = -0.05f;
+        [Tooltip("How far the lawn reaches under the frame of the GrassTop picture (its lawn area is transparent).")]
+        public float lawnUnderFrame = 0.4f;
         [Tooltip("Drawn just after the lawn sprite (GrassTop is -8) and before every other sprite.")]
-        public int lawnSortingOrder = -7;
+        public int lawnSortingOrder = -9;
 
         Board _board;
         GameObject _cannon, _bg;
@@ -71,7 +73,9 @@ namespace GardenCannon
         {
             // Hide the old bottom sprite (keep its children, e.g. the moves counter).
             foreach (var sr in FindObjectsOfType<SpriteRenderer>(true))
-                if (sr.gameObject.name == "Bottom" && sr.sprite != null && sr.sprite.name.Contains("GrassBottom")) sr.enabled = false;
+                if (sr.gameObject.name == "Bottom" &&
+                    ((sr.transform.parent != null && sr.transform.parent.name == "GrassTheme") || (sr.sprite != null && sr.sprite.name.Contains("GrassBottom"))))
+                    sr.enabled = false;   // its sprite may still be loading (first frame): match the object, not the sprite
             Vector3 pivot = cannon != null ? cannon.transform.position : new Vector3(0f, -10.54f, 0f);
             _bg = Instantiate(bgPrefab, transform, false);
             _bg.name = "BG3D";
@@ -90,29 +94,61 @@ namespace GardenCannon
             {
                 var go = new GameObject("Lawn3D");
                 go.transform.SetParent(transform, false);
+                // A hair behind the GrassTop picture (z = 0): same depth made the frame's edge fight with the lawn.
+                go.transform.position = new Vector3(0f, 0f, 0.02f);
                 go.AddComponent<MeshFilter>().sharedMesh = _lawnMesh = new Mesh { name = "Lawn3D" };
                 _lawn = go.AddComponent<MeshRenderer>();
-                // Transparent queue + sorting order so it sits on the lawn sprite but under every other sprite.
+                // Transparent queue + sorting order: after the river (-11), under the GrassTop picture (-8) whose lawn
+                // area is transparent, so the frame's edge lies on top of the checker (no seam).
                 _lawnMaterial = new Material(src.sharedMaterial) { name = "Lawn3D", renderQueue = 3000 };
                 _lawn.sharedMaterial = _lawnMaterial;
                 _lawn.sortingOrder = lawnSortingOrder;
                 _lawn.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 _lawn.receiveShadows = false;
             }
-            float cell = _board.CellSize;
-            float left = _board.Left, right = _board.Right, top = _board.Top;
-            float bottom = _board.WaterLine + lawnAboveWater;
-            // The texture holds 2x2 checker squares: 1 UV unit = 2 cells, aligned to the grid's top-left corner.
-            float u1 = (right - left) / (2f * cell), v0 = -(top - bottom) / (2f * cell);
-            _lawnMesh.Clear();
-            _lawnMesh.vertices = new[]
-            {
-                new Vector3(left, bottom, 0f), new Vector3(right, bottom, 0f), new Vector3(right, top, 0f), new Vector3(left, top, 0f),
-            };
-            _lawnMesh.uv = new[] { new Vector2(0f, v0), new Vector2(u1, v0), new Vector2(u1, 0f), new Vector2(0f, 0f) };
-            _lawnMesh.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
-            _lawnMesh.triangles = new[] { 0, 2, 1, 0, 3, 2 };   // clockwise seen from the camera (-z)
-            _lawnMesh.RecalculateBounds();
+            int cols = Mathf.Max(1, Mathf.RoundToInt((_board.Right - _board.Left) / _board.CellSize));
+            BuildLawnMesh(_lawnMesh, _board.Left, _board.Right, _board.Top, _board.WaterLine + lawnAboveWater, cols, lawnUnderFrame);
+        }
+
+        /// <summary>
+        /// Checker lawn under the GrassTop picture (whose lawn is cut out): the board area with 1 UV unit = 2 cells
+        /// from the grid's top-left corner, plus a margin under the frame where the outer squares just continue (no new
+        /// square starting in the sliver between the grid and the frame). Bottom rows continue normally to the river.
+        /// </summary>
+        public static void BuildLawnMesh(Mesh mesh, float left, float right, float top, float bottom, int cols, float margin)
+        {
+            float cell = (right - left) / cols;
+            const float eps = 0.002f;
+            float[] xs = { left - margin, left, right, right + margin };
+            float[] ys = { top + margin, top, bottom };
+            float U(float x) => Mathf.Clamp((x - left) / (2f * cell), eps, cols / 2f - eps);
+            float V(float y) => -Mathf.Max(eps, (top - y) / (2f * cell));   // 0 at the grid top, negative downwards
+            var verts = new Vector3[xs.Length * ys.Length];
+            var uvs = new Vector2[verts.Length];
+            var normals = new Vector3[verts.Length];
+            for (int j = 0; j < ys.Length; j++)
+                for (int i = 0; i < xs.Length; i++)
+                {
+                    int n = j * xs.Length + i;
+                    verts[n] = new Vector3(xs[i], ys[j], 0f);
+                    uvs[n] = new Vector2(U(xs[i]), V(ys[j]));
+                    normals[n] = Vector3.back;
+                }
+            var tris = new System.Collections.Generic.List<int>();
+            for (int j = 0; j < ys.Length - 1; j++)
+                for (int i = 0; i < xs.Length - 1; i++)
+                {
+                    int tl = j * xs.Length + i, tr = tl + 1, bl = tl + xs.Length, br = bl + 1;
+                    // clockwise seen from the camera (-z)
+                    tris.Add(bl); tris.Add(tl); tris.Add(tr);
+                    tris.Add(bl); tris.Add(tr); tris.Add(br);
+                }
+            mesh.Clear();
+            mesh.vertices = verts;
+            mesh.uv = uvs;
+            mesh.normals = normals;
+            mesh.SetTriangles(tris, 0);
+            mesh.RecalculateBounds();
         }
 
         void OnDestroy()

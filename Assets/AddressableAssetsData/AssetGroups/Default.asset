@@ -427,8 +427,8 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 7d8a6173b7f86254dafe3dde56c8e1ac
-    m_Address: Assets/SpriteExport/splash_bg.png
+  - m_GUID: 080e78b5ef7c47c28e75f54579fa93ad
+    m_Address: GardenCannon/Sprites/GrassTop
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
