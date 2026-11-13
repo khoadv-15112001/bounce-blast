@@ -177,11 +177,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cb62992f7363fa04f834f5b79057f00b
-    m_Address: GardenCannon/Sprites/splash asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dc6fa7f71df5f3c40ae6b53f9b32dbfa
     m_Address: GardenCannon/Sprites/logo
     m_ReadOnly: 0
@@ -429,6 +424,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fcc66909b3697db4db4c70e939ee3d3c
     m_Address: GardenCannon/Prefabs/Baloon Box
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7d8a6173b7f86254dafe3dde56c8e1ac
+    m_Address: Assets/SpriteExport/splash_bg.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

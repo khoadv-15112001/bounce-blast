@@ -152,7 +152,8 @@ namespace GardenCannon
                     Debug.LogWarning($"[GardenCannon] Goal type {it.Data.type} is mapped to {it.Kind} in the ItemCatalog; set it to Breakable.");
 
             MovesLeft = Mathf.Max(1, level.moves);
-            ammoBelt?.Fill(MovesLeft);
+            // One waiting ball per ball to shoot (moves x balls per shot).
+            ammoBelt?.Fill(MovesLeft * Mathf.Max(1, ballsPerShot));
             CurrentState = State.Aiming;
             cannon?.SetAngle(0f);
             cannon?.PlayRefill();
@@ -207,6 +208,8 @@ namespace GardenCannon
                 {
                     SpawnBall();
                     _burstLeft--;
+                    // Each ball fired pulls one waiting ball into the cannon.
+                    ammoBelt?.Feed(MovesLeft * Mathf.Max(1, ballsPerShot) + _burstLeft);
                     _burstTimer = burstInterval;
                 }
             }
@@ -286,7 +289,6 @@ namespace GardenCannon
                 return;
             }
             MovesLeft--;
-            ammoBelt?.Feed(MovesLeft);
             hud?.SetMoves(MovesLeft, true);
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
             if (MovesLeft == 5) sfx?.Play(sfx.lastMoves, 0.8f, 0f);

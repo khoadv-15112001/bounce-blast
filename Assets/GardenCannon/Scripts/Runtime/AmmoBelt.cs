@@ -4,9 +4,9 @@ using UnityEngine;
 namespace GardenCannon
 {
     /// <summary>
-    /// Row of balls waiting on the right of the cannon (one per move left, up to <see cref="maxVisible"/>).
+    /// Row of balls waiting on the right of the cannon (one per ball left to shoot, up to <see cref="maxVisible"/>).
     /// On each shot the front ball rolls into the cannon, the others roll one slot closer and a new one rolls in at the
-    /// back while moves remain.
+    /// back while balls remain.
     /// </summary>
     public class AmmoBelt : MonoBehaviour
     {
@@ -22,9 +22,9 @@ namespace GardenCannon
         public float ballSize = 0.58f;
         public int maxVisible = 15;
         [Tooltip("Seconds for the front ball to roll into the cannon.")]
-        public float loadTime = 0.18f;
+        public float loadTime = 0.12f;
         [Tooltip("Seconds for the row to roll one slot.")]
-        public float shiftTime = 0.25f;
+        public float shiftTime = 0.14f;
 
         class Slot
         {
@@ -41,31 +41,31 @@ namespace GardenCannon
         readonly List<Slot> _loading = new List<Slot>();
         readonly Stack<Transform> _pool = new Stack<Transform>();
         float _meshSize = -1f;
-        int _queued;   // balls not shown yet (moves left beyond the visible ones)
+        int _queued;   // balls not shown yet (balls left beyond the visible ones)
 
         Vector3 Pivot => cannon != null ? cannon.position : new Vector3(0f, -10.54f, 0f);
         Vector3 SlotPos(float x) => Pivot + firstSlot + Vector3.right * (spacing * x);
 
-        /// <summary>Level start: show the balls for <paramref name="moves"/> moves, popping in one after the other.</summary>
-        public void Fill(int moves)
+        /// <summary>Level start: show <paramref name="balls"/> waiting balls (up to maxVisible), popping in one after the other.</summary>
+        public void Fill(int balls)
         {
             foreach (var s in _row) Release(s.t);
             foreach (var s in _loading) Release(s.t);
             _row.Clear();
             _loading.Clear();
-            int shown = Mathf.Clamp(moves, 0, maxVisible);
-            _queued = Mathf.Max(0, moves - shown);
+            int shown = Mathf.Clamp(balls, 0, maxVisible);
+            _queued = Mathf.Max(0, balls - shown);
             for (int i = 0; i < shown; i++)
             {
                 var s = NewSlot(i);
                 s.scale = 0f; s.scaleFrom = 0f; s.scaleTo = 1f;
-                s.timer = 0f; s.duration = 0.25f; s.delay = 0.05f * i;
+                s.timer = 0f; s.duration = 0.25f; s.delay = 0.03f * i;
                 _row.Add(s);
             }
         }
 
-        /// <summary>A shot was fired: <paramref name="movesLeft"/> is the count after the shot.</summary>
-        public void Feed(int movesLeft)
+        /// <summary>A shot was fired: <paramref name="ballsLeft"/> = balls still to shoot after this one.</summary>
+        public void Feed(int ballsLeft)
         {
             if (_row.Count > 0)
             {
@@ -77,15 +77,15 @@ namespace GardenCannon
                 _loading.Add(front);
             }
             for (int i = 0; i < _row.Count; i++)
-                Tween(_row[i], i, shiftTime, 0.04f * i);
-            // A new ball rolls in at the back while there are more moves than visible balls.
-            int wanted = Mathf.Clamp(movesLeft, 0, maxVisible);
+                Tween(_row[i], i, shiftTime, 0.012f * i);
+            // A new ball rolls in at the back while more balls are left than are visible.
+            int wanted = Mathf.Clamp(ballsLeft, 0, maxVisible);
             if (_row.Count < wanted && _queued > 0)
             {
                 _queued--;
                 var s = NewSlot(_row.Count + 1);
                 s.scale = 0f; s.scaleFrom = 0f; s.scaleTo = 1f;
-                Tween(s, _row.Count, shiftTime, 0.04f * _row.Count);
+                Tween(s, _row.Count, shiftTime, 0.012f * _row.Count);
                 _row.Add(s);
             }
         }

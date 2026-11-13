@@ -36,6 +36,18 @@ namespace GardenCannon
 
         IEnumerator Start()
         {
+            // Normal path: the splash already loaded everything (GamePreloader) -> build the level right away.
+            if (GamePreloader.IsReady)
+            {
+                // Scene sprites come from bundles that are already loaded: a frame or two at most.
+                foreach (var s in FindObjectsOfType<AddressableSprite>(true))
+                    while (s != null && s.isActiveAndEnabled && !s.IsDone) yield return null;
+                LevelLibrary.Initialize(GamePreloader.Levels);
+                Wire(GamePreloader.Assets);
+                yield break;
+            }
+
+            // Game scene started directly (editor): load here.
             _assetsHandle = Addressables.LoadAssetAsync<GameAssets>(gameAssetsAddress);
             _levelsHandle = Addressables.LoadAssetsAsync<TextAsset>(levelsLabel, null);
             yield return _assetsHandle;
