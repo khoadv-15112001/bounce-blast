@@ -2,37 +2,14 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1045 &1
 EditorBuildSettings:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
+  serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Spyke/Scenes/Intro.unity
-    guid: 7636f38167431c94c900d9d26abc438d
+    path: Assets/GardenCannon/Scenes/Splash.unity
+    guid: 1d165f7d8cb9e9c418ea02f685e0cd02
   - enabled: 1
-    path: Assets/Spyke/Scenes/Collections.unity
-    guid: 96ef0eaba0f981545930a638134a3b67
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Home.unity
-    guid: 299270f9a1e63554ba383e628c38b9d0
-  - enabled: 1
-    path: Assets/CoreFramework/Runtime/SpykeLib/CoreFramework/Runtime/Leaderboard/Scenes/Leaderboard.unity
-    guid: c4e7e3313532b824ea8d445faf8d7990
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Root.unity
-    guid: e7fc4a7e5d555ca488afd38ed9a67c60
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Shop.unity
-    guid: 7ae99eee89237ed4da383371f981c25c
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Team.unity
-    guid: 3fca09a17db9ae5469bb48f344889ac9
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Main.unity
-    guid: fac7a12aa44705942975445784e55d70
-  - enabled: 1
-    path: Assets/Spyke/Scenes/TeamInfo.unity
-    guid: 9591f1c08ea5a464691a056ff8ca399c
-  - enabled: 1
-    path: Assets/Spyke/Scenes/Game.unity
-    guid: d58fc97887c8a784982fe91c883f8ee5
-  m_configObjects: {}
+    path: Assets/GardenCannon/Scenes/GardenCannon.unity
+    guid: 406bbf95bd484c14e83cc0717a225142
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: bc3d74ccffe7f784881cd8e8c11cfaf5, type: 2}

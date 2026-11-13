@@ -1,0 +1,506 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8380111d28b254b498c8315cdb18f8be, type: 3}
+  m_Name: ItemCatalog
+  m_EditorClassIdentifier: 
+  entries:
+  - label: Block
+    typeId: 1
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 5916039e18d0f8c4b9879c5f650d4738, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 1
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 7313273411346813433, guid: 077f32e48b18acb4f94fcaf6fab39c2f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
+    breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 1, g: 1, b: 1, a: 1}
+  - label: Brick Wall
+    typeId: 2
+    kind: 0
+    shape: 0
+    defaultHits: 3
+    prefab: {fileID: 1709254077376921, guid: b750d37a8c725b24391261bd4ab0c6a9, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 1
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 2389019736332780245, guid: bb68423b44cf41b47a78dbe01db35d83, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
+    breakSfx: {fileID: 8300000, guid: 149c886980ff22248b81d4ed8c5481fa, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 2
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.25, g: 0.3, b: 0.8, a: 1}
+  - label: Moving Barrier
+    typeId: 4
+    kind: 1
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 6602137ae6f66624796ec45c1754c4d5, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.6
+    breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
+    breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.9, g: 0.25, b: 0.2, a: 1}
+  - label: Egg Box
+    typeId: 5
+    kind: 0
+    shape: 0
+    defaultHits: 10
+    prefab: {fileID: 1709254077376921, guid: 4e2f49daeb39b18458c1899a31e0703a, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 1
+    openSfx: {fileID: 8300000, guid: f6a3243830b05a9438ed261ae646d072, type: 3}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 198045410432241170, guid: 718aaa1bd9737224aafd6f650364b6fe, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 67903384687882446, guid: 0ebca3bfc3b086848b5b5083e7bd7f20, type: 3}
+    hatchFx: {fileID: 682167952479840192, guid: e717d0b3b1ab7454bb8a83059616860c, type: 3}
+    hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
+    breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
+    extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.75, g: 0.35, b: 0.85, a: 1}
+  - label: Electric Orb
+    typeId: 6
+    kind: 0
+    shape: 0
+    defaultHits: 2
+    prefab: {fileID: 1709254077376921, guid: aae0f6e7d2ce4cf4e8fab1ba8a22c8e8, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 949823887834461746, guid: 5f92ac0fae5c320418797a16110fba54, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
+    breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 4
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 8300000, guid: 3c225e7bc75948649864ad143a4bc342, type: 3}
+    debugColor: {r: 0.4, g: 0.7, b: 1, a: 1}
+  - label: Log Cutter
+    typeId: 7
+    kind: 0
+    shape: 0
+    defaultHits: 2
+    prefab: {fileID: 1709254077376921, guid: fb5276f11e2c416439d983df4cbc1b72, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 45424504262585878, guid: 20e40015cd4d9cd4d90028c2df62ff71, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
+    breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 3
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
+  - label: Target Stand
+    typeId: 8
+    kind: 0
+    shape: 0
+    defaultHits: 2
+    prefab: {fileID: 1709254077376921, guid: 60a5be7bd6838a94e9119517efe367bf, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 6639990687976562072, guid: 388c990e7940b3a439fe020690bf8e0f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 6
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
+  - label: Moving Target
+    typeId: 9
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 7917fb2b39397d54d95df647d73b64d3, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.2
+    breakFx: {fileID: 6639990687976562072, guid: 388c990e7940b3a439fe020690bf8e0f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 6
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 1, g: 0.45, b: 0.7, a: 1}
+  - label: Wooden Box
+    typeId: 13
+    kind: 0
+    shape: 0
+    defaultHits: 4
+    prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: stage_
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 6347052287175827291, guid: bab0b502ad86bff4bb1abf05c227bdd3, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
+    breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 5
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
+    partFx: {fileID: 6347052287175827291, guid: bab0b502ad86bff4bb1abf05c227bdd3, type: 3}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.93, g: 0.55, b: 0.16, a: 1}
+  - label: Stone Corner
+    typeId: 23
+    kind: 2
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: ee56ca0b8947252459e97f4339b2f068, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 1
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
+    breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.9, g: 0.86, b: 0.78, a: 1}
+  - label: Container
+    typeId: 24
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 68ccb75b24dc88647b49cba26e220ade, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 1
+    laneSpeed: 1.5
+    breakFx: {fileID: 979454528307687699, guid: b840bab5dc566f34597fb833204b8f7e, type: 3}
+    hitFx: {fileID: 1601110587117562170, guid: 9c85b59b799b0574a8b6c0c4484c7091, type: 3}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
+    breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 1
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 1, g: 0.8, b: 0.25, a: 1}
+  - label: Twirler
+    typeId: 25
+    kind: 4
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: 1913822878c05e049924bb85de04fb3a, type: 3}
+    visualScale: 1
+    fitFootprint: 1
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 0
+    showHitCount: 0
+    laneSpeed: 1.5
+    breakFx: {fileID: 0}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
+    breakSfx: {fileID: 0}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 0.9, g: 0.2, b: 0.15, a: 1}
+  - label: Number Block
+    typeId: 26
+    kind: 0
+    shape: 0
+    defaultHits: 1
+    prefab: {fileID: 1709254077376921, guid: cd8220192d4234045861d2d6137d5054, type: 3}
+    visualScale: 1
+    fitFootprint: 0
+    fitFill: 0.96
+    rotationOffset: 0
+    rotateByVariant: 0
+    stagePrefix: 
+    stagesCumulative: 0
+    eggBox: 0
+    openSfx: {fileID: 0}
+    spinSpeed: 90
+    autotile: 0
+    colorByVariant: 1
+    showHitCount: 1
+    laneSpeed: 1.5
+    breakFx: {fileID: 7313273411346813433, guid: 077f32e48b18acb4f94fcaf6fab39c2f, type: 3}
+    hitFx: {fileID: 0}
+    openFx: {fileID: 0}
+    hatchFx: {fileID: 0}
+    hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
+    breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
+    extraBreakSfx: {fileID: 0}
+    behaviour: 0
+    cellHits: 2
+    fuseTime: 0.7
+    blastRadius: 1.5
+    orbResetTime: 8
+    partBreakSfx: {fileID: 0}
+    partFx: {fileID: 0}
+    altSfx: {fileID: 0}
+    debugColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultsVersion: 4
+  behaviourVersion: 1
+  autotileModules:
+  - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
+    rimMask: 15
+  - mesh: {fileID: 4300000, guid: 09523d0f98ea3064695adfc1e16da795, type: 2}
+    rimMask: 14
+  - mesh: {fileID: 4300000, guid: c81cae512ac9f7b4e8a16a9f0a4ef68d, type: 2}
+    rimMask: 5
+  - mesh: {fileID: 4300000, guid: e04338f6216f939428e57a8a2211c8de, type: 2}
+    rimMask: 6
+  - mesh: {fileID: 4300000, guid: 0b0e5d8d44e50ac4898a9c754ce4f73d, type: 2}
+    rimMask: 9
+  - mesh: {fileID: 4300000, guid: f162b816da7f71b47baf5c33d3f67256, type: 2}
+    rimMask: 4
+  - mesh: {fileID: 4300000, guid: bc3e3572775a1ca4f976bff872619538, type: 2}
+    rimMask: 0
+  damagePerHit: 1
+  variantToAtlasTile: 1100000012000000130000001400000015000000160000001700000018000000090000000a0000000b0000000c0000000d0000000e0000000f0000001000000001000000010000000200000003000000040000000500000006000000070000000800000000000000000000000000000000000000000000000000000000000000
+  atlasBaseUvCenter: {x: 0.50668335, y: 0.5168152}
+  atlasMeshFullUv: 1
+  atlasColumns: 8
+  atlasRows: 4

@@ -27,6 +27,13 @@ const BURST_GAP = 0.08; // seconds between balls in one shot
 // Each row: 9 tokens separated by spaces.
 //   .  = empty      R = red star block (objective, 1 hit)
 //   S  = stone (unbreakable)      number = yellow block HP
+//   B  = bomb (1 hit, explodes: 3 damage to the 8 cells around it)
+//   O  = bumper (round, unbreakable, ball bounces off it)
+//   P / Q = portal pair (ball entering one comes out of the other)
+//   +  = +1 shot pickup (ball passes through and collects it)
+//   G  = glass (breaks on touch, ball goes straight through)
+// movers: [{ row, col, len, range, speed }] = wooden log sliding from col to col+range
+// tip: short text shown at level start
 // shots = number of cannon shots, burst = balls per shot,
 // paddleW = paddle width, paddleSpeed = patrol speed
 const LEVELS = [
@@ -189,12 +196,93 @@ const LEVELS = [
     '10 10 10 10 10 10 10 10 10',
     'R . . . . . . . R',
   ]},
+  // ---- Levels 21-30: obstacles ----
+  { shots: 16, burst: 4, paddleW: 110, paddleSpeed: 1.1, tip: 'Bom: nổ gây 3 sát thương cho 8 ô xung quanh', rows: [
+    '. R 6 6 R 6 6 R .',
+    '. 6 6 B 6 B 6 6 .',
+    '. 6 B 6 6 6 B 6 .',
+    '. R 6 6 R 6 6 R .',
+  ]},
+  { shots: 18, burst: 4, paddleW: 110, paddleSpeed: 1.1, tip: 'Nấm nảy: bóng bật ra, không phá được', rows: [
+    'R . . R . R . . R',
+    '5 5 5 5 5 5 5 5 5',
+    '. . . . . . . . .',
+    '. O . . O . . O .',
+    '. . R . . . R . .',
+  ]},
+  { shots: 14, burst: 4, paddleW: 110, paddleSpeed: 1.1, tip: 'Cổng tím: bóng vào cổng này, ra cổng kia', rows: [
+    'S R R R R R R R S',
+    'S . . . Q . . . S',
+    'S S S S S S S S S',
+    '. . . . . . . . .',
+    '. 6 6 . P . 6 6 .',
+  ]},
+  { shots: 14, burst: 4, paddleW: 108, paddleSpeed: 1.2, tip: 'Kính vỡ khi chạm, bóng xuyên qua · +1: thêm lượt bắn', rows: [
+    'R G R G R G R G R',
+    'G 8 G 8 G 8 G 8 G',
+    '. . + . . . + . .',
+    '8 8 8 G G G 8 8 8',
+  ]},
+  { shots: 20, burst: 4, paddleW: 108, paddleSpeed: 1.2, tip: 'Khúc gỗ trượt qua lại chắn đường bóng',
+    movers: [{ row: 3, col: 0, len: 3, range: 6, speed: 1.1 }], rows: [
+    'R 5 R 5 R 5 R 5 R',
+    '5 5 5 5 5 5 5 5 5',
+    '. . . . . . . . .',
+    '. . . . . . . . .',
+    '. 6 6 6 . 6 6 6 .',
+  ]},
+  { shots: 18, burst: 4, paddleW: 105, paddleSpeed: 1.3, tip: 'Nổ dây chuyền: bom kích nổ bom bên cạnh', rows: [
+    'R B R . R . R B R',
+    '8 8 B 8 8 8 B 8 8',
+    'B 8 8 B 8 B 8 8 B',
+    '10 10 10 10 10 10 10 10 10',
+    '. . . . B . . . .',
+  ]},
+  { shots: 20, burst: 4, paddleW: 105, paddleSpeed: 1.3, rows: [ // pinball
+    'R . . . R . . . R',
+    '. O . O . O . O .',
+    '. . R . . . R . .',
+    '. O . O . O . O .',
+    '8 8 8 8 + 8 8 8 8',
+  ]},
+  { shots: 16, burst: 5, paddleW: 102, paddleSpeed: 1.4,
+    movers: [{ row: 5, col: 0, len: 3, range: 6, speed: 1.3 }], rows: [ // vault behind portal
+    'R R R R . R R R R',
+    'S S S S Q S S S S',
+    '. . . . . . . . .',
+    '. . . . . . . . .',
+    '. 8 8 . P . 8 8 .',
+    '. . . . . . . . .',
+  ]},
+  { shots: 22, burst: 5, paddleW: 100, paddleSpeed: 1.5,
+    movers: [{ row: 5, col: 0, len: 2, range: 7, speed: 1.6 }], rows: [ // mixed
+    'R . R . R . R . R',
+    'G G G G G G G G G',
+    '10 B 10 B 10 B 10 B 10',
+    '. . . O . O . . .',
+    '12 12 + 12 12 12 + 12 12',
+  ]},
+  { shots: 26, burst: 6, paddleW: 96, paddleSpeed: 1.7, tip: 'Màn tổng hợp: dùng hết mọi chướng ngại vật!',
+    movers: [{ row: 7, col: 0, len: 2, range: 7, speed: 1.8 }], rows: [
+    'R S R S P S R S R',
+    'B 12 12 12 12 12 12 12 B',
+    'S 10 S 10 S 10 S 10 S',
+    'R 10 O 10 G 10 O 10 R',
+    'S S 15 15 B 15 15 S S',
+    '. . . + . + . . .',
+    '. . . . Q . . . .',
+  ]},
 ];
 LEVELS.forEach((L, i) => L.rows.forEach((r, j) => {
   if (r.split(/\s+/).length !== 9) console.warn(`Level ${i + 1} row ${j + 1} does not have 9 cells`);
 }));
 let levelIdx = 0; // always start at Level 1
 const MIN_BURST = 4;
+// Obstacle legend (see the LEVELS comment above)
+const KINDS = { R: 'red', S: 'stone', B: 'bomb', O: 'bumper', P: 'portal', Q: 'portal', '+': 'plus', G: 'glass' };
+const ONE_HIT = new Set(['red', 'bomb', 'plus', 'glass']);
+const TRIGGERS = new Set(['portal', 'plus', 'glass']); // ball passes through these
+const BUMPER_R = 15, BOMB_DMG = 3;
 
 // ---------- Canvas setup ----------
 const cv = document.getElementById('c');
@@ -219,10 +307,19 @@ function reset() {
   blocks = [];
   level.rows.forEach((row, r) => row.split(/\s+/).forEach((v, c) => {
     if (v === '.') return;
-    const red = v === 'R', stone = v === 'S';
+    const kind = KINDS[v] || 'num';
+    const hp = kind === 'num' ? parseInt(v, 10) : ONE_HIT.has(kind) ? 1 : Infinity;
     blocks.push({ x: GRID.x + c * GRID.c, y: GRID.y + r * GRID.c, w: GRID.c, h: GRID.c,
-      hp: red ? 1 : stone ? Infinity : parseInt(v, 10), red, stone, flash: 0, bump: 0 });
+      hp, kind, tag: v, red: kind === 'red', stone: kind === 'stone', trigger: TRIGGERS.has(kind), flash: 0, bump: 0 });
   }));
+  // pair portals P <-> Q
+  const pp = blocks.find(b => b.tag === 'P'), pq = blocks.find(b => b.tag === 'Q');
+  if (pp && pq) { pp.pair = pq; pq.pair = pp; }
+  // moving wooden logs
+  for (const m of level.movers || []) {
+    blocks.push({ x: GRID.x + m.col * GRID.c, y: GRID.y + m.row * GRID.c + 8, w: m.len * GRID.c, h: GRID.c - 16,
+      hp: Infinity, kind: 'mover', mover: m, flash: 0, bump: 0 });
+  }
   starsTotal = blocks.filter(b => b.red).length;
   starsGot = 0;
   balls = []; particles = [];
@@ -317,6 +414,7 @@ function circleRect(px, py, r, b) {
 function stepBall(b, dt, ghost) {
   b.x += b.vx * dt; b.y += b.vy * dt;
   let hit = null;
+  b.cd = Math.max(0, (b.cd || 0) - dt); // portal cooldown
   // walls (lawn sides extend down to the cannon area)
   if (b.x < LAWN.l + BALL_R) { b.x = LAWN.l + BALL_R; b.vx = Math.abs(b.vx); hit = 'wall'; }
   if (b.x > LAWN.r - BALL_R) { b.x = LAWN.r - BALL_R; b.vx = -Math.abs(b.vx); hit = 'wall'; }
@@ -324,12 +422,28 @@ function stepBall(b, dt, ghost) {
   // blocks
   for (const blk of blocks) {
     if (blk.hp <= 0) continue;
-    const n = circleRect(b.x, b.y, BALL_R, blk);
+    const cx = blk.x + blk.w / 2, cy = blk.y + blk.h / 2;
+    if (blk.trigger) { // pass-through obstacles
+      if (blk.kind === 'glass') {
+        if (!ghost && circleRect(b.x, b.y, BALL_R, blk)) damage(blk);
+      } else if (Math.hypot(b.x - cx, b.y - cy) < BALL_R + 9) {
+        if (blk.kind === 'portal' && blk.pair && b.cd <= 0) {
+          b.x = blk.pair.x + blk.pair.w / 2; b.y = blk.pair.y + blk.pair.h / 2; b.cd = 0.3;
+          if (!ghost) { blk.bump = 1; blk.pair.bump = 1; }
+          hit = 'portal';
+        } else if (blk.kind === 'plus' && !ghost) {
+          blk.hp = 0; ballsLeft++;
+          particles.push({ x: cx, y: cy, life: 0.9, t: 0, text: '+1' });
+        }
+      }
+      continue;
+    }
+    const n = blk.kind === 'bumper' ? circleCircle(b.x, b.y, BALL_R, cx, cy, BUMPER_R) : circleRect(b.x, b.y, BALL_R, blk);
     if (!n) continue;
     b.x += n.nx * n.pen; b.y += n.ny * n.pen;
     const dot = b.vx * n.nx + b.vy * n.ny;
     if (dot < 0) { b.vx -= 2 * dot * n.nx; b.vy -= 2 * dot * n.ny; }
-    if (!ghost) { if (blk.stone) blk.bump = 0.5; else damage(blk); }
+    if (!ghost) { if (blk.hp === Infinity) blk.bump = blk.kind === 'bumper' ? 1 : 0.5; else damage(blk); }
     hit = 'block';
     break;
   }
@@ -362,20 +476,41 @@ function stepBall(b, dt, ghost) {
   return hit;
 }
 
-function damage(blk) {
-  blk.hp--; blk.flash = 1; blk.bump = 1;
+function circleCircle(px, py, r, cx, cy, R) {
+  const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy);
+  if (d >= r + R) return null;
+  if (d === 0) return { nx: 0, ny: -1, pen: r + R };
+  return { nx: dx / d, ny: dy / d, pen: r + R - d };
+}
+
+const CHIP_COL = { red: '#e8352c', bomb: '#ff8a2a', glass: '#c9efff', num: '#f8d21f' };
+function damage(blk, amt = 1) {
+  if (blk.hp <= 0 || blk.hp === Infinity) return;
+  blk.hp -= amt; blk.flash = 1; blk.bump = 1;
   if (blk.hp <= 0) {
+    blk.hp = 0;
     const cx = blk.x + blk.w / 2, cy = blk.y + blk.h / 2;
     for (let i = 0; i < 14; i++) {
       const a = Math.random() * Math.PI * 2, s = 60 + Math.random() * 200;
       particles.push({ x: cx, y: cy, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 80, life: 0.7 + Math.random() * 0.4,
-        t: 0, size: 3 + Math.random() * 5, col: blk.red ? '#e8352c' : '#f8d21f', rot: Math.random() * 6 });
+        t: 0, size: 3 + Math.random() * 5, col: CHIP_COL[blk.kind] || '#f8d21f', rot: Math.random() * 6 });
     }
+    if (blk.kind === 'bomb') explode(blk, cx, cy);
     if (blk.red) {
       starsGot++;
       particles.push({ x: cx, y: cy, vx: 0, vy: 0, life: 0.9, t: 0, star: true, tx: 207, ty: 128 });
       shake = 0.25;
     } else shake = Math.max(shake, 0.1);
+  }
+}
+
+function explode(bomb, cx, cy) {
+  shake = Math.max(shake, 0.35);
+  particles.push({ x: cx, y: cy, life: 0.4, t: 0, ring: true, R: GRID.c * 1.7 });
+  const reach = GRID.c * 1.2;
+  for (const o of blocks) {
+    if (o === bomb || o.hp <= 0 || o.hp === Infinity || o.kind === 'plus') continue;
+    if (Math.abs(o.x + o.w / 2 - cx) <= reach && Math.abs(o.y + o.h / 2 - cy) <= reach) damage(o, BOMB_DMG);
   }
 }
 
@@ -393,7 +528,10 @@ function update(dt) {
   }
   shake = Math.max(0, shake - dt);
 
-  for (const blk of blocks) { blk.flash = Math.max(0, blk.flash - dt * 6); blk.bump = Math.max(0, blk.bump - dt * 8); }
+  for (const blk of blocks) {
+    blk.flash = Math.max(0, blk.flash - dt * 6); blk.bump = Math.max(0, blk.bump - dt * 8);
+    if (blk.mover) { const m = blk.mover; blk.x = GRID.x + (m.col + (Math.sin(paddleT * m.speed - Math.PI / 2) + 1) / 2 * m.range) * GRID.c; }
+  }
 
   const sub = Math.ceil(BALL_SPEED * dt / 4);
   for (const b of balls) {
@@ -409,7 +547,8 @@ function update(dt) {
 
   for (const p of particles) {
     p.t += dt;
-    if (p.star) continue;
+    if (p.star || p.ring) continue;
+    if (p.text) { p.y -= 50 * dt; continue; }
     p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 600 * dt; p.rot += dt * 8;
   }
   particles = particles.filter(p => p.t < p.life);
@@ -498,19 +637,74 @@ function drawBackground() {
   ctx.fillStyle = '#f6e7c9'; ctx.beginPath(); ctx.arc(PIVOT.x, PIVOT.y + 30, 70, 0, Math.PI * 2); ctx.fill();
 }
 
+const TILE_COL = { // face, side, inner
+  stone: ['#9aa0a8', '#5f646c', '#80868e'], red: ['#ea3b2f', '#a91d17', '#c9271f'], num: ['#fad51e', '#d79a00', '#e9b80b'],
+  bomb: ['#ff9a3c', '#c45f10', '#e07a1f'], glass: ['rgba(205,240,255,.6)', 'rgba(120,180,210,.6)', 'rgba(255,255,255,.8)'],
+};
+function drawBumper(b) {
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2, R = BUMPER_R * (1 + b.bump * 0.25);
+  ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.arc(cx + 1, cy + 4, R, 0, 7); ctx.fill();
+  ctx.fillStyle = '#c2185b'; ctx.beginPath(); ctx.arc(cx, cy + 2, R, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ff4f9a'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, R * 0.6, 0, 7); ctx.fill();
+  ctx.fillStyle = b.bump > 0 ? '#ffd23f' : '#ff4f9a'; ctx.beginPath(); ctx.arc(cx, cy, R * 0.3, 0, 7); ctx.fill();
+}
+function drawPortal(b) {
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2, R = 13 * (1 + b.bump * 0.2);
+  const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, R + 4);
+  g.addColorStop(0, '#1a0640'); g.addColorStop(0.7, '#5b1fb8'); g.addColorStop(1, 'rgba(142,68,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R + 4, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#d2b0ff'; ctx.lineWidth = 2.5;
+  const dir = b.tag === 'P' ? 1 : -1;
+  for (let i = 0; i < 3; i++) {
+    const a = time * 3 * dir + i * Math.PI * 2 / 3;
+    ctx.beginPath(); ctx.arc(cx, cy, R - 2, a, a + 1.1); ctx.stroke();
+  }
+}
+function drawPlus(b) {
+  const cx = b.x + b.w / 2, cy = b.y + b.h / 2 + Math.sin(time * 3 + b.x) * 2;
+  ctx.fillStyle = '#1e8f4e'; ctx.beginPath(); ctx.arc(cx, cy + 2, 12, 0, 7); ctx.fill();
+  ctx.fillStyle = '#2ecc71'; ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.font = 'bold 12px "Trebuchet MS",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff'; ctx.fillText('+1', cx, cy + 0.5);
+}
+function drawMover(b) {
+  const { x, y, w, h } = b;
+  ctx.fillStyle = 'rgba(0,0,0,.2)'; rr(x + 2, y + 5, w, h, 8); ctx.fill();
+  ctx.fillStyle = '#7a4a1f'; rr(x, y + 3, w, h, 8); ctx.fill();
+  ctx.fillStyle = '#b57a3c'; rr(x, y, w, h - 2, 8); ctx.fill();
+  ctx.strokeStyle = 'rgba(122,74,31,.6)'; ctx.lineWidth = 1.5;
+  for (let i = 0; i < 2; i++) { ctx.beginPath(); ctx.moveTo(x + 12, y + 6 + i * 6); ctx.lineTo(x + w - 12, y + 6 + i * 6); ctx.stroke(); }
+  ctx.fillStyle = '#e8c27a';
+  ctx.beginPath(); ctx.arc(x + 7, y + h / 2 - 1, 2.5, 0, 7); ctx.arc(x + w - 7, y + h / 2 - 1, 2.5, 0, 7); ctx.fill();
+}
 function drawBlock(b) {
   if (b.hp <= 0) return;
+  if (b.kind === 'bumper') return drawBumper(b);
+  if (b.kind === 'portal') return drawPortal(b);
+  if (b.kind === 'plus') return drawPlus(b);
+  if (b.kind === 'mover') return drawMover(b);
   const s = 1 + b.bump * 0.08;
   const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
   const w = (b.w - 1) * s, h = (b.h - 1) * s, x = cx - w / 2, y = cy - h / 2;
-  const face = b.stone ? '#9aa0a8' : b.red ? '#ea3b2f' : '#fad51e',
-        side = b.stone ? '#5f646c' : b.red ? '#a91d17' : '#d79a00',
-        inner = b.stone ? '#80868e' : b.red ? '#c9271f' : '#e9b80b';
+  const [face, side, inner] = TILE_COL[b.kind] || TILE_COL.num;
   ctx.fillStyle = side; rr(x, y + 4, w, h, 5); ctx.fill();
   ctx.fillStyle = face; rr(x, y, w, h - 4, 5); ctx.fill();
   ctx.strokeStyle = inner; ctx.lineWidth = 2; rr(x + 5, y + 4, w - 10, h - 13, 3); ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,.35)'; rr(x + 3, y + 2, w - 6, 3, 2); ctx.fill();
-  if (b.stone) {
+  if (b.kind === 'bomb') {
+    ctx.fillStyle = '#2b2d3a'; ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(cx - 3, cy - 3, 2, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#6b4a2a'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx + 4, cy - 6); ctx.quadraticCurveTo(cx + 8, cy - 12, cx + 11, cy - 10); ctx.stroke();
+    ctx.fillStyle = Math.sin(time * 25) > 0 ? '#ffe14a' : '#ff5a1f';
+    ctx.beginPath(); ctx.arc(cx + 11, cy - 10, 2.5, 0, 7); ctx.fill();
+  } else if (b.kind === 'glass') {
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x + 9, y + h - 12); ctx.lineTo(x + w - 14, y + 7);
+    ctx.moveTo(x + 15, y + h - 9); ctx.lineTo(x + w - 9, y + 12); ctx.stroke();
+  } else if (b.stone) {
     ctx.strokeStyle = '#6c7179'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(x + 8, y + 10); ctx.lineTo(cx, cy - 2); ctx.lineTo(x + w - 9, y + 14);
     ctx.moveTo(cx, cy - 2); ctx.lineTo(cx - 3, y + h - 10); ctx.stroke();
@@ -640,6 +834,15 @@ function drawHUD() {
     ctx.fillText(`Kéo để ngắm · Thả để bắn ${Math.max(MIN_BURST, level.burst)} bóng`, 207, 616);
     ctx.globalAlpha = 1;
   }
+  // level tip: introduces the new obstacle
+  if (level.tip && state === 'play' && time < 9) {
+    ctx.globalAlpha = Math.min(1, (9 - time) / 1.5);
+    ctx.font = 'bold 13px "Trebuchet MS",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tw = Math.min(330, ctx.measureText(level.tip).width + 28);
+    ctx.fillStyle = 'rgba(40,20,70,.82)'; rr(207 - tw / 2, 148, tw, 26, 13); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(level.tip, 207, 161.5, 310);
+    ctx.globalAlpha = 1;
+  }
 }
 
 function overlayBtns() {
@@ -662,7 +865,7 @@ function drawOverlay() {
   ctx.fillText(state === 'win' ? 'Hoàn thành!' : 'Hết bóng!', 207, 350);
   ctx.font = '17px "Trebuchet MS",sans-serif'; ctx.fillStyle = '#5a3a20';
   ctx.fillText(`Sao: ${starsGot}/${starsTotal}   ·   Lượt bắn còn: ${ballsLeft}`, 207, 400);
-  const yellowLeft = blocks.filter(b => !b.red && !b.stone && b.hp > 0).length;
+  const yellowLeft = blocks.filter(b => b.kind === 'num' && b.hp > 0).length;
   ctx.fillText(`Khối vàng còn lại: ${yellowLeft}`, 207, 428);
   for (const b of overlayBtns()) {
     ctx.fillStyle = b.main ? '#d98c10' : '#5f8f2a'; rr(b.x, b.y + 4, b.w, b.h, 16); ctx.fill();
@@ -678,7 +881,8 @@ function render() {
   drawBackground();
   for (const b of blocks) drawBlock(b);
   drawPaddle();
-  if (state === 'play' && ballsLeft > 0) drawAim();
+  // aim line only while the player is pressing (pointerdown → pointerup)
+  if (state === 'play' && ballsLeft > 0 && pointerDown) drawAim();
   for (const b of balls) {
     b.trail.forEach((t, i) => { ctx.globalAlpha = i / b.trail.length * .35; drawBall(t.x, t.y, BALL_R * (.5 + i / 16)); });
     ctx.globalAlpha = 1;
@@ -692,6 +896,17 @@ function render() {
       const x = p.x + (184 - p.x) * e, y = p.y + (127 - p.y) * e;
       starPath(x, y, 14 - 4 * e, 6 - 2 * e); ctx.fillStyle = '#ffd23f'; ctx.fill(); ctx.strokeStyle = '#b5520e'; ctx.lineWidth = 2; ctx.stroke();
       continue;
+    }
+    if (p.ring) {
+      ctx.globalAlpha = 1 - k; ctx.strokeStyle = '#ffb347'; ctx.lineWidth = 6 * (1 - k) + 1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.R * (0.3 + 0.7 * k), 0, 7); ctx.stroke();
+      ctx.globalAlpha = 1; continue;
+    }
+    if (p.text) {
+      ctx.globalAlpha = 1 - k * k; ctx.font = 'bold 20px "Trebuchet MS",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4; ctx.strokeStyle = '#1e8f4e'; ctx.strokeText(p.text, p.x, p.y);
+      ctx.fillStyle = '#fff'; ctx.fillText(p.text, p.x, p.y);
+      ctx.globalAlpha = 1; continue;
     }
     ctx.globalAlpha = 1 - k; ctx.fillStyle = p.col;
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); ctx.restore();
@@ -710,6 +925,6 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-window.__game = { get state() { return state; }, get balls() { return balls.length; }, get left() { return ballsLeft; }, get stars() { return starsGot + '/' + starsTotal; }, fire, goLevel, setAngle: a => angle = a };
+window.__game = { get state() { return state; }, get balls() { return balls.length; }, get left() { return ballsLeft; }, get stars() { return starsGot + '/' + starsTotal; }, get blocks() { return blocks; }, damage, fire, goLevel, setAngle: a => angle = a };
 })();
 </script>

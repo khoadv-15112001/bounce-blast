@@ -1,0 +1,110 @@
+{
+ "id": 36,
+ "name": "36",
+ "moves": 25,
+ "difficulty": 1,
+ "width": 9,
+ "height": 12,
+ "goals": [
+  {
+   "type": 6,
+   "count": 3
+  }
+ ],
+ "items": [
+  {
+   "type": 6,
+   "x": 2,
+   "y": 9,
+   "layers": 1,
+   "variant": 0,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [
+    {
+     "x": 1,
+     "y": 0
+    },
+    {
+     "x": 2,
+     "y": 0
+    },
+    {
+     "x": 3,
+     "y": 0
+    },
+    {
+     "x": 4,
+     "y": 0
+    }
+   ],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 6,
+   "x": 2,
+   "y": 6,
+   "layers": 1,
+   "variant": 0,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [
+    {
+     "x": 1,
+     "y": 0
+    },
+    {
+     "x": 2,
+     "y": 0
+    },
+    {
+     "x": 3,
+     "y": 0
+    },
+    {
+     "x": 4,
+     "y": 0
+    }
+   ],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  },
+  {
+   "type": 6,
+   "x": 2,
+   "y": 3,
+   "layers": 1,
+   "variant": 0,
+   "hp": 0,
+   "maxHp": 0,
+   "footprint": [
+    {
+     "x": 1,
+     "y": 0
+    },
+    {
+     "x": 2,
+     "y": 0
+    },
+    {
+     "x": 3,
+     "y": 0
+    },
+    {
+     "x": 4,
+     "y": 0
+    }
+   ],
+   "hasLane": false,
+   "lanePos": 0.0,
+   "laneMin": 0,
+   "laneMax": 0
+  }
+ ],
+ "format": 66
+}
