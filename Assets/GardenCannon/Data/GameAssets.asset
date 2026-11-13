@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameAssets
   m_EditorClassIdentifier: 
   catalog: {fileID: 11400000, guid: facaf1e593e056948abd60ca762eb5bb, type: 2}
-  ballPrefab: {fileID: 1709254077376921, guid: d992778b95c59c842baca27016eedfca, type: 3}
+  ballPrefab: {fileID: 421987626604424971, guid: 78ad0ff12e59fc5459f747730226dd91, type: 3}
   font: {fileID: 12800000, guid: cd7cde3d0b16f59458708cd5f1bff7f3, type: 3}
   grassTop: {fileID: 21300000, guid: 2400012cdf561f441adde09f46c83258, type: 2}
   grassTop12x17: {fileID: 21300000, guid: e1286e39ff6c4db4184c9f04d3f44ee9, type: 2}
@@ -49,6 +49,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c0f7abd525f77b040a128793f6f97b06, type: 2}
   splashFx: {fileID: 6851331514951016854, guid: 8cf065b9ff812e747a1adb4e8f30259b, type: 3}
   waterMaterial: {fileID: 2100000, guid: 7245c6acd4578624c9376d7fbc7701aa, type: 2}
+  cannon3D: {fileID: 3627040636142212939, guid: d572e9013b894254dbc04962fd06bfbc, type: 3}
+  bg3D: {fileID: 8899139739596235784, guid: 14547626f21c8684aa5d822b1efc6f28, type: 3}
+  grass3D: {fileID: 3701394546435777488, guid: d8177a7abe292a643b44f32635b9686f, type: 3}
   levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
   settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
   white: {fileID: 21300000, guid: 243e36b186531734b9905acb677ee060, type: 2}

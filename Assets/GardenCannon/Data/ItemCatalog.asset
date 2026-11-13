@@ -40,6 +40,34 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs:
+    - name: Black
+      color: {r: 0.15, g: 0.15, b: 0.17, a: 1}
+      prefab: {fileID: 3087968127561438067, guid: ddae4bdf7aad3c745ab9bf56fb566910, type: 3}
+    - name: Blue
+      color: {r: 0.12, g: 0.38, b: 0.92, a: 1}
+      prefab: {fileID: 3980873547127193036, guid: ea1e69cbd50e9e54d87f78eaceee83d9, type: 3}
+    - name: Green
+      color: {r: 0.2, g: 0.72, b: 0.25, a: 1}
+      prefab: {fileID: 5370791963823495018, guid: d8e3b5195cb6eae489b8208fb3ba350f, type: 3}
+    - name: Pink
+      color: {r: 1, g: 0.45, b: 0.72, a: 1}
+      prefab: {fileID: 1084924139357478291, guid: b88f3952ac868d8499ed15d4016fee4e, type: 3}
+    - name: Purple
+      color: {r: 0.58, g: 0.25, b: 0.88, a: 1}
+      prefab: {fileID: 5061945052098832497, guid: d771020c2646ad142a10ec01359616f7, type: 3}
+    - name: Red
+      color: {r: 0.9, g: 0.15, b: 0.13, a: 1}
+      prefab: {fileID: 646405635147920926, guid: de51955c6acc34648b885117a2790d8a, type: 3}
+    - name: White
+      color: {r: 0.92, g: 0.92, b: 0.94, a: 1}
+      prefab: {fileID: 2250102307366932631, guid: 0e98765b2d6e16f48a2781393e465900, type: 3}
+    - name: Yellow
+      color: {r: 1, g: 0.82, b: 0.12, a: 1}
+      prefab: {fileID: 6894309152282792114, guid: 7ebc9b47447ccc14ea5b19555fe44e8d, type: 3}
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -51,10 +79,10 @@ MonoBehaviour:
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   - label: Brick Wall
     typeId: 2
-    kind: 0
+    kind: 1
     shape: 0
     defaultHits: 3
-    prefab: {fileID: 1709254077376921, guid: b750d37a8c725b24391261bd4ab0c6a9, type: 3}
+    prefab: {fileID: 1691742996373421834, guid: b78a0565d1bb9e640ad8dbc009156b2b, type: 3}
     visualScale: 1
     fitFootprint: 0
     fitFill: 0.96
@@ -65,7 +93,7 @@ MonoBehaviour:
     eggBox: 0
     openSfx: {fileID: 0}
     spinSpeed: 90
-    autotile: 1
+    autotile: 0
     colorByVariant: 0
     showHitCount: 0
     laneSpeed: 1.5
@@ -76,7 +104,11 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 7e4934818c859e247a853a0dc74b476c, type: 3}
     breakSfx: {fileID: 8300000, guid: 149c886980ff22248b81d4ed8c5481fa, type: 3}
     extraBreakSfx: {fileID: 0}
-    behaviour: 2
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
+    behaviour: 0
     cellHits: 2
     fuseTime: 0.7
     blastRadius: 1.5
@@ -92,7 +124,7 @@ MonoBehaviour:
     defaultHits: 1
     prefab: {fileID: 1709254077376921, guid: 6602137ae6f66624796ec45c1754c4d5, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -112,6 +144,13 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 329126449849af346ad6b2c47379a16c, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs:
+    - {fileID: 3814111361018780219, guid: c083ed09e22ffff4f84a753fcf408943, type: 3}
+    - {fileID: 2487190915192651946, guid: 350b6c64d0be9ea428f59fc82d12536d, type: 3}
+    - {fileID: 4066976027001478605, guid: 7d2a97e34a9a5724e90bf2433e9db8eb, type: 3}
+    spinVisualOffset: 0
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -148,6 +187,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
     breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
     extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
+    modelEuler: {x: 0, y: 0, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -184,6 +227,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: bdf0168c0b2717d4ca44f29c41b917c7, type: 3}
     breakSfx: {fileID: 8300000, guid: 2cc540f2db5a96b408fb2171f19456fd, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 0, y: 0, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 4
     cellHits: 2
     fuseTime: 0.7
@@ -220,6 +267,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: c08de069dda55a04da71164ab2ce56b1, type: 3}
     breakSfx: {fileID: 8300000, guid: 9d4ed42896e1b1c4d863e0564e5b0d24, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 0, y: 0, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 3
     cellHits: 2
     fuseTime: 0.7
@@ -256,6 +307,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 836d3a6b3c7c3314991242b02dbeb33c, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 0, y: 0, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 6
     cellHits: 2
     fuseTime: 0.7
@@ -292,6 +347,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 4f313d30f3dc87f428e5dc7dccd91c8d, type: 3}
     breakSfx: {fileID: 8300000, guid: 03ef310070606174993c308778e7ca28, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 0, y: 0, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 6
     cellHits: 2
     fuseTime: 0.7
@@ -306,14 +365,14 @@ MonoBehaviour:
     kind: 0
     shape: 0
     defaultHits: 4
-    prefab: {fileID: 1709254077376921, guid: 27f61a5bc89d29449927f5cd074bf411, type: 3}
+    prefab: {fileID: 2741751400633428325, guid: b252b30fb2386b74181c09f68155f3e8, type: 3}
     visualScale: 1
     fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
-    stagePrefix: stage_
-    stagesCumulative: 0
+    stagePrefix: 'Wood '
+    stagesCumulative: 1
     eggBox: 0
     openSfx: {fileID: 0}
     spinSpeed: 90
@@ -328,6 +387,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 060681a2000414c4a9dd4ddc97456f0d, type: 3}
     breakSfx: {fileID: 8300000, guid: 3a3eee5a96cf7fd45a24b4fc9be59d96, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 5
     cellHits: 2
     fuseTime: 0.7
@@ -342,7 +405,7 @@ MonoBehaviour:
     kind: 2
     shape: 0
     defaultHits: 1
-    prefab: {fileID: 1709254077376921, guid: ee56ca0b8947252459e97f4339b2f068, type: 3}
+    prefab: {fileID: 4035289072431779865, guid: 261eb61e5e9a55e4eb01535962b48b23, type: 3}
     visualScale: 1
     fitFootprint: 0
     fitFill: 0.96
@@ -364,6 +427,10 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 10a120f00771b464f9a2734942b4b737, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -400,6 +467,13 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 55207164d960408429e1398982ef66cd, type: 3}
     breakSfx: {fileID: 8300000, guid: 964125fcb1330c548bcd087968918ea9, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs:
+    - {fileID: 6200433128362212054, guid: d3d1d5c906591e848b7a6390f2ba3d36, type: 3}
+    - {fileID: 3236335376159072674, guid: 24df238b1f1374246a8193e64790633e, type: 3}
+    - {fileID: 7526496382367002137, guid: 74a22963fc218f44cbb2b8c21dd48d10, type: 3}
+    spinVisualOffset: 0
     behaviour: 1
     cellHits: 2
     fuseTime: 0.7
@@ -416,7 +490,7 @@ MonoBehaviour:
     defaultHits: 1
     prefab: {fileID: 1709254077376921, guid: 1913822878c05e049924bb85de04fb3a, type: 3}
     visualScale: 1
-    fitFootprint: 1
+    fitFootprint: 0
     fitFill: 0.96
     rotationOffset: 0
     rotateByVariant: 0
@@ -436,6 +510,13 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 9d2c732f19ee90740a6aa473a62fcf74, type: 3}
     breakSfx: {fileID: 0}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs: []
+    sizePrefabs:
+    - {fileID: 8754126813965309059, guid: 1cb07ae4ea3726f489fb5902ce6d19aa, type: 3}
+    - {fileID: 1443883703651701404, guid: 490a99b0b17e1d64aa80885fd700e15a, type: 3}
+    - {fileID: 7717814272194727384, guid: 456d784d65dfe924385bfc9b401b7317, type: 3}
+    spinVisualOffset: 45
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -472,6 +553,34 @@ MonoBehaviour:
     hitSfx: {fileID: 8300000, guid: 525cd6aebfd65db4a8281c4e8499b9af, type: 3}
     breakSfx: {fileID: 8300000, guid: 4aeeb307cce87bb4abb0fbb22ff7c73e, type: 3}
     extraBreakSfx: {fileID: 0}
+    modelEuler: {x: 90, y: 180, z: 0}
+    colorPrefabs:
+    - name: Black
+      color: {r: 0.15, g: 0.15, b: 0.17, a: 1}
+      prefab: {fileID: 7374126237189890730, guid: dfc4ed46db02c134cb2b5df7cad566c7, type: 3}
+    - name: Blue
+      color: {r: 0.12, g: 0.38, b: 0.92, a: 1}
+      prefab: {fileID: 8543250368681361884, guid: df679f7322cc2d64995dfc50e9114113, type: 3}
+    - name: Green
+      color: {r: 0.2, g: 0.72, b: 0.25, a: 1}
+      prefab: {fileID: 2450410551423912965, guid: 9fb2d053ba4183743be51855bd4065aa, type: 3}
+    - name: Pink
+      color: {r: 1, g: 0.45, b: 0.72, a: 1}
+      prefab: {fileID: 3335346857028232887, guid: 8eba9a43884c0e74cb35c7c2d36242d9, type: 3}
+    - name: Purple
+      color: {r: 0.58, g: 0.25, b: 0.88, a: 1}
+      prefab: {fileID: 5079442115604341779, guid: 6965e38ae64b0c94bba68aeee753144d, type: 3}
+    - name: Red
+      color: {r: 0.9, g: 0.15, b: 0.13, a: 1}
+      prefab: {fileID: 2841396419486296073, guid: cbd1df7d376d13647bc22cd1527d61d8, type: 3}
+    - name: White
+      color: {r: 0.92, g: 0.92, b: 0.94, a: 1}
+      prefab: {fileID: 8674129073851746447, guid: 3b7c871461209934caa22d8cec20343f, type: 3}
+    - name: Yellow
+      color: {r: 1, g: 0.82, b: 0.12, a: 1}
+      prefab: {fileID: 8385988567785593527, guid: 31303f51b1ac83c4983b913fd8deebaf, type: 3}
+    sizePrefabs: []
+    spinVisualOffset: 0
     behaviour: 0
     cellHits: 2
     fuseTime: 0.7
@@ -482,7 +591,7 @@ MonoBehaviour:
     altSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   defaultsVersion: 4
-  behaviourVersion: 1
+  behaviourVersion: 4
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
     rimMask: 15

@@ -191,15 +191,16 @@ namespace GardenCannon
         void BuildVisual(Font font)
         {
             var e = Entry;
-            if (e == null || e.prefab == null) return;
+            var prefab = PickPrefab();
+            if (e == null || prefab == null) return;
             if (UsesCellParts) { BuildCellParts(); return; }
-            _pooled = _board.AcquireVisual(e.prefab, transform);
+            _pooled = _board.AcquireVisual(prefab, transform);
             var go = _pooled.gameObject;
             _visual = go.transform;
 
             float cell = _board.CellSize;
-            float rot = e.rotationOffset + (e.rotateByVariant ? 180f - 90f * (((Data.variant % 4) + 4) % 4) : 0f);
-            _visual.localRotation = Quaternion.Euler(0f, 0f, rot) * _visual.localRotation;
+            float rot = e.rotationOffset + (e.rotateByVariant ? 180f - 90f * (((Data.variant % 4) + 4) % 4) : 0f) + _pickedRotation;
+            _visual.localRotation = Quaternion.Euler(0f, 0f, rot) * Quaternion.Euler(e.modelEuler) * _visual.localRotation;
             _visualBaseScale = Vector3.Scale(_visual.localScale, Vector3.one * (cell * Mathf.Max(0.01f, e.visualScale)));
             _visual.localScale = _visualBaseScale;
 
@@ -293,6 +294,7 @@ namespace GardenCannon
                     if (t.name == "Rotate") _spinVisual = t;
                     if (t.name == "FourArmsOnly") t.gameObject.SetActive(_spinArms == 4);
                 }
+                if (_spinVisual == null && e.sizePrefabs != null && e.sizePrefabs.Length > 0) _spinVisual = _visual; // new art: the whole model spins
                 if (_spinVisual != null) _spinVisualBase = _spinVisual.rotation;
             }
         }
@@ -461,7 +463,7 @@ namespace GardenCannon
             if (Kind == ItemKind.Spinner)
             {
                 _spinAngle += _spinDir * (Entry != null ? Entry.spinSpeed : 90f) * dt;
-                if (_spinVisual != null) _spinVisual.rotation = Quaternion.AngleAxis(_spinAngle - 45f, Vector3.forward) * _spinVisualBase;
+                if (_spinVisual != null) _spinVisual.rotation = Quaternion.AngleAxis(_spinAngle - 45f + (Entry != null ? Entry.spinVisualOffset : 0f), Vector3.forward) * _spinVisualBase;
             }
             if (_doorOpen >= 0f && _doorOpen < 1f)
             {

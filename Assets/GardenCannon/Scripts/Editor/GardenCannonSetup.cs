@@ -309,8 +309,14 @@ namespace GardenCannon.EditorTools
             Add(settings, gDefault, catalog, "GardenCannon/ItemCatalog");
             if (assets.cannonAnimator != null) Add(settings, gDefault, assets.cannonAnimator, "GardenCannon/Animators/" + assets.cannonAnimator.name);
             var prefabs = new List<GameObject> { assets.ballPrefab };
-            foreach (var e in catalog.entries) { prefabs.Add(e.prefab); prefabs.Add(e.breakFx); prefabs.Add(e.hitFx); prefabs.Add(e.openFx); prefabs.Add(e.hatchFx); prefabs.Add(e.partFx); }
+            foreach (var e in catalog.entries)
+            {
+                prefabs.Add(e.prefab); prefabs.Add(e.breakFx); prefabs.Add(e.hitFx); prefabs.Add(e.openFx); prefabs.Add(e.hatchFx); prefabs.Add(e.partFx);
+                if (e.colorPrefabs != null) foreach (var cp in e.colorPrefabs) if (cp != null) prefabs.Add(cp.prefab);
+                if (e.sizePrefabs != null) prefabs.AddRange(e.sizePrefabs);
+            }
             prefabs.Add(assets.splashFx);
+            prefabs.Add(assets.cannon3D); prefabs.Add(assets.bg3D); prefabs.Add(assets.grass3D);
             prefabs = prefabs.Where(p => p != null).Distinct().ToList();
             foreach (var p in prefabs)
                 Add(settings, gDefault, p, "GardenCannon/Prefabs/" + p.name);

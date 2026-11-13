@@ -79,6 +79,16 @@ namespace GardenCannon
                 fx.splashFx = a.splashFx;
             }
             if (fx != null) fx.birdFrames = a.birdFrames;
+            if (a.cannon3D != null || a.bg3D != null || a.grass3D != null)
+            {
+                var art = GetComponent<SceneArt3D>();
+                if (art == null) art = gameObject.AddComponent<SceneArt3D>();
+                art.cannonPrefab = a.cannon3D;
+                art.bgPrefab = a.bg3D;
+                art.grassPrefab = a.grass3D;
+                art.Apply(board, cannon, hud);
+                if (controller != null) controller.sceneArt = art;
+            }
             if (a.waterMaterial != null)
             {
                 // Animated caustics / foam on the water strip in front of the cannon (as in the original Game scene).

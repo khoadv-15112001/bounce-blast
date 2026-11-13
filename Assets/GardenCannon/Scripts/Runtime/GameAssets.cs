@@ -44,6 +44,11 @@ namespace GardenCannon
         [Tooltip("Original animated water (Assets/Material/Water_GardenB, shader K1m/Sprite Add) for the 'Water' sprite near the cannon.")]
         public Material waterMaterial;
 
+        [Header("3D scenery (Assets/3D/Prefab/Elements)")]
+        public GameObject cannon3D;
+        public GameObject bg3D;
+        public GameObject grass3D;
+
         [Header("HUD")]
         public Sprite levelPlate;
         public Sprite settingsButton;

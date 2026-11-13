@@ -23,7 +23,98 @@ namespace GardenCannon.EditorTools
             EditorApplication.delayCall += Run;
         }
 
-        const int BehaviourVersion = 1;
+        const int BehaviourVersion = 4;
+
+        const string Art3D = "Assets/3D/Prefab/";
+
+        static GameObject Art(string path) => AssetDatabase.LoadAssetAtPath<GameObject>(Art3D + path + ".prefab");
+
+        /// <summary>
+        /// New 3D art from the art team (Assets/3D): Y-up models of 1 unit per cell, already using Spyke/StandardCustomLightDir.
+        /// Items without new art (egg box, log cutter, electric orb, targets) keep the original prefabs.
+        /// </summary>
+        static void ApplyArt3D(GameAssets assets)
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/3D/Prefab")) return;
+            // Y-up models whose -Z is the top of the screen (BG fence / cannon barrel): top faces the camera.
+            var up = new Vector3(90f, 180f, 0f);
+            (string n, Color c)[] colours =
+            {
+                ("Black", new Color(0.15f, 0.15f, 0.17f)), ("Blue", new Color(0.12f, 0.38f, 0.92f)),
+                ("Green", new Color(0.2f, 0.72f, 0.25f)), ("Pink", new Color(1f, 0.45f, 0.72f)),
+                ("Purple", new Color(0.58f, 0.25f, 0.88f)), ("Red", new Color(0.9f, 0.15f, 0.13f)),
+                ("White", new Color(0.92f, 0.92f, 0.94f)), ("Yellow", new Color(1f, 0.82f, 0.12f)),
+            };
+            ItemCatalog.ColorPrefab[] Colours(string prefix) => colours
+                .Select(c => new ItemCatalog.ColorPrefab { name = c.n, color = c.c, prefab = Art("Blocks/" + prefix + c.n) })
+                .Where(c => c.prefab != null).ToArray();
+
+            foreach (var e in assets.catalog.entries)
+            {
+                switch (e.typeId)
+                {
+                    case 1: // Block with a star
+                        e.colorPrefabs = Colours("Star_Block_");
+                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        break;
+                    case 26: // Number block
+                        e.colorPrefabs = Colours("Block_");
+                        if (e.colorPrefabs.Length > 0) e.modelEuler = up;
+                        break;
+                    case 23: // Stone corner: the new triangle has its right angle top-right
+                    {
+                        var p = Art("Elements/Stone_Block_triangle");
+                        if (p == null) break;
+                        // Unity mirrors X on import, so after the model turn the right angle is bottom-right like the original.
+                        e.prefab = p; e.modelEuler = up; e.rotationOffset = 0f; e.rotateByVariant = true; e.fitFootprint = false;
+                        break;
+                    }
+                    case 2: // Brick wall -> stone block (the new art has no dynamite: solid again)
+                    {
+                        var p = Art("Elements/Stone_Block_1x1");
+                        if (p == null) break;
+                        e.prefab = p; e.modelEuler = up; e.autotile = false; e.fitFootprint = false;
+                        e.kind = ItemKind.Indestructible; e.behaviour = ItemBehaviour.Default;
+                        e.breakFx = null;
+                        break;
+                    }
+                    case 4: // Moving barrier -> slider of the footprint length
+                    {
+                        var s = new[] { Art("Obstacles/Slider_2"), Art("Obstacles/Slider_3"), Art("Obstacles/Slider_4") }.Where(x => x != null).ToArray();
+                        if (s.Length == 0) break;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false;
+                        break;
+                    }
+                    case 25: // Twirler -> spinner with 2 / 4 arms (arms along the model axes)
+                    {
+                        var s = new[] { Art("Obstacles/Spinner_2"), Art("Obstacles/Spinner_3"), Art("Obstacles/Spinner_4") }.Where(x => x != null).ToArray();
+                        if (s.Length == 0) break;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.spinVisualOffset = 45f;
+                        break;
+                    }
+                    case 13: // Wooden box -> one wooden block per cell, planks come off with hits
+                    {
+                        var p = Art("Obstacles/Wooden block");
+                        if (p == null) break;
+                        e.prefab = p; e.modelEuler = up; e.stagePrefix = "Wood "; e.stagesCumulative = true; e.cellHits = 2;
+                        break;
+                    }
+                    case 24: // Container -> wooden crate stretched over the footprint, HP number on top
+                    {
+                        var s = new[] { Art("Obstacles/Wooden_Crate_2x2"), Art("Obstacles/Wooden_Crate_2x3"), Art("Obstacles/Wooden_Crate_4x3") }.Where(x => x != null).ToArray();
+                        if (s.Length == 0) break;
+                        e.sizePrefabs = s; e.modelEuler = up; e.fitFootprint = false; e.showHitCount = true;
+                        break;
+                    }
+                }
+            }
+
+            var ball = Art("Elements/Ball");
+            if (ball != null) assets.ballPrefab = ball;
+            assets.cannon3D = Art("Elements/Cannon");
+            assets.bg3D = Art("Elements/BG");
+            assets.grass3D = Art("Elements/grass");
+        }
 
         static AudioClip Clip(string n, AudioClip fallback)
         {
@@ -228,6 +319,7 @@ namespace GardenCannon.EditorTools
             if (assets.catalog != null && assets.catalog.behaviourVersion < BehaviourVersion)
             {
                 ApplyBehaviourDefaults(assets.catalog);
+                ApplyArt3D(assets);
                 HookVfx(assets);
                 EditorUtility.SetDirty(assets.catalog);
                 EditorUtility.SetDirty(assets);

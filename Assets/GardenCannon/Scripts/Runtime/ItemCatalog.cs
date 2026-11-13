@@ -110,6 +110,16 @@ namespace GardenCannon
             public AudioClip breakSfx;
             [Tooltip("Optional second sound on break (e.g. egg box bird flying away).")]
             public AudioClip extraBreakSfx;
+            [Header("3D art (Assets/3D)")]
+            [Tooltip("Rotation applied to the model before anything else. The new Y-up models need (-90, 0, 0) so their top faces the camera.")]
+            public Vector3 modelEuler;
+            [Tooltip("Blocks: one prefab per colour; the one closest to the variant's palette colour is used (overrides Prefab).")]
+            public ColorPrefab[] colorPrefabs = new ColorPrefab[0];
+            [Tooltip("Prefabs per size, picked by the name suffix: _N = length / arms (Slider_3, Spinner_4), _WxH = footprint (Wooden_Crate_2x3).")]
+            public GameObject[] sizePrefabs = new GameObject[0];
+            [Tooltip("Spinner: extra angle between the model's arms and the physics arms (new art: 45).")]
+            public float spinVisualOffset;
+
             [Header("Obstacle behaviour (guessed rules, tweak freely)")]
             public ItemBehaviour behaviour = ItemBehaviour.Default;
             [Tooltip("Wooden Box: hits per crate (cell).")]
@@ -128,6 +138,14 @@ namespace GardenCannon
             public AudioClip altSfx;
             [Tooltip("Colour used for debug gizmos / goal fallback icon.")]
             public Color debugColor = Color.white;
+        }
+
+        [Serializable]
+        public class ColorPrefab
+        {
+            public string name;
+            public Color color = Color.white;
+            public GameObject prefab;
         }
 
         public List<Entry> entries = new List<Entry>();
