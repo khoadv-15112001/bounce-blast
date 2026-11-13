@@ -20,6 +20,12 @@ namespace GardenCannon
         public Sprite[] confettiSprites;
         [Tooltip("Egg box bird: 2 flapping frames.")]
         public Sprite[] birdFrames;
+        [Tooltip("Egg box: 3D balloon that floats away when an egg hatches (replaces the bird when set).")]
+        public GameObject balloonPrefab;
+        [Tooltip("Balloon colours (one is picked at random for the balloon body).")]
+        public Material[] balloonMaterials;
+        [Tooltip("Balloon size in cells.")]
+        public float balloonScale = 1.3f;
         [Tooltip("Original ball splash effect (VFX_Ball_Splash).")]
         public GameObject splashFx;
 
@@ -354,6 +360,85 @@ namespace GardenCannon
             }
         }
 
+        // ------------------------------------------------------------------ egg box balloons (pooled 3D)
+
+        class Floater
+        {
+            public Transform t;
+            public Renderer body;
+            public Vector3 start;
+            public float age, rise, accel, phase, sway, scale;
+        }
+
+        readonly List<Floater> _balloonsActive = new List<Floater>();
+        readonly Stack<Floater> _balloonsFree = new Stack<Floater>();
+
+        /// <summary>A balloon pops out of the egg, wobbles and floats up off the screen.</summary>
+        public void Balloon(Vector3 pos, float cellSize, Material material = null)
+        {
+            var f = _balloonsFree.Count > 0 ? _balloonsFree.Pop() : null;
+            if (f == null)
+            {
+                var go = Instantiate(balloonPrefab, transform);
+                go.name = "Balloon";
+                VisualUtil.StripRuntimeComponents(go);
+                f = new Floater { t = go.transform, body = go.GetComponent<Renderer>() };
+                if (f.body == null) f.body = go.GetComponentInChildren<Renderer>(true);
+                // Flying balloons keep their string (only the ones in the egg box tray hide it).
+            }
+            f.t.gameObject.SetActive(true);
+            if (f.body != null && material != null) f.body.sharedMaterial = material;
+            else if (f.body != null && balloonMaterials != null && balloonMaterials.Length > 0)
+            {
+                var m = balloonMaterials[Random.Range(0, balloonMaterials.Length)];
+                if (m != null) f.body.sharedMaterial = m;
+            }
+            // In front of the board (items stand up to ~1 cell towards the camera).
+            f.start = new Vector3(pos.x, pos.y, -1.4f * cellSize);
+            f.age = 0f;
+            f.rise = Random.Range(1.4f, 1.9f) * cellSize;
+            f.accel = Random.Range(2.6f, 3.4f) * cellSize;
+            f.phase = Random.Range(0f, Mathf.PI * 2f);
+            f.sway = Random.Range(0.18f, 0.3f) * cellSize;
+            f.scale = balloonScale * cellSize;
+            f.t.position = f.start;
+            f.t.rotation = Quaternion.identity;
+            f.t.localScale = Vector3.zero;
+            _balloonsActive.Add(f);
+        }
+
+        void UpdateBalloons(float dt)
+        {
+            float top = Camera.main != null ? Camera.main.transform.position.y + 2f * Camera.main.orthographicSize + 6f : 30f;
+            for (int i = _balloonsActive.Count - 1; i >= 0; i--)
+            {
+                var f = _balloonsActive[i];
+                f.age += dt;
+                float t = f.age;
+                float y = f.start.y + f.rise * t + 0.5f * f.accel * t * t;
+                if (y > top || t > 8f)
+                {
+                    f.t.gameObject.SetActive(false);
+                    _balloonsActive.RemoveAt(i);
+                    _balloonsFree.Push(f);
+                    continue;
+                }
+                float x = f.start.x + Mathf.Sin(t * 2.4f + f.phase) * f.sway - Mathf.Sin(f.phase) * f.sway;
+                f.t.position = new Vector3(x, y, f.start.z);
+                // Pop out of the egg (overshoot), then a gentle wobble.
+                float pop = t < 0.35f ? EaseOutBack(t / 0.35f) : 1f;
+                f.t.localScale = Vector3.one * (f.scale * pop);
+                f.t.rotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.4f + f.phase + 0.8f) * 9f);
+            }
+        }
+
+        static float EaseOutBack(float t)
+        {
+            const float c1 = 1.70158f, c3 = c1 + 1f;
+            float x = t - 1f;
+            return 1f + c3 * x * x * x + c1 * x * x;
+        }
+
         // ------------------------------------------------------------------ egg box birds (pooled sprites)
 
         class Flyer
@@ -367,8 +452,9 @@ namespace GardenCannon
         readonly Stack<Flyer> _birdsFree = new Stack<Flyer>();
 
         /// <summary>A bird pops out of an egg, flaps and flies up off the board.</summary>
-        public void Bird(Vector3 pos, float cellSize)
+        public void Bird(Vector3 pos, float cellSize, Material balloonMaterial = null)
         {
+            if (balloonPrefab != null) { Balloon(pos, cellSize, balloonMaterial); return; }
             if (birdFrames == null || birdFrames.Length == 0 || birdFrames[0] == null) return;
             var f = _birdsFree.Count > 0 ? _birdsFree.Pop() : null;
             if (f == null)
@@ -399,6 +485,7 @@ namespace GardenCannon
         {
             UpdatePrefabFx();
             float dt = Time.deltaTime;
+            UpdateBalloons(dt);
             for (int i = _birdsActive.Count - 1; i >= 0; i--)
             {
                 var f = _birdsActive[i];

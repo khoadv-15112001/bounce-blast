@@ -79,6 +79,11 @@ namespace GardenCannon
                 fx.splashFx = a.splashFx;
             }
             if (fx != null) fx.birdFrames = a.birdFrames;
+            if (fx != null)
+            {
+                fx.balloonPrefab = a.balloonPrefab;
+                fx.balloonMaterials = a.balloonMaterials;
+            }
             if (a.cannon3D != null || a.bg3D != null || a.grass3D != null)
             {
                 var art = GetComponent<SceneArt3D>();

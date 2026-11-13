@@ -212,6 +212,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d298c6591b822fd478785e0848d488d3
+    m_Address: GardenCannon/Audio/cannon_blast
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: feda5dc270f9a3248a3a8f61626b6750
+    m_Address: GardenCannon/Audio/BGM_Ingame_Universal_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

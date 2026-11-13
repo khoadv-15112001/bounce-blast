@@ -643,6 +643,77 @@ namespace GardenCannon
             return us >= 0 && int.TryParse(name.Substring(us + 1), out n);
         }
 
+        // ------------------------------------------------------------------ egg box slots (balloons)
+
+        /// <summary>Body material of the slot model hatched by the last hit (the released balloon uses the same colour).</summary>
+        public Material LastHatchMaterial { get; private set; }
+
+        const string SlotName = "SlotModel";
+
+        /// <summary>
+        /// Replace the egg meshes of every slot by the entry's eggPrefab (balloon, string hidden), coloured per slot.
+        /// The models are kept on the pooled visual and reused.
+        /// </summary>
+        void SetupEggSlots()
+        {
+            var e = Entry;
+            LastHatchMaterial = null;
+            if (e == null || e.eggPrefab == null) return;
+            float cell = _board.CellSize;
+            for (int i = 0; i < _eggs.Count; i++)
+            {
+                var slot = _eggs[i];
+                Transform model = null;
+                for (int c = 0; c < slot.childCount; c++)
+                {
+                    var ch = slot.GetChild(c);
+                    if (ch.name == SlotName) model = ch;
+                    else ch.gameObject.SetActive(false);   // original egg mesh + its shadow
+                }
+                if (model == null)
+                {
+                    model = Instantiate(e.eggPrefab, slot, false).transform;
+                    model.name = SlotName;
+                    VisualUtil.StripRuntimeComponents(model.gameObject);
+                    HideStrings(model);
+                }
+                model.gameObject.SetActive(true);
+                // Stands out of the tray, leaning towards the camera; height = eggSize cells.
+                model.rotation = Quaternion.Euler(-55f, 0f, 0f);
+                float h = BodyHeight(e.eggPrefab);
+                float parentScale = Mathf.Max(1e-4f, slot.lossyScale.x);
+                model.localScale = Vector3.one * (e.eggSize * cell / Mathf.Max(1e-4f, h) / parentScale);
+                model.localPosition = Vector3.zero;
+                if (e.eggMaterials != null && e.eggMaterials.Length > 0)
+                {
+                    var body = model.GetComponent<Renderer>();
+                    var m = e.eggMaterials[(i + Data.x * 3 + Data.y * 5) % e.eggMaterials.Length];
+                    if (body != null && m != null) body.sharedMaterial = m;
+                }
+            }
+        }
+
+        static Material SlotMaterial(Transform slot)
+        {
+            var model = slot.Find(SlotName);
+            var r = model != null ? model.GetComponent<Renderer>() : null;
+            return r != null ? r.sharedMaterial : null;
+        }
+
+        /// <summary>The balloon model carries a long "string" child: not wanted in the game.</summary>
+        public static void HideStrings(Transform root)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                if (t != root && t.name.ToLowerInvariant().Contains("string")) t.gameObject.SetActive(false);
+        }
+
+        /// <summary>Height of the prefab's own (root) mesh at scale 1.</summary>
+        static float BodyHeight(GameObject prefab)
+        {
+            var mf = prefab.GetComponent<MeshFilter>();
+            return mf != null && mf.sharedMesh != null ? mf.sharedMesh.bounds.size.y : 1f;
+        }
+
         // ------------------------------------------------------------------ shared
 
         /// <summary>Replace the collision cells (parts broke off).</summary>

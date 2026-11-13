@@ -288,7 +288,10 @@ namespace GardenCannon
             if (MovesLeft == 5) sfx?.Play(sfx.lastMoves, 0.8f, 0f);
             _burstLeft = Mathf.Max(1, ballsPerShot);
             _burstTimer = 0f;
+            _firstOfVolley = true;
         }
+
+        bool _firstOfVolley;
 
         void SpawnBall()
         {
@@ -302,7 +305,9 @@ namespace GardenCannon
             _balls.Add(b);
             cannon.Kick();
             rig?.Shake(0.08f);
-            sfx?.Play(sfx.ballFire, 0.8f);
+            // Cannon blast: full on the first ball of the volley, softer for the ones right behind it.
+            sfx?.Play(sfx.ballFire, _firstOfVolley ? 0.9f : 0.4f);
+            _firstOfVolley = false;
         }
 
         Transform AcquireBallView()
@@ -403,7 +408,7 @@ namespace GardenCannon
                 var eggPos = new Vector3(item.LastHatchPos.x, item.LastHatchPos.y, 0f);
                 if (fx == null || !fx.PlayPrefab(e?.hatchFx, eggPos, cell))
                     fx?.Hit(item.LastHatchPos, new Color(1f, 0.97f, 0.9f), cell * 1.4f);
-                fx?.Bird(item.LastHatchPos, cell);
+                fx?.Bird(item.LastHatchPos, cell, item.LastHatchMaterial);
                 sfx?.Play(e?.hitSfx, 0.8f);
                 sfx?.Play(e?.extraBreakSfx, 0.6f);
             }

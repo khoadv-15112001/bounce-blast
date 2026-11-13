@@ -255,6 +255,7 @@ namespace GardenCannon
                     else if (t.name.Length == 5 && t.name.StartsWith("Egg0")) _eggs.Add(t);
                 }
                 _eggs.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+                SetupEggSlots();
                 _doorsClosed = _doors != null && _doors.gameObject.activeSelf;
                 if (_door1 != null) _door1Base = _door1.localPosition;
                 if (_door2 != null) _door2Base = _door2.localPosition;
@@ -595,6 +596,7 @@ namespace GardenCannon
                 if (best != null)
                 {
                     LastHatchPos = best.position;
+                    LastHatchMaterial = SlotMaterial(best);
                     LastHitHatched = true;
                     best.gameObject.SetActive(false);
                 }

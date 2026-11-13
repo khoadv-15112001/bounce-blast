@@ -316,7 +316,7 @@ namespace GardenCannon.EditorTools
                 if (e.sizePrefabs != null) prefabs.AddRange(e.sizePrefabs);
             }
             prefabs.Add(assets.splashFx);
-            prefabs.Add(assets.cannon3D); prefabs.Add(assets.bg3D); prefabs.Add(assets.grass3D);
+            prefabs.Add(assets.cannon3D); prefabs.Add(assets.bg3D); prefabs.Add(assets.grass3D); prefabs.Add(assets.balloonPrefab);
             prefabs = prefabs.Where(p => p != null).Distinct().ToList();
             foreach (var p in prefabs)
                 Add(settings, gDefault, p, "GardenCannon/Prefabs/" + p.name);
@@ -640,13 +640,15 @@ namespace GardenCannon.EditorTools
         static AudioClip LoadWav(string name) => AssetDatabase.LoadAssetAtPath<AudioClip>($"{ExtractedAudio}/{name}.wav");
 
         /// <summary>Music streams (Vorbis), short SFX are decompressed on load.</summary>
+        public static void ConfigureExtractedAudioPublic() => ConfigureExtractedAudio();
+
         static void ConfigureExtractedAudio()
         {
             foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { ExtractedAudio }))
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 if (!(AssetImporter.GetAtPath(path) is AudioImporter imp)) continue;
-                bool music = Path.GetFileName(path).StartsWith("Music");
+                bool music = Path.GetFileName(path).StartsWith("Music") || Path.GetFileName(path).StartsWith("BGM");
                 var st = imp.defaultSampleSettings;
                 var want = st;
                 want.loadType = music ? AudioClipLoadType.Streaming : AudioClipLoadType.DecompressOnLoad;

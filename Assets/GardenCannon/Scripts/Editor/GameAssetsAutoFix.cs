@@ -23,7 +23,51 @@ namespace GardenCannon.EditorTools
             EditorApplication.delayCall += Run;
         }
 
-        const int BehaviourVersion = 4;
+        const int BehaviourVersion = 5;
+
+        /// <summary>Only replaces the old defaults (an edit made in GameAssets afterwards is kept).</summary>
+        static bool ApplyAudioAndBalloons(GameAssets assets)
+        {
+            bool changed = false;
+            var bgm = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/BGM_Ingame_Universal_02.wav");
+            if (bgm != null && (assets.music == null || assets.music.name == "Music - Core Game Play"))
+            {
+                GardenCannonSetup.ConfigureExtractedAudioPublic();   // long BGM: streamed
+                assets.music = bgm;
+                changed = true;
+            }
+            var blast = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/cannon_blast.ogg");
+            if (blast != null && (assets.ballFire == null || assets.ballFire.name == "ball_fire"))
+            {
+                assets.ballFire = blast;
+                changed = true;
+            }
+            var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
+            var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
+            if (balloon != null && eggBox != null && eggBox.eggPrefab == null)
+            {
+                // Balloons in the egg box tray instead of eggs.
+                eggBox.eggPrefab = balloon;
+                eggBox.eggMaterials = AssetDatabase.FindAssets("t:Material", new[] { "Assets/3D/Mat baloon" })
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => !p.Contains("MAIN"))
+                    .Select(AssetDatabase.LoadAssetAtPath<Material>)
+                    .Where(m => m != null).ToArray();
+                EditorUtility.SetDirty(assets.catalog);
+                changed = true;
+            }
+            if (balloon != null && (assets.balloonPrefab == null || assets.balloonMaterials == null || assets.balloonMaterials.Length == 0))
+            {
+                assets.balloonPrefab = balloon;
+                assets.balloonMaterials = AssetDatabase.FindAssets("t:Material", new[] { "Assets/3D/Mat baloon" })
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => !p.Contains("MAIN"))
+                    .Select(AssetDatabase.LoadAssetAtPath<Material>)
+                    .Where(m => m != null).ToArray();
+                changed = true;
+            }
+            return changed;
+        }
 
         const string Art3D = "Assets/3D/Prefab/";
 
@@ -326,6 +370,15 @@ namespace GardenCannon.EditorTools
                 AssetDatabase.SaveAssets();
                 GardenCannonSetup.SetupAddressables(assets.catalog, assets);
                 Debug.Log("[GardenCannon] Obstacle behaviours applied to the ItemCatalog (v" + BehaviourVersion + ").");
+            }
+
+            // New music / shot sound and the egg box balloons (checked every time: the files may import later).
+            if (ApplyAudioAndBalloons(assets))
+            {
+                EditorUtility.SetDirty(assets);
+                AssetDatabase.SaveAssets();
+                GardenCannonSetup.SetupAddressables(assets.catalog, assets);
+                Debug.Log("[GardenCannon] Music BGM_Ingame_Universal_02, shot sound cannon_blast and egg box balloons assigned.");
             }
 
             // Original item effects: extract them from Game.unity once, then hook them into the catalog.

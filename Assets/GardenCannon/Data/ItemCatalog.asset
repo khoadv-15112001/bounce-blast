@@ -27,6 +27,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -91,6 +94,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -131,6 +137,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -174,6 +183,17 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 1
+    eggPrefab: {fileID: 8278560178449235592, guid: 03f5784e7e455cf4db84c96c4aa00c9f, type: 3}
+    eggMaterials:
+    - {fileID: 2100000, guid: 14d6cd92dcbbc814c9376ad3ab5ef662, type: 2}
+    - {fileID: 2100000, guid: bdd47b948a7f0844db538e71102aaad9, type: 2}
+    - {fileID: 2100000, guid: 71cc944ad6f84fd4bafb6c5f9d1919ed, type: 2}
+    - {fileID: 2100000, guid: 5d1d4f958b18d824e9377c7e93fb258d, type: 2}
+    - {fileID: 2100000, guid: a6bae56102cff08449a94ef9fe558d9a, type: 2}
+    - {fileID: 2100000, guid: 68f820a0cf463b341b74779d35b03882, type: 2}
+    - {fileID: 2100000, guid: 5dfd3c50db0aec14b87387cfd61c0cc0, type: 2}
+    - {fileID: 2100000, guid: 96e811b863c2f0f42ac2f46547883dab, type: 2}
+    eggSize: 0.62
     openSfx: {fileID: 8300000, guid: f6a3243830b05a9438ed261ae646d072, type: 3}
     spinSpeed: 90
     autotile: 0
@@ -214,6 +234,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -254,6 +277,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -294,6 +320,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -334,6 +363,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -374,6 +406,9 @@ MonoBehaviour:
     stagePrefix: 'Wood '
     stagesCumulative: 1
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -414,6 +449,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -454,6 +492,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -497,6 +538,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -540,6 +584,9 @@ MonoBehaviour:
     stagePrefix: 
     stagesCumulative: 0
     eggBox: 0
+    eggPrefab: {fileID: 0}
+    eggMaterials: []
+    eggSize: 0.62
     openSfx: {fileID: 0}
     spinSpeed: 90
     autotile: 0
@@ -591,7 +638,7 @@ MonoBehaviour:
     altSfx: {fileID: 0}
     debugColor: {r: 1, g: 1, b: 1, a: 1}
   defaultsVersion: 4
-  behaviourVersion: 4
+  behaviourVersion: 5
   autotileModules:
   - mesh: {fileID: 4300000, guid: 5438743e39e447b47a22e206fcfed9e6, type: 2}
     rimMask: 15
