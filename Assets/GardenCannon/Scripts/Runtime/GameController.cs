@@ -24,6 +24,7 @@ namespace GardenCannon
         public ItemCatalog catalog;
         public GameObject ballPrefab;
         [HideInInspector] public SceneArt3D sceneArt;
+        [HideInInspector] public AmmoBelt ammoBelt;
         public SpriteRenderer lawnRenderer;
         public Sprite lawn9x12;
         public Sprite lawn12x17;
@@ -150,6 +151,7 @@ namespace GardenCannon
                     Debug.LogWarning($"[GardenCannon] Goal type {it.Data.type} is mapped to {it.Kind} in the ItemCatalog; set it to Breakable.");
 
             MovesLeft = Mathf.Max(1, level.moves);
+            ammoBelt?.Fill(MovesLeft);
             CurrentState = State.Aiming;
             cannon?.SetAngle(0f);
             cannon?.PlayRefill();
@@ -283,6 +285,7 @@ namespace GardenCannon
                 return;
             }
             MovesLeft--;
+            ammoBelt?.Feed(MovesLeft);
             hud?.SetMoves(MovesLeft, true);
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
             if (MovesLeft == 5) sfx?.Play(sfx.lastMoves, 0.8f, 0f);
