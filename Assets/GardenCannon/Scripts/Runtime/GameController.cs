@@ -130,6 +130,7 @@ namespace GardenCannon
             PlayerPrefs.Save();
 
             ClearBalls();
+            sfx?.StopJingles();
             _burstLeft = 0;
             _aiming = false;
             aimGuide?.Hide();
@@ -574,7 +575,7 @@ namespace GardenCannon
             PlayerPrefs.SetInt(PrefKey, next > LevelLibrary.Count ? 1 : next);
             PlayerPrefs.Save();
             sfx?.SetMusicDuck(true);
-            sfx?.Play(sfx.levelWin, 1f, 0f);
+            sfx?.PlayJingle(sfx.levelWin, 1f);
             StartCoroutine(WinSequence());
         }
 
@@ -583,7 +584,7 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
-            sfx?.Play(sfx.levelWinFireworks, 0.8f, 0f);
+            sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
             fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
             yield return new WaitForSeconds(0.5f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
@@ -600,7 +601,7 @@ namespace GardenCannon
             aimGuide?.Hide();
             hud?.HideBanner();
             sfx?.SetMusicDuck(true);
-            sfx?.Play(sfx.outOfBalls, 0.9f, 0f);
+            sfx?.PlayJingle(sfx.outOfBalls, 0.9f);
             StartCoroutine(LoseSequence());
         }
 
@@ -609,7 +610,7 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.8f);
             if (CurrentState != State.Lost || level != LevelNumber) yield break;
-            sfx?.Play(sfx.levelFail, 0.9f, 0f);
+            sfx?.PlayJingle(sfx.levelFail, 0.9f);
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");

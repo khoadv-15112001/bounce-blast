@@ -206,7 +206,7 @@ MonoBehaviour:
     hatchFx: {fileID: 682167952479840192, guid: e717d0b3b1ab7454bb8a83059616860c, type: 3}
     hitSfx: {fileID: 8300000, guid: ce21ea0df91b7bb4389f6cd2595ec314, type: 3}
     breakSfx: {fileID: 8300000, guid: e517c88ef644d3548ba698bbb676cef0, type: 3}
-    extraBreakSfx: {fileID: 8300000, guid: 798c18c4297c63047bc99ad9a28b5d55, type: 3}
+    extraBreakSfx: {fileID: 8300000, guid: be95b908a5044df4d8ca174e36e7794a, type: 3}
     modelEuler: {x: 0, y: 0, z: 0}
     colorPrefabs: []
     sizePrefabs: []

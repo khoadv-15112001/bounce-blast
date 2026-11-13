@@ -44,6 +44,14 @@ namespace GardenCannon.EditorTools
             }
             var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
             var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
+            // Balloon flying away: balloon_fly instead of the bird sound.
+            var fly = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/GardenCannon/Audio/ballon_fly.ogg");
+            if (fly != null && eggBox != null && (eggBox.extraBreakSfx == null || eggBox.extraBreakSfx.name == "egg_bird_fly"))
+            {
+                eggBox.extraBreakSfx = fly;
+                EditorUtility.SetDirty(assets.catalog);
+                changed = true;
+            }
             if (balloon != null && eggBox != null && eggBox.eggPrefab == null)
             {
                 // Balloons in the egg box tray instead of eggs.

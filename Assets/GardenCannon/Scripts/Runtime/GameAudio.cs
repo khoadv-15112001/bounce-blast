@@ -39,6 +39,7 @@ namespace GardenCannon
         readonly List<AudioSource> _sources = new List<AudioSource>();
         readonly Dictionary<AudioClip, float> _lastPlay = new Dictionary<AudioClip, float>();
         AudioSource _music;
+        readonly List<AudioSource> _jingles = new List<AudioSource>();
         int _next;
 
         /// <summary>Sound effects off.</summary>
@@ -65,6 +66,15 @@ namespace GardenCannon
                 src.playOnAwake = false;
                 src.spatialBlend = 0f;
                 _sources.Add(src);
+            }
+            // Win / lose jingles get their own voices so gameplay sounds can never cut them.
+            for (int i = 0; i < 2; i++)
+            {
+                var src = gameObject.AddComponent<AudioSource>();
+                src.playOnAwake = false;
+                src.spatialBlend = 0f;
+                src.priority = 0;
+                _jingles.Add(src);
             }
             _music = gameObject.AddComponent<AudioSource>();
             _music.playOnAwake = false;
@@ -98,14 +108,42 @@ namespace GardenCannon
 
         public void Play(AudioClip clip, float vol = 1f, float pitchJitter = 0.06f) => PlayPitched(clip, vol, 1f, pitchJitter);
 
+        /// <summary>Win / lose sounds on dedicated voices (never interrupted by ball hits).</summary>
+        public void PlayJingle(AudioClip clip, float vol = 1f)
+        {
+            if (clip == null || Muted || _jingles.Count == 0) return;
+            var src = _jingles[0].isPlaying && !_jingles[1].isPlaying ? _jingles[1] : _jingles[0];
+            if (_jingles[0].isPlaying && _jingles[1].isPlaying) src = _jingles[0];
+            src.pitch = 1f;
+            src.volume = volume * vol;
+            src.clip = clip;
+            src.Play();
+        }
+
+        /// <summary>Stop the jingles (level change / replay).</summary>
+        public void StopJingles()
+        {
+            foreach (var j in _jingles) if (j != null) j.Stop();
+        }
+
         public void PlayPitched(AudioClip clip, float vol, float pitch, float pitchJitter = 0f)
         {
             if (clip == null || Muted || _sources.Count == 0) return;
             float now = Time.unscaledTime;
             if (_lastPlay.TryGetValue(clip, out var last) && now - last < minRepeat) return;
             _lastPlay[clip] = now;
-            var src = _sources[_next];
-            _next = (_next + 1) % _sources.Count;
+            // Prefer a free voice; only steal the oldest one when all are busy.
+            AudioSource src = null;
+            for (int i = 0; i < _sources.Count && src == null; i++)
+            {
+                var c = _sources[(_next + i) % _sources.Count];
+                if (!c.isPlaying) { src = c; _next = (_next + i + 1) % _sources.Count; }
+            }
+            if (src == null)
+            {
+                src = _sources[_next];
+                _next = (_next + 1) % _sources.Count;
+            }
             src.pitch = pitch + Random.Range(-pitchJitter, pitchJitter);
             src.volume = volume * vol;
             src.clip = clip;
