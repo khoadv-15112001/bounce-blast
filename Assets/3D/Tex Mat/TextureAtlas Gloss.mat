@@ -69,10 +69,10 @@ Material:
     - _GlossyReflections: 1
     - _LightPitch: -20
     - _LightPitch2: -4
-    - _LightPitch3: -62
-    - _LightYaw: 204
-    - _LightYaw2: 168
-    - _LightYaw3: 218
+    - _LightPitch3: -30
+    - _LightYaw: 201
+    - _LightYaw2: 174
+    - _LightYaw3: 243
     - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 0
@@ -94,7 +94,7 @@ Material:
     m_Colors:
     - _AtlasGrid: {r: 8, g: 4, b: 0, a: 0}
     - _Color: {r: 0.86627805, g: 0.8999227, b: 0.9716981, a: 1}
-    - _CustomLightColor: {r: 0.77764946, g: 1.1312954, b: 1.6322939, a: 1}
+    - _CustomLightColor: {r: 0.99739635, g: 1.3124417, b: 1.7475044, a: 1}
     - _CustomLightColor2: {r: 0.21763763, g: 0.21763763, b: 0.21763763, a: 1}
     - _CustomLightColor3: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
     - _CustomSpecColor4: {r: 0.29178533, g: 0.29178533, b: 0.7830189, a: 1}
