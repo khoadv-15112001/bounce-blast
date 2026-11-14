@@ -12,6 +12,7 @@ namespace GardenCannon
     /// the remaining content (GameAssets: catalog, ball, font, SFX; levels by label) through Addressables,
     /// hands it to the scene components and starts the game. Nothing uses Resources.
     /// </summary>
+    [DefaultExecutionOrder(-500)] // Awake before the scene's AddressableSprites / other components
     public class GameBootstrap : MonoBehaviour
     {
         [Header("Addressables")]
@@ -34,8 +35,42 @@ namespace GardenCannon
         AsyncOperationHandle<GameAssets> _assetsHandle;
         AsyncOperationHandle<IList<TextAsset>> _levelsHandle;
 
+        /// <summary>
+        /// First frame: with everything preloaded by the splash, put the lawn picture and the 3D scenery (Lawn3D under
+        /// the transparent lawn, cannon, BG) in place right away, so the screen never shows the empty background.
+        /// </summary>
+        void Awake()
+        {
+            if (!GamePreloader.IsReady) return;
+            var a = GamePreloader.Assets;
+            if (lawnRenderer != null && a.grassTop != null) lawnRenderer.sprite = a.grassTop;
+            ApplySceneArt(a);
+        }
+
+        void ApplySceneArt(GameAssets a)
+        {
+            if (a.cannon3D == null && a.bg3D == null && a.grass3D == null) return;
+            var art = GetComponent<SceneArt3D>();
+            if (art == null) art = gameObject.AddComponent<SceneArt3D>();
+            art.cannonPrefab = a.cannon3D;
+            art.bgPrefab = a.bg3D;
+            art.grassPrefab = a.grass3D;   // checker lawn drawn under the GrassTop picture (its lawn is transparent)
+            art.Apply(board, cannon, hud);
+            if (controller != null) controller.sceneArt = art;
+        }
+
         IEnumerator Start()
         {
+            // Normal path: the splash already loaded everything (GamePreloader) -> build the level on the first frame.
+            // (The lawn picture is the same for both board sizes now, so a late AddressableSprite load can't undo it.)
+            if (GamePreloader.IsReady)
+            {
+                LevelLibrary.Initialize(GamePreloader.Levels);
+                Wire(GamePreloader.Assets);
+                yield break;
+            }
+
+            // Game scene started directly (editor): load here.
             _assetsHandle = Addressables.LoadAssetAsync<GameAssets>(gameAssetsAddress);
             _levelsHandle = Addressables.LoadAssetsAsync<TextAsset>(levelsLabel, null);
             yield return _assetsHandle;
@@ -97,16 +132,7 @@ namespace GardenCannon
                 fx.balloonPrefab = a.balloonPrefab;
                 fx.balloonMaterials = a.balloonMaterials;
             }
-            if (a.cannon3D != null || a.bg3D != null || a.grass3D != null)
-            {
-                var art = GetComponent<SceneArt3D>();
-                if (art == null) art = gameObject.AddComponent<SceneArt3D>();
-                art.cannonPrefab = a.cannon3D;
-                art.bgPrefab = a.bg3D;
-                art.grassPrefab = a.grass3D;
-                art.Apply(board, cannon, hud);
-                if (controller != null) controller.sceneArt = art;
-            }
+            ApplySceneArt(a);
             if (a.waterMaterial != null)
             {
                 // Animated caustics / foam on the water strip in front of the cannon (as in the original Game scene).

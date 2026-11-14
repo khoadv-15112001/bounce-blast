@@ -90,24 +90,18 @@ namespace GardenCannon.EditorTools
         {
             var src = grassPrefab.GetComponentInChildren<MeshRenderer>(true);
             if (src == null || src.sharedMaterial == null) return;
-            float cell = board.gridWidth / 9f;
-            float left = board.Left, right = board.Right, top = board.Top, bottom = board.WaterLine + 0.2f;
-            float u1 = (right - left) / (2f * cell), v0 = -(top - bottom) / (2f * cell);
             _lawnMesh = new Mesh { name = "Lawn3DPreview", hideFlags = HideFlags.DontSave };
-            _lawnMesh.vertices = new[] { new Vector3(left, bottom, 0f), new Vector3(right, bottom, 0f), new Vector3(right, top, 0f), new Vector3(left, top, 0f) };
-            _lawnMesh.uv = new[] { new Vector2(0f, v0), new Vector2(u1, v0), new Vector2(u1, 0f), new Vector2(0f, 0f) };
-            _lawnMesh.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
-            _lawnMesh.triangles = new[] { 0, 2, 1, 0, 3, 2 };
-            _lawnMesh.RecalculateBounds();
+            SceneArt3D.BuildLawnMesh(_lawnMesh, board.Left, board.Right, board.Top, board.WaterLine - 0.05f, 9, 0.4f);
             _lawnMat = new Material(src.sharedMaterial) { name = "Lawn3DPreview", renderQueue = 3000, hideFlags = HideFlags.DontSave };
 
             var go = new GameObject("Lawn3D");
             go.transform.SetParent(parent.transform, false);
+            go.transform.position = new Vector3(0f, 0f, 0.02f);
             go.hideFlags = HideFlags.DontSave | HideFlags.NotEditable;
             go.AddComponent<MeshFilter>().sharedMesh = _lawnMesh;
             var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = _lawnMat;
-            mr.sortingOrder = -7;
+            mr.sortingOrder = -9;   // under the GrassTop picture (transparent lawn)
         }
 
         static GameObject Spawn(GameObject go, Scene scene)
