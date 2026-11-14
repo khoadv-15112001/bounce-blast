@@ -306,12 +306,27 @@ namespace GardenCannon
 
         // ---------------- Tutorial banner ----------------
 
-        public void ShowBanner(string text)
+        /// <param name="textOnly">Just the text (white with a dark outline), no panel: for hints over the board.</param>
+        public void ShowBanner(string text, bool textOnly = false)
         {
             HideBanner();
             if (bannerAnchor == null) return;
             _bannerRoot = new GameObject("Banner").transform;
             _bannerRoot.SetParent(bannerAnchor, false);
+            if (textOnly)
+            {
+                var outline = new Color(0.16f, 0.1f, 0.05f, 0.9f);
+                for (int i = 0; i < 12; i++)
+                {
+                    float a = i * Mathf.PI * 2f / 12f;
+                    var o = VisualUtil.MakeText("Outline", _bannerRoot, font, new Vector3(Mathf.Cos(a) * 0.05f, Mathf.Sin(a) * 0.05f, -0.05f), 0.62f, outline, TextAnchor.MiddleCenter, 71);
+                    o.text = text;
+                }
+                var w = VisualUtil.MakeText("Text", _bannerRoot, font, new Vector3(0, 0, -0.1f), 0.62f, Color.white, TextAnchor.MiddleCenter, 72);
+                w.text = text;
+                Relayer(_bannerRoot);
+                return;
+            }
             if (whiteSprite != null)
             {
                 var sz = whiteSprite.bounds.size;

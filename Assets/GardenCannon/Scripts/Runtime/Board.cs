@@ -215,6 +215,31 @@ namespace GardenCannon
             }
         }
 
+        /// <summary>Live, reachable items whose bounds overlap <paramref name="r"/> (rocket blast area).</summary>
+        public void ItemsInRect(Rect r, List<BoardItem> result)
+        {
+            result.Clear();
+            foreach (var it in Items)
+            {
+                if (!it.Alive || it.Shielded || it.Kind == ItemKind.Ignore) continue;
+                var b = it.Bounds;
+                if (b.xMax > r.xMin + 0.01f && b.xMin < r.xMax - 0.01f && b.yMax > r.yMin + 0.01f && b.yMin < r.yMax - 0.01f) result.Add(it);
+            }
+        }
+
+        /// <summary>Centre of the grid cell under a world point (clamped to the board).</summary>
+        public Vector2 CellCentreAt(Vector2 world)
+        {
+            Vector2 g = (world - _gridOrigin) / CellSize;
+            int cx = Mathf.Clamp(Mathf.FloorToInt(g.x), 0, Mathf.Max(0, (Level != null ? Level.width : 9) - 1));
+            int cy = Mathf.Clamp(Mathf.FloorToInt(g.y), 0, Mathf.Max(0, (Level != null ? Level.height : 12) - 1));
+            return GridToWorldCentre(new Vector2(cx, cy));
+        }
+
+        /// <summary>True when a world point is over the board grid.</summary>
+        public bool IsOverBoard(Vector2 world) =>
+            world.x >= Left && world.x <= Right && world.y <= Top && world.y >= Top - (Level != null ? Level.height : 12) * CellSize;
+
         /// <summary>Live, reachable items whose shape comes within <paramref name="radius"/> of <paramref name="p"/>.</summary>
         public void ItemsNear(Vector2 p, float radius, List<BoardItem> result, BoardItem except = null)
         {

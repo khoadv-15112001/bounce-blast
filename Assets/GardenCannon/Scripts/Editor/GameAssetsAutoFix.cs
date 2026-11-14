@@ -47,6 +47,25 @@ namespace GardenCannon.EditorTools
             var lawn12 = lawn;   // one picture for both board sizes: the checker is drawn underneath per level
             if (lawn != null && assets.grassTop != lawn) { assets.grassTop = lawn; changed = true; }
             if (lawn12 != null && assets.grassTop12x17 != lawn12) { assets.grassTop12x17 = lawn12; changed = true; }
+            // Booster icons (standalone copies of the original game's icons, not their 1024 reward atlas).
+            if (assets.boosterX2Icon == null)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/Boosters/BoosterX2.png");
+                if (s != null) { assets.boosterX2Icon = s; changed = true; }
+            }
+            if (assets.boosterRocketIcon == null)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/Boosters/BoosterRocket.png");
+                if (s != null) { assets.boosterRocketIcon = s; changed = true; }
+            }
+            Sprite Icon(string n) => AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/Boosters/" + n + ".png");
+            void SetIcon(ref Sprite slot, string n) { if (slot != null) return; var s = Icon(n); if (s != null) { slot = s; changed = true; } }
+            SetIcon(ref assets.boosterHammerIcon, "BoosterHammer");
+            SetIcon(ref assets.boosterBombIcon, "BoosterBomb");
+            SetIcon(ref assets.boosterElectroIcon, "BoosterElectro");
+            SetIcon(ref assets.boosterGloveIcon, "BoosterGlove");
+            SetIcon(ref assets.boosterKettlebellIcon, "BoosterKettlebell");
+            SetIcon(ref assets.boosterExtraMovesIcon, "BoosterExtraMoves");
             var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
             var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
             // Balloon flying away: balloon_fly instead of the bird sound.

@@ -31,6 +31,8 @@ namespace GardenCannon
         public FxPool fx;
         [Tooltip("Lawn sprite renderer, swapped to the 12x17 lawn for 12-column levels.")]
         public SpriteRenderer lawnRenderer;
+        [Tooltip("Row of waiting balls right of the cannon (off: that spot holds boosters now).")]
+        public bool showAmmoBelt = false;
 
         AsyncOperationHandle<GameAssets> _assetsHandle;
         AsyncOperationHandle<IList<TextAsset>> _levelsHandle;
@@ -115,7 +117,7 @@ namespace GardenCannon
                 fx.splashFx = a.splashFx;
             }
             if (fx != null) fx.birdFrames = a.birdFrames;
-            if (controller != null && a.ballPrefab != null && cannon != null)
+            if (showAmmoBelt && controller != null && a.ballPrefab != null && cannon != null)
             {
                 // Balls waiting on the right of the cannon; one rolls in on each shot.
                 var belt = controller.ammoBelt;
@@ -127,6 +129,35 @@ namespace GardenCannon
                 belt.ballPrefab = a.ballPrefab;
                 belt.cannon = cannon.transform;
                 controller.ammoBelt = belt;
+            }
+            if (controller != null && cannon != null)
+            {
+                // Boosters left of the cannon (x2 fireballs, rocket).
+                var bar = controller.boosters;
+                if (bar == null)
+                {
+                    bar = new GameObject("Boosters").AddComponent<BoosterBar>();
+                    bar.transform.SetParent(transform, false);
+                }
+                if (bar.boosters.Count == 0) bar.boosters = BoosterBar.DefaultDefs();
+                foreach (var d in bar.boosters)
+                {
+                    if (d.icon != null) continue;
+                    d.icon = d.id switch
+                    {
+                        BoosterId.X2 => a.boosterX2Icon,
+                        BoosterId.Rocket => a.boosterRocketIcon,
+                        BoosterId.Hammer => a.boosterHammerIcon,
+                        BoosterId.Bomb => a.boosterBombIcon,
+                        BoosterId.Electro => a.boosterElectroIcon,
+                        BoosterId.Glove => a.boosterGloveIcon,
+                        BoosterId.Kettlebell => a.boosterKettlebellIcon,
+                        _ => a.boosterExtraMovesIcon,
+                    };
+                }
+                bar.font = a.font;
+                bar.cannon = cannon.transform;
+                controller.boosters = bar;
             }
             if (fx != null)
             {

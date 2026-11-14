@@ -48,6 +48,15 @@ namespace GardenCannon
         public GameObject cannon3D;
         [Tooltip("Egg box: balloon floating away instead of the bird (Assets/3D/Prefab/Baloon).")]
         public GameObject balloonPrefab;
+        [Header("Boosters")]
+        public Sprite boosterX2Icon;
+        public Sprite boosterRocketIcon;
+        public Sprite boosterHammerIcon;
+        public Sprite boosterBombIcon;
+        public Sprite boosterElectroIcon;
+        public Sprite boosterGloveIcon;
+        public Sprite boosterKettlebellIcon;
+        public Sprite boosterExtraMovesIcon;
         public Material[] balloonMaterials = new Material[0];
         public GameObject bg3D;
         [Tooltip("BG mesh without the white moves plate (made by Garden Cannon > Rebuild BG without the moves plate).")]
