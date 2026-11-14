@@ -132,7 +132,7 @@ namespace GardenCannon
             }
             if (controller != null && cannon != null)
             {
-                // Boosters left of the cannon (x2 fireballs, rocket).
+                // Boosters on both sides of the cannon (x2 fireballs, arrow, bowling, bomb).
                 var bar = controller.boosters;
                 if (bar == null)
                 {
@@ -142,18 +142,14 @@ namespace GardenCannon
                 if (bar.boosters.Count == 0) bar.boosters = BoosterBar.DefaultDefs();
                 foreach (var d in bar.boosters)
                 {
-                    if (d.icon != null) continue;
-                    d.icon = d.id switch
+                    var icon = d.id switch
                     {
                         BoosterId.X2 => a.boosterX2Icon,
-                        BoosterId.Rocket => a.boosterRocketIcon,
-                        BoosterId.Hammer => a.boosterHammerIcon,
-                        BoosterId.Bomb => a.boosterBombIcon,
-                        BoosterId.Electro => a.boosterElectroIcon,
-                        BoosterId.Glove => a.boosterGloveIcon,
-                        BoosterId.Kettlebell => a.boosterKettlebellIcon,
-                        _ => a.boosterExtraMovesIcon,
+                        BoosterId.Arrow => a.boosterArrowIcon,
+                        BoosterId.Bowling => a.boosterBowlingIcon,
+                        _ => a.boosterBombIcon,
                     };
+                    if (icon != null) d.icon = icon;
                 }
                 bar.font = a.font;
                 bar.cannon = cannon.transform;

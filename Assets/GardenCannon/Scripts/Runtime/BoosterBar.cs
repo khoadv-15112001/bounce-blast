@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace GardenCannon
 {
-    public enum BoosterId { X2, Rocket, Hammer, Bomb, Electro, Glove, Kettlebell, ExtraMoves }
+    public enum BoosterId { X2, Arrow, Bowling, Bomb }
 
     /// <summary>How a booster is used once its button is tapped.</summary>
     public enum BoosterUse
     {
-        /// <summary>Takes effect at once (extra moves).</summary>
+        /// <summary>Takes effect at once (none of the current boosters).</summary>
         Instant,
-        /// <summary>Armed for the next shot (x2 fireballs, kettlebell piercing balls).</summary>
+        /// <summary>Armed for the next shot (x2 fireballs).</summary>
         NextShot,
-        /// <summary>Waits for a tap on the board (rocket, hammer, bomb, electro, glove).</summary>
+        /// <summary>Waits for a tap on the board (arrow, bowling, bomb).</summary>
         Target,
     }
 
@@ -38,9 +38,7 @@ namespace GardenCannon
 
         public static BoosterUse UseOf(BoosterId id) => id switch
         {
-            BoosterId.ExtraMoves => BoosterUse.Instant,
             BoosterId.X2 => BoosterUse.NextShot,
-            BoosterId.Kettlebell => BoosterUse.NextShot,
             _ => BoosterUse.Target,
         };
 
@@ -73,17 +71,13 @@ namespace GardenCannon
         readonly List<Button> _buttons = new List<Button>();
         float _pulse;
 
-        /// <summary>Defaults: the two first rows mirror on each side of the cannon (top row on the fence, bottom on the floor).</summary>
+        /// <summary>Defaults: two buttons on each side of the cannon.</summary>
         public static List<Def> DefaultDefs() => new List<Def>
         {
-            new Def { id = BoosterId.X2,         offset = new Vector3(-5.41f, 0f, -0.4f) },
-            new Def { id = BoosterId.Rocket,     offset = new Vector3(-3.55f, 0f, -0.4f) },
-            new Def { id = BoosterId.Hammer,     offset = new Vector3(-5.41f, -1.5f, -0.4f) },
-            new Def { id = BoosterId.Bomb,       offset = new Vector3(-3.55f, -1.5f, -0.4f) },
-            new Def { id = BoosterId.Electro,    offset = new Vector3(3.55f, 0f, -0.4f) },
-            new Def { id = BoosterId.Glove,      offset = new Vector3(5.41f, 0f, -0.4f) },
-            new Def { id = BoosterId.Kettlebell, offset = new Vector3(3.55f, -1.5f, -0.4f) },
-            new Def { id = BoosterId.ExtraMoves, offset = new Vector3(5.41f, -1.5f, -0.4f), label = "+5" },
+            new Def { id = BoosterId.X2,      offset = new Vector3(-5.41f, 0f, -0.4f) },
+            new Def { id = BoosterId.Arrow,   offset = new Vector3(-3.55f, 0f, -0.4f) },
+            new Def { id = BoosterId.Bowling, offset = new Vector3(3.55f, 0f, -0.4f) },
+            new Def { id = BoosterId.Bomb,    offset = new Vector3(5.41f, 0f, -0.4f) },
         };
 
         public Def Get(BoosterId id) => boosters.Find(d => d.id == id);

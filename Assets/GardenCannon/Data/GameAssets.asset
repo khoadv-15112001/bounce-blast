@@ -52,13 +52,9 @@ MonoBehaviour:
   cannon3D: {fileID: 3627040636142212939, guid: d572e9013b894254dbc04962fd06bfbc, type: 3}
   balloonPrefab: {fileID: 8278560178449235592, guid: 03f5784e7e455cf4db84c96c4aa00c9f, type: 3}
   boosterX2Icon: {fileID: 21300000, guid: 77a9769c4a074280a09c940917f53e97, type: 3}
-  boosterRocketIcon: {fileID: 21300000, guid: b1cdce98ef7e44daabe9dfb48acd0b5f, type: 3}
-  boosterHammerIcon: {fileID: 21300000, guid: 5fd20b0ff4ca41aa9896f8bffc06fa25, type: 3}
+  boosterArrowIcon: {fileID: 21300000, guid: 6fa453df5a264b98b25c784c65e0b93b, type: 3}
+  boosterBowlingIcon: {fileID: 21300000, guid: 6586916d98f94f0a9de87b48eff8f718, type: 3}
   boosterBombIcon: {fileID: 21300000, guid: 2edd0948ac214f9ea2451f5ca461d952, type: 3}
-  boosterElectroIcon: {fileID: 21300000, guid: db022d98d34947a99bcfaf5678ee3db8, type: 3}
-  boosterGloveIcon: {fileID: 21300000, guid: 08a95fbacca340df9d6c927d03aefb47, type: 3}
-  boosterKettlebellIcon: {fileID: 21300000, guid: e08ff56f50f046bd8c65f4994bc23750, type: 3}
-  boosterExtraMovesIcon: {fileID: 21300000, guid: 8eac5032174d468ea82f7650f2a95931, type: 3}
   balloonMaterials:
   - {fileID: 2100000, guid: 14d6cd92dcbbc814c9376ad3ab5ef662, type: 2}
   - {fileID: 2100000, guid: bdd47b948a7f0844db538e71102aaad9, type: 2}

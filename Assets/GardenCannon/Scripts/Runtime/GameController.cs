@@ -29,18 +29,15 @@ namespace GardenCannon
         [Header("Boosters")]
         [Tooltip("Damage per hit of the x2 fireballs.")]
         public int x2Damage = 2;
-        [Tooltip("Rocket: damage dealt to every item in the 3x3 cells around the target.")]
-        public int rocketDamage = 5;
+        [Tooltip("Bomb flight time (spinning throw).")]
         public float rocketFlightTime = 0.55f;
         public Color fireballColor = new Color(1f, 0.42f, 0.12f);
         [Tooltip("Bomb: damage to every item in the 5x5 cells around the target.")]
         public int bombDamage = 3;
-        [Tooltip("Electro: damage to every block of the tapped block's colour.")]
-        public int electroDamage = 3;
-        [Tooltip("Glove: damage to every item in the tapped row.")]
-        public int gloveDamage = 2;
-        [Tooltip("Extra moves booster: moves added.")]
-        public int extraMoves = 5;
+        [Tooltip("Arrow: damage to every item in the tapped row.")]
+        public int arrowDamage = 3;
+        [Tooltip("Bowling: damage to every item in the tapped column.")]
+        public int bowlingDamage = 3;
         public Color kettlebellColor = new Color(0.55f, 0.6f, 0.7f);
         int _volleyDamage = 1;
         bool _volleyPierce;
@@ -370,7 +367,6 @@ namespace GardenCannon
             {
                 var used = boosters.ConsumeSelected();
                 if (used == BoosterId.X2) _volleyDamage = Mathf.Max(1, x2Damage);
-                else if (used == BoosterId.Kettlebell) _volleyPierce = true;   // heavy balls go through items
             }
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
             if (MovesLeft == 5)
@@ -686,13 +682,10 @@ namespace GardenCannon
 
         static string HintOf(BoosterId id) => id switch
         {
-            BoosterId.Rocket => "Tap the board to\nlaunch the rocket!",
-            BoosterId.Hammer => "Tap an item to\nsmash it!",
-            BoosterId.Bomb => "Tap the board to\nthrow the bomb!",
-            BoosterId.Electro => "Tap a block to zap\nall blocks of its colour!",
-            BoosterId.Glove => "Tap a row to\npunch through it!",
             BoosterId.X2 => "Next shot: fireballs\ndeal double damage!",
-            BoosterId.Kettlebell => "Next shot: heavy balls\ngo through the items!",
+            BoosterId.Arrow => "Tap a row to\nshoot the arrow!",
+            BoosterId.Bowling => "Tap a column to\nroll the bowling ball!",
+            BoosterId.Bomb => "Tap the board to\nthrow the bomb!",
             _ => "",
         };
 
@@ -714,12 +707,7 @@ namespace GardenCannon
 
         void OnInstantBooster(BoosterId id)
         {
-            if (id != BoosterId.ExtraMoves) return;
-            MovesLeft += Mathf.Max(1, extraMoves);
-            hud?.SetMoves(MovesLeft, true);
-            sfx?.Play(sfx.goalComplete != null ? sfx.goalComplete : sfx.appear, 0.8f, 0f);
-            fx?.Sparkle(boosters.ButtonPos(id), 10, board.CellSize, 1.6f);
-            GameHaptics.Play(GameHapticMoment.GoalComplete);
+            // None of the current boosters are instant.
         }
 
         readonly List<BoardItem> _blast = new List<BoardItem>();
@@ -734,11 +722,10 @@ namespace GardenCannon
             Sprite icon = boosters.IconOf(id.Value);
             switch (id.Value)
             {
-                case BoosterId.Rocket: StartCoroutine(Projectile(from, target, icon, true, () => Blast(target, 1, rocketDamage))); break;
+                case BoosterId.Arrow: StartCoroutine(Sweep(target, icon, false, true, arrowDamage)); break;
+                case BoosterId.Bowling: StartCoroutine(Sweep(target, icon, true, false, bowlingDamage)); break;
+                // Spinning throw, explodes over 5x5 cells.
                 case BoosterId.Bomb: StartCoroutine(Projectile(from, target, icon, false, () => Blast(target, 2, bombDamage))); break;
-                case BoosterId.Hammer: StartCoroutine(HammerSmash(target, icon)); break;
-                case BoosterId.Electro: StartCoroutine(ElectroZap(from, target)); break;
-                case BoosterId.Glove: StartCoroutine(GlovePunch(target, icon)); break;
             }
         }
 
@@ -805,125 +792,47 @@ namespace GardenCannon
                 if (it.Alive) ApplyHit(it, target, null, Mathf.Max(1, damage));
         }
 
-        /// <summary>Hammer: drops on the tapped cell and smashes the item there (whatever its HP).</summary>
-        IEnumerator HammerSmash(Vector2 target, Sprite icon)
+        /// <summary>
+        /// Arrow (horizontal: flies along the tapped row from left to right) / bowling ball (vertical: rolls down the
+        /// tapped column from the top). Every item it passes takes <paramref name="damage"/>.
+        /// </summary>
+        IEnumerator Sweep(Vector2 target, Sprite icon, bool vertical, bool arrow, int damage)
         {
             int level = LevelNumber;
             float cell = board.CellSize;
-            var sr = FlyingSprite("Hammer", icon, cell * 1.4f);
+            Rect lane = vertical
+                ? new Rect(target.x - cell * 0.45f, board.Bottom, cell * 0.9f, board.Top - board.Bottom)
+                : new Rect(board.Left, target.y - cell * 0.45f, board.Right - board.Left, cell * 0.9f);
+            board.ItemsInRect(lane, _blast);
+            var hits = new List<BoardItem>(_blast);
+            // Distance along the lane: left to right for rows, top to bottom for columns.
+            float Along(Vector2 p) => vertical ? -p.y : p.x;
+            hits.Sort((a, b) => Along(a.Bounds.center).CompareTo(Along(b.Bounds.center)));
+            var sr = FlyingSprite(arrow ? "Arrow" : "Bowling", icon, cell * (arrow ? 1.5f : 1.1f));
             var go = sr.gameObject;
-            float t = 0f;
-            while (t < 1f)
-            {
-                t = Mathf.Min(1f, t + Time.deltaTime / 0.32f);
-                // Raise, then swing down onto the cell.
-                float swing = t < 0.45f ? Mathf.Lerp(0f, 35f, t / 0.45f) : Mathf.Lerp(35f, -55f, (t - 0.45f) / 0.55f);
-                go.transform.position = new Vector3(target.x + cell * 0.45f, target.y + cell * 0.55f, -2f);
-                go.transform.rotation = Quaternion.Euler(0f, 0f, swing);
-                yield return null;
-            }
-            if (level == LevelNumber && CurrentState != State.Lost)
-            {
-                board.ItemsInRect(new Rect(target.x - cell * 0.45f, target.y - cell * 0.45f, cell * 0.9f, cell * 0.9f), _blast);
-                sfx?.PlayPitched(sfx.ballCollide, 1f, 0.8f, 0.02f);
-                fx?.Sparkle(new Vector3(target.x, target.y, -1f), 10, cell, 1.8f);
-                rig?.Shake(breakShake * 1.5f);
-                GameHaptics.Play(GameHapticMoment.ItemBroken);
-                foreach (var it in new List<BoardItem>(_blast))
-                    if (it.Alive) ApplyHit(it, target, null, Mathf.Max(1, it.Hits));
-            }
-            yield return new WaitForSeconds(0.12f);
-            Destroy(go);
-        }
-
-        /// <summary>Electro: lightning from the button to every block of the tapped block's colour.</summary>
-        IEnumerator ElectroZap(Vector3 from, Vector2 target)
-        {
-            int level = LevelNumber;
-            float cell = board.CellSize;
-            board.ItemsInRect(new Rect(target.x - cell * 0.45f, target.y - cell * 0.45f, cell * 0.9f, cell * 0.9f), _blast);
-            BoardItem picked = _blast.Count > 0 ? _blast[0] : null;
-            var targets = new List<BoardItem>();
-            if (picked != null && picked.Entry != null && picked.Entry.colorByVariant)
-            {
-                foreach (var it in board.Items)
-                    if (it.Alive && !it.Shielded && it.Entry != null && it.Entry.colorByVariant && it.Data.variant == picked.Data.variant) targets.Add(it);
-            }
-            else if (picked != null) targets.Add(picked);
-            var orb = catalog != null ? catalog.Get(6) : null;
-            sfx?.Play(orb != null && orb.breakSfx != null ? orb.breakSfx : sfx.appear, 0.9f, 0f);
-            GameHaptics.Play(GameHapticMoment.Explosion);
-            var lines = new List<LineRenderer>();
-            foreach (var it in targets)
-            {
-                var lr = new GameObject("Zap").AddComponent<LineRenderer>();
-                lr.material = TrailMaterialFor();
-                lr.startWidth = cell * 0.12f; lr.endWidth = cell * 0.05f;
-                lr.startColor = new Color(0.6f, 0.95f, 1f, 1f); lr.endColor = new Color(1f, 1f, 1f, 0.9f);
-                lr.sortingOrder = 91;
-                lr.positionCount = 6;
-                lines.Add(lr);
-            }
-            float t = 0f;
-            while (t < 0.35f)
-            {
-                t += Time.deltaTime;
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    if (targets[i] == null) continue;
-                    Vector3 a = from + Vector3.back, b = targets[i].VisualCentre + Vector3.back * 1.5f;
-                    for (int k = 0; k < 6; k++)
-                    {
-                        float f = k / 5f;
-                        Vector3 p = Vector3.Lerp(a, b, f);
-                        if (k > 0 && k < 5) p += (Vector3)(Random.insideUnitCircle * cell * 0.25f);
-                        lines[i].SetPosition(k, p);
-                    }
-                }
-                yield return null;
-            }
-            foreach (var lr in lines) Destroy(lr.gameObject);
-            if (level != LevelNumber || CurrentState == State.Lost) yield break;
-            foreach (var it in targets)
-            {
-                if (!it.Alive) continue;
-                fx?.Sparkle(it.VisualCentre + Vector3.back, 4, cell * 0.7f, 1.4f);
-                ApplyHit(it, it.VisualCentre, null, Mathf.Max(1, electroDamage));
-            }
-        }
-
-        static Material _zapMaterial;
-        static Material TrailMaterialFor()
-        {
-            if (_zapMaterial == null) _zapMaterial = new Material(Shader.Find("Sprites/Default")) { name = "Zap" };
-            return _zapMaterial;
-        }
-
-        /// <summary>Glove: sweeps along the tapped row from left to right, punching every item it passes.</summary>
-        IEnumerator GlovePunch(Vector2 target, Sprite icon)
-        {
-            int level = LevelNumber;
-            float cell = board.CellSize;
-            board.ItemsInRect(new Rect(board.Left, target.y - cell * 0.45f, board.Right - board.Left, cell * 0.9f), _blast);
-            var row = new List<BoardItem>(_blast);
-            row.Sort((a, b) => a.Bounds.center.x.CompareTo(b.Bounds.center.x));
-            var sr = FlyingSprite("Glove", icon, cell * 1.3f);
-            var go = sr.gameObject;
+            // The arrow icon points right: turn it along the lane.
+            if (arrow && vertical) go.transform.rotation = Quaternion.Euler(0f, 0f, -90f);
             sfx?.Play(sfx.ballFire, 0.8f, 0f);
-            float x = board.Left - cell, end = board.Right + cell;
+            GameHaptics.Play(GameHapticMoment.Fire);
+            float pos = (vertical ? -board.Top : board.Left) - cell, end = (vertical ? -board.Bottom : board.Right) + cell;
+            float speed = cell * (arrow ? 22f : 14f), spin = 0f, dust = 0f;
             int next = 0;
-            while (x < end)
+            while (pos < end)
             {
-                x += Time.deltaTime * cell * 16f;
-                go.transform.position = new Vector3(x, target.y, -2f);
-                while (next < row.Count && row[next].Bounds.center.x <= x)
+                pos += Time.deltaTime * speed;
+                go.transform.position = vertical ? new Vector3(target.x, -pos, -2f) : new Vector3(pos, target.y, -2f);
+                if (!arrow) go.transform.rotation = Quaternion.Euler(0f, 0f, spin -= Time.deltaTime * 720f);
+                dust -= Time.deltaTime;
+                if (dust <= 0f) { fx?.Sparkle(go.transform.position, 1, cell * 0.3f, 0.5f); dust = 0.05f; }
+                while (next < hits.Count && Along(hits[next].Bounds.center) <= pos)
                 {
-                    var it = row[next++];
+                    var it = hits[next++];
                     if (level != LevelNumber || CurrentState == State.Lost) continue;
                     if (!it.Alive) continue;
                     rig?.Shake(breakShake * 0.6f);
                     GameHaptics.Play(GameHapticMoment.ItemHit);
-                    ApplyHit(it, new Vector2(it.Bounds.center.x, target.y), null, Mathf.Max(1, gloveDamage));
+                    var at = vertical ? new Vector2(target.x, it.Bounds.center.y) : new Vector2(it.Bounds.center.x, target.y);
+                    ApplyHit(it, at, null, Mathf.Max(1, damage));
                 }
                 yield return null;
             }

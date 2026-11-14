@@ -26,6 +26,8 @@ namespace GardenCannon
         public float Left => gridLeft;
         public float Right => gridLeft + gridWidth;
         public float Top => gridTop;
+        /// <summary>Bottom edge of the grid (world y).</summary>
+        public float Bottom => _gridOrigin.y;
         public float WaterLine => waterLine;
         /// <summary>Y where a falling ball hits the water and splashes (a bit inside the river, not on its edge).</summary>
         public float SplashLine => waterLine - Mathf.Max(0f, splashDepth);
