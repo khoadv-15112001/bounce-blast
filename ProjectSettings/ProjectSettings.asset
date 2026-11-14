@@ -166,7 +166,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.bounce.blast.puzzle
+    Android: com.bounce.shooter.puzzle
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -270,8 +270,8 @@ PlayerSettings:
   AndroidTargetDevices: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: '{inproject}: bounce_blast.keystore'
-  AndroidKeyaliasName: bounce_blast
+  AndroidKeystoreName: '{inproject}: bounce_shooter.keystore'
+  AndroidKeyaliasName: bounce_shooter
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidBuildApkPerCpuArchitecture: 0
   AndroidTVCompatibility: 0

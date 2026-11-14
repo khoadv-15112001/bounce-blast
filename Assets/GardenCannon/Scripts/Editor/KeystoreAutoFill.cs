@@ -13,8 +13,8 @@ namespace GardenCannon.EditorTools
     [InitializeOnLoad]
     public class KeystoreAutoFill : IPreprocessBuildWithReport
     {
-        const string KeystoreFile = "bounce_blast.keystore"; // project root
-        const string KeyAlias = "bounce_blast";
+        const string KeystoreFile = "bounce_shooter.keystore"; // project root
+        const string KeyAlias = "bounce_shooter";
         const string Password = "sonat@123";                 // keystore + alias (PKCS12: same password)
 
         public int callbackOrder => -1000;
