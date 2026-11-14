@@ -1,0 +1,3 @@
+[submodule "SonatPackagesDev/com.sonat.haptics"]
+	path = SonatPackagesDev/com.sonat.haptics
+	url = git@github.com:SonatGameShared/com.sonat.haptics.git
