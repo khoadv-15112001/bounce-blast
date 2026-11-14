@@ -16,6 +16,26 @@
       "dependencies": {},
       "hash": "a77a1b4a89824fb6df293099de3060daf2a432c1"
     },
+    "com.esotericsoftware.spine.spine-csharp": {
+      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-csharp/src#4.2",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5cb78e77d3711ddcd80c7bd043bb11cf70fcc88c"
+    },
+    "com.esotericsoftware.spine.spine-unity": {
+      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine#4.2",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.esotericsoftware.spine.spine-csharp": "4.2.0"
+      },
+      "hash": "5cb78e77d3711ddcd80c7bd043bb11cf70fcc88c"
+    },
     "com.sonat.core": {
       "version": "ssh://git@github.com/SonatGameShared/com.sonat.core.git#1.7.4",
       "depth": 0,
@@ -62,6 +82,15 @@
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
+    },
+    "com.unity.ugui": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0"
+      }
     },
     "org.nuget.microsoft.bcl.asyncinterfaces": {
       "version": "6.0.0",

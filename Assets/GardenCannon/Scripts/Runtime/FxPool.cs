@@ -26,6 +26,8 @@ namespace GardenCannon
         public Material[] balloonMaterials;
         [Tooltip("Balloon size in cells.")]
         public float balloonScale = 1.3f;
+        [Tooltip("Flying balloons push each other apart when closer than this (share of the balloon size).")]
+        public float balloonSpacing = 0.8f;
         [Tooltip("Original ball splash effect (VFX_Ball_Splash).")]
         public GameObject splashFx;
 
@@ -368,6 +370,9 @@ namespace GardenCannon
             public Renderer body;
             public Vector3 start;
             public float age, rise, accel, phase, sway, scale;
+            /// <summary>Separation offset (pushed by the neighbours) and its velocity.</summary>
+            public Vector2 push, pushVel;
+            public Vector2 basePos;
         }
 
         readonly List<Floater> _balloonsActive = new List<Floater>();
@@ -401,22 +406,29 @@ namespace GardenCannon
             f.phase = Random.Range(0f, Mathf.PI * 2f);
             f.sway = Random.Range(0.18f, 0.3f) * cellSize;
             f.scale = balloonScale * cellSize;
+            f.push = Vector2.zero;
+            f.pushVel = Vector2.zero;
+            // Slightly different depth per balloon so overlapping ones never cut through each other.
+            f.start.z -= (_balloonDepth = (_balloonDepth + 1) % 8) * 0.06f * cellSize;
             f.t.position = f.start;
             f.t.rotation = Quaternion.identity;
             f.t.localScale = Vector3.zero;
             _balloonsActive.Add(f);
         }
 
+        int _balloonDepth;
+
         void UpdateBalloons(float dt)
         {
             float top = Camera.main != null ? Camera.main.transform.position.y + 2f * Camera.main.orthographicSize + 6f : 30f;
+            // 1) Path of each balloon (rise + sway), without the separation.
             for (int i = _balloonsActive.Count - 1; i >= 0; i--)
             {
                 var f = _balloonsActive[i];
                 f.age += dt;
                 float t = f.age;
                 float y = f.start.y + f.rise * t + 0.5f * f.accel * t * t;
-                if (y > top || t > 8f)
+                if (y + f.push.y > top || t > 8f)
                 {
                     f.t.gameObject.SetActive(false);
                     _balloonsActive.RemoveAt(i);
@@ -424,7 +436,35 @@ namespace GardenCannon
                     continue;
                 }
                 float x = f.start.x + Mathf.Sin(t * 2.4f + f.phase) * f.sway - Mathf.Sin(f.phase) * f.sway;
-                f.t.position = new Vector3(x, y, f.start.z);
+                f.basePos = new Vector2(x, y);
+            }
+            // 2) Balloons closer than balloonSpacing push each other apart (soft spring, damped), so they never stick together.
+            for (int i = 0; i < _balloonsActive.Count; i++)
+            {
+                var a = _balloonsActive[i];
+                for (int j = i + 1; j < _balloonsActive.Count; j++)
+                {
+                    var b = _balloonsActive[j];
+                    float min = balloonSpacing * 0.5f * (a.scale + b.scale);
+                    Vector2 d = (a.basePos + a.push) - (b.basePos + b.push);
+                    float dist = d.magnitude;
+                    if (dist >= min) continue;
+                    // Same spot (two eggs hatched together): split them sideways.
+                    Vector2 n = dist > 1e-4f ? d / dist : (i % 2 == 0 ? Vector2.right : Vector2.left);
+                    float overlap = (min - dist) / Mathf.Max(0.01f, min);
+                    Vector2 kick = n * (overlap * min * 18f * dt);
+                    a.pushVel += kick;
+                    b.pushVel -= kick;
+                }
+            }
+            float damp = Mathf.Exp(-4f * dt);
+            for (int i = 0; i < _balloonsActive.Count; i++)
+            {
+                var f = _balloonsActive[i];
+                float t = f.age;
+                f.pushVel *= damp;
+                f.push += f.pushVel * dt;
+                f.t.position = new Vector3(f.basePos.x + f.push.x, f.basePos.y + f.push.y, f.start.z);
                 // Pop out of the egg (overshoot), then a gentle wobble.
                 float pop = t < 0.35f ? EaseOutBack(t / 0.35f) : 1f;
                 f.t.localScale = Vector3.one * (f.scale * pop);
