@@ -50,6 +50,8 @@ namespace GardenCannon
         public GameObject balloonPrefab;
         public Material[] balloonMaterials = new Material[0];
         public GameObject bg3D;
+        [Tooltip("BG mesh without the white moves plate (made by Garden Cannon > Rebuild BG without the moves plate).")]
+        public Mesh bgMesh;
         public GameObject grass3D;
 
         [Header("HUD")]

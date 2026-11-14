@@ -54,6 +54,13 @@ namespace GardenCannon
         public Color movesOutlineColor = new Color(0.36f, 0.2f, 0.07f);
         [Tooltip("Font size of the moves number (TextMesh, the other texts use 64).")]
         public int movesFontSize = 55;
+        [Header("Balls badge (top-left)")]
+        [Tooltip("Show the moves counter as a 'Balls' badge in the top-left corner (mirrors the settings button).")]
+        public bool movesBadgeTopLeft = true;
+        public Vector2 movesBadgeSize = new Vector2(2.0f, 1.85f);
+        public string movesBadgeTitle = "Shots";
+        public Color movesBadgeFill = new Color(0.12f, 0.38f, 0.9f);
+        public Color movesBadgeBorder = new Color(1f, 0.78f, 0.22f);
         Transform _goalsRoot, _popupRoot, _bannerRoot;
         readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
         readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
@@ -95,6 +102,7 @@ namespace GardenCannon
                 AddButton(settingsAnchor, new Vector2(1.6f, 1.6f), restart);
                 Relayer(settingsAnchor);
             }
+            if (movesBadgeTopLeft && settingsAnchor != null) movesAnchor = BuildMovesBadge();
             if (movesAnchor != null)
             {
                 // Drop shadow, then a dark outline all around (12 copies), then the white number on top.
@@ -111,7 +119,83 @@ namespace GardenCannon
                 _movesText.fontSize = movesFontSize;
                 if (_movesShadow != null) _movesShadow.fontSize = movesFontSize;
                 foreach (var o in _movesOutline) if (o != null) o.fontSize = movesFontSize;
+                // The badge lives on the UI layer (UI camera): the number texts are created after it was relayered.
+                if (movesBadgeTopLeft) Relayer(movesAnchor);
             }
+        }
+
+        /// <summary>
+        /// 'Balls' badge in the top-left corner, mirroring the settings button (same safe-area anchor, x negated):
+        /// rounded blue panel with a gold rim, the title on top and the moves number below. Returns the number anchor.
+        /// </summary>
+        Transform BuildMovesBadge()
+        {
+            var badge = new GameObject("MovesBadge").transform;
+            badge.SetParent(settingsAnchor.parent, false);
+            var src = settingsAnchor.GetComponent<UiAnchor>();
+            var p = settingsAnchor.localPosition;
+            badge.localPosition = new Vector3(-p.x, p.y, p.z);
+            if (src != null)
+            {
+                var a = badge.gameObject.AddComponent<UiAnchor>();
+                a.uiCamera = src.uiCamera != null ? src.uiCamera : uiCamera;
+                a.edge = src.edge;
+                a.offset = src.offset;
+                a.x = -src.x;
+                a.respectSafeArea = src.respectSafeArea;
+                a.Apply();
+            }
+            var panel = new GameObject("Panel").AddComponent<SpriteRenderer>();
+            panel.transform.SetParent(badge, false);
+            panel.sprite = BadgeSprite();
+            panel.drawMode = SpriteDrawMode.Sliced;
+            panel.size = movesBadgeSize;
+            panel.sortingOrder = 58;
+            var title = VisualUtil.MakeText("Title", badge, font, new Vector3(0f, movesBadgeSize.y * 0.29f, -0.1f), 0.42f, Color.white, TextAnchor.MiddleCenter, 61);
+            title.text = movesBadgeTitle;
+            var number = new GameObject("Number").transform;
+            number.SetParent(badge, false);
+            number.localPosition = new Vector3(0f, -movesBadgeSize.y * 0.12f, -0.1f);
+            number.localScale = Vector3.one * 0.72f;
+            Relayer(badge);
+            return number;
+        }
+
+        static Sprite _badgeSprite;
+
+        /// <summary>Rounded panel: gold rim, blue fill with a lighter top (9-sliced, generated once, tinted white).</summary>
+        Sprite BadgeSprite()
+        {
+            if (_badgeSprite != null) return _badgeSprite;
+            const int size = 64, border = 22;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "BallsBadge" };
+            var px = new Color32[size * size];
+            const float radius = 16f, rim = 4.5f;
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    float qx = Mathf.Abs(x + 0.5f - size * 0.5f) - (size * 0.5f - radius);
+                    float qy = Mathf.Abs(y + 0.5f - size * 0.5f) - (size * 0.5f - radius);
+                    float d = new Vector2(Mathf.Max(qx, 0f), Mathf.Max(qy, 0f)).magnitude + Mathf.Min(Mathf.Max(qx, qy), 0f) - radius;
+                    float a = Mathf.Clamp01(0.5f - d);
+                    // Rim: gold, a little darker towards the outside; fill: blue, lighter in the upper part.
+                    Color c;
+                    if (d > -rim) c = Color.Lerp(movesBadgeBorder, movesBadgeBorder * 0.75f, Mathf.Clamp01((d + rim) / rim));
+                    else
+                    {
+                        float up = y / (float)size;
+                        c = Color.Lerp(movesBadgeFill * 0.85f, Color.Lerp(movesBadgeFill, Color.white, 0.18f), up);
+                        if (d > -rim - 1.5f) c = Color.Lerp(c, Color.black, 0.25f);   // thin inner shade under the rim
+                    }
+                    c.a = a;
+                    px[y * size + x] = c;
+                }
+            tex.SetPixels32(px);
+            tex.Apply(false, true);
+            _badgeSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size * 1.6f, 0, SpriteMeshType.FullRect,
+                new Vector4(border, border, border, border));
+            _badgeSprite.name = "BallsBadge";
+            return _badgeSprite;
         }
 
         void AddButton(Transform t, Vector2 size, Action a, bool popup = false) =>

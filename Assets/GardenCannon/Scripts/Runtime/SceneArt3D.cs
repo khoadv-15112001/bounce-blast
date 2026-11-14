@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GardenCannon
@@ -19,7 +20,10 @@ namespace GardenCannon
         public Vector3 modelEuler = new Vector3(90f, 180f, 0f);
         [Tooltip("BG position relative to the cannon pivot.")]
         public Vector3 bgOffset = Vector3.zero;
-        public float cannonScale = 1f;
+        [Tooltip("BG mesh without the white moves plate (optional).")]
+        public Mesh bgMesh;
+        [Tooltip("Size of the 3D cannon (the muzzle distance of CannonView follows).")]
+        public float cannonScale = 0.85f;
         [Tooltip("Centre of the white plate for the moves counter, in BG model units (Unity mesh space).")]
         public Vector3 movesPlateLocal = new Vector3(3.81f, 0f, -0.065f);
         [Tooltip("Moves number size on the plate (1 = original size, which overflowed the plate).")]
@@ -34,6 +38,7 @@ namespace GardenCannon
         public int lawnSortingOrder = -9;
 
         Board _board;
+        float _muzzleBase = -1f;
         GameObject _cannon, _bg;
         MeshRenderer _lawn;
         Mesh _lawnMesh;
@@ -46,7 +51,7 @@ namespace GardenCannon
             if (bgPrefab != null && _bg == null)
             {
                 SwapBottom(cannon);
-                if (hud != null && hud.movesAnchor != null)
+                if (hud != null && hud.movesAnchor != null && !hud.movesBadgeTopLeft)
                 {
                     // Put the moves number on the plate of the new BG (slightly in front of it).
                     Vector3 p = _bg.transform.TransformPoint(movesPlateLocal);
@@ -67,6 +72,9 @@ namespace GardenCannon
             _cannon.transform.localPosition = Vector3.zero;
             _cannon.transform.localRotation = Quaternion.Euler(modelEuler);
             _cannon.transform.localScale = Vector3.one * cannonScale;
+            // Balls leave from the tip of the (smaller) barrel.
+            if (_muzzleBase < 0f) _muzzleBase = cannon.muzzleDistance;
+            cannon.muzzleDistance = _muzzleBase * cannonScale;
         }
 
         void SwapBottom(CannonView cannon)
@@ -82,8 +90,19 @@ namespace GardenCannon
             VisualUtil.StripRuntimeComponents(_bg);
             _bg.transform.position = new Vector3(pivot.x, pivot.y, 0f) + bgOffset;
             _bg.transform.rotation = Quaternion.Euler(modelEuler);
+            if (bgMesh != null)
+            {
+                // Same BG without the old moves plate: the fence boards under it show through.
+                var mf = _bg.GetComponentInChildren<MeshFilter>(true);
+                if (mf != null) mf.sharedMesh = bgMesh;
+            }
         }
 
+
+        /// <summary>
+        /// The moves number moved to the top-left badge: put fence boards (the bg.png plank band, same material and
+        /// lighting as the BG) over the white plate it used to sit on, so the fence runs through.
+        /// </summary>
         /// <summary>Checker lawn over the board, from its top down to the river. Called after each level build.</summary>
         public void RebuildLawn()
         {

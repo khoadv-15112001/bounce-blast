@@ -402,6 +402,18 @@ namespace GardenCannon.EditorTools
             }
 
             // New music / shot sound and the egg box balloons (checked every time: the files may import later).
+            // BG without the old moves plate (the counter is in the top-left badge now).
+            if (assets.bg3D != null && (assets.bgMesh == null || AssetDatabase.GetAssetPath(assets.bgMesh) != BgPlateRemover.OutPath))
+            {
+                var noPlate = BgPlateRemover.LoadOrBuild();
+                if (noPlate != null)
+                {
+                    assets.bgMesh = noPlate;
+                    EditorUtility.SetDirty(assets);
+                    AssetDatabase.SaveAssets();
+                }
+            }
+
             if (ApplyAudioAndBalloons(assets))
             {
                 EditorUtility.SetDirty(assets);

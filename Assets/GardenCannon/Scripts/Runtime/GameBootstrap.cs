@@ -54,6 +54,7 @@ namespace GardenCannon
             if (art == null) art = gameObject.AddComponent<SceneArt3D>();
             art.cannonPrefab = a.cannon3D;
             art.bgPrefab = a.bg3D;
+            art.bgMesh = a.bgMesh;
             art.grassPrefab = a.grass3D;   // checker lawn drawn under the GrassTop picture (its lawn is transparent)
             art.Apply(board, cannon, hud);
             if (controller != null) controller.sceneArt = art;

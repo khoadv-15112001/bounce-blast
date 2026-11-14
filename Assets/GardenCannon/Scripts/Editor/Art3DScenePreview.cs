@@ -68,6 +68,7 @@ namespace GardenCannon.EditorTools
                 c.transform.SetParent(previewRoot.transform, false);
                 c.transform.position = rail.position;
                 c.transform.rotation = rail.rotation * Quaternion.Euler(ModelEuler);
+                c.transform.localScale = Vector3.one * 0.85f;   // same as SceneArt3D.cannonScale
             }
 
             Vector3 pivot = cannon != null ? cannon.transform.position : new Vector3(0f, -10.54f, 0f);
@@ -80,6 +81,10 @@ namespace GardenCannon.EditorTools
                 bg.transform.SetParent(previewRoot.transform, false);
                 bg.transform.position = new Vector3(pivot.x, pivot.y, 0f);
                 bg.transform.rotation = Quaternion.Euler(ModelEuler);
+                // BG without the old moves plate (fence boards show through), same as at runtime.
+                var noPlate = AssetDatabase.LoadAssetAtPath<Mesh>(BgPlateRemover.OutPath);
+                var bgf = bg.GetComponentInChildren<MeshFilter>(true);
+                if (noPlate != null && bgf != null) bgf.sharedMesh = noPlate;
             }
 
             if (grassPrefab != null && board != null) BuildLawn(previewRoot, grassPrefab, board);

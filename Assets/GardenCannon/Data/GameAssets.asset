@@ -61,6 +61,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 5dfd3c50db0aec14b87387cfd61c0cc0, type: 2}
   - {fileID: 2100000, guid: 96e811b863c2f0f42ac2f46547883dab, type: 2}
   bg3D: {fileID: 8899139739596235784, guid: 14547626f21c8684aa5d822b1efc6f28, type: 3}
+  bgMesh: {fileID: 4300000, guid: a3044d3beb3fb4c4191a0667f46a0fef, type: 2}
   grass3D: {fileID: 3701394546435777488, guid: d8177a7abe292a643b44f32635b9686f, type: 3}
   levelPlate: {fileID: 21300000, guid: 7265e4a943234dd4095f825e6ae992b0, type: 2}
   settingsButton: {fileID: 21300000, guid: 31db3277294883745863923df143b94f, type: 2}
