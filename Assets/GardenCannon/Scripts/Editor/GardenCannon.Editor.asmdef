@@ -5,7 +5,9 @@
         "GardenCannon.Runtime",
         "Unity.Addressables",
         "Unity.Addressables.Editor",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "spine-unity",
+        "spine-csharp"
     ],
     "includePlatforms": [
         "Editor"

@@ -27,6 +27,15 @@ namespace GardenCannon
         public Sprite settingsButton;
         public Sprite panelSprite;
         public Sprite whiteSprite;
+        [Header("Win popup (Spine)")]
+        public Spine.Unity.SkeletonDataAsset winSpine;
+        public Spine.Unity.SkeletonDataAsset winTextSpine;
+        [Tooltip("Width of the celebrating characters above the popup (popup units, panel = 10).")]
+        public float winCharactersWidth = 9f;
+        [Tooltip("How far the characters' feet come down over the top of the panel.")]
+        public float winCharactersOverlap = 1.1f;
+        [Tooltip("Width of the Well Done title.")]
+        public float winTextWidth = 8.6f;
 
         [Tooltip("The original game shows no goal row (clear everything). Turn on to show remaining goals.")]
         public bool showGoals;
@@ -397,6 +406,70 @@ namespace GardenCannon
             _popupRoot.localScale = Vector3.one * 0.6f;
             Punch(_popupRoot);
             _baseScale[_popupRoot] = Vector3.one;
+        }
+
+        /// <summary>
+        /// Win popup: the regular popup with the Spine "Well Done" title (Welldone, then Welldone_Idle looped) and the
+        /// celebrating characters standing on top of the panel (Idle looped). Falls back to a text title without Spine.
+        /// </summary>
+        public void ShowWinPopup(Color titleColor, string body, params (string label, Action action, bool main)[] buttons)
+        {
+            ShowPopup(winTextSpine != null ? "" : "Well Done!", titleColor, body, buttons);
+            if (_popupRoot == null) return;
+            const float panelTop = 4.1f;
+            if (winSpine != null)
+            {
+                // Idle is a one-shot jump: they pop up from below, then fall off the screen. Played once, in front of
+                // the Well Done title, and hidden when it is over.
+                var sa = AddSpine("WinCharacters", winSpine, "Idle", null, winCharactersWidth, 907, out Vector2 size);
+                if (sa != null)
+                {
+                    PlaceSpine(sa, winSpine, new Vector3(0f, panelTop + size.y * 0.5f - winCharactersOverlap, -0.45f));
+                    var go = sa.gameObject;
+                    sa.AnimationState.Complete += _ => { if (go != null) go.SetActive(false); };
+                }
+            }
+            if (winTextSpine != null)
+            {
+                var sa = AddSpine("WellDone", winTextSpine, "Welldone", "Welldone_Idle", winTextWidth, 906, out _);
+                if (sa != null) PlaceSpine(sa, winTextSpine, new Vector3(0f, 2.55f, -0.35f));
+            }
+            Relayer(_popupRoot);
+        }
+
+        /// <summary>Spine skeleton under the popup, scaled to <paramref name="width"/>; plays <paramref name="first"/> once, then loops <paramref name="loop"/> (if any).</summary>
+        Spine.Unity.SkeletonAnimation AddSpine(string name, Spine.Unity.SkeletonDataAsset asset, string first, string loop, float width, int order, out Vector2 size)
+        {
+            size = Vector2.zero;
+            var data = asset.GetSkeletonData(true);
+            if (data == null || data.Width <= 0f) return null;
+            var sa = Spine.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(asset, true);
+            sa.name = name;
+            sa.transform.SetParent(_popupRoot, false);
+            float k = width / (data.Width * asset.scale);
+            sa.transform.localScale = Vector3.one * k;
+            size = new Vector2(data.Width, data.Height) * asset.scale * k;
+            var mr = sa.GetComponent<MeshRenderer>();
+            if (mr != null) mr.sortingOrder = order;
+            bool hasFirst = !string.IsNullOrEmpty(first) && data.FindAnimation(first) != null;
+            bool hasLoop = !string.IsNullOrEmpty(loop) && data.FindAnimation(loop) != null;
+            if (hasFirst) sa.AnimationState.SetAnimation(0, first, false);
+            if (hasLoop)
+            {
+                if (hasFirst) sa.AnimationState.AddAnimation(0, loop, true, 0f);
+                else sa.AnimationState.SetAnimation(0, loop, true);
+            }
+            sa.Update(0f);
+            sa.LateUpdate();
+            return sa;
+        }
+
+        /// <summary>Put the centre of the skeleton's bounds at <paramref name="centre"/> (popup space).</summary>
+        static void PlaceSpine(Spine.Unity.SkeletonAnimation sa, Spine.Unity.SkeletonDataAsset asset, Vector3 centre)
+        {
+            var data = asset.GetSkeletonData(true);
+            float k = sa.transform.localScale.x * asset.scale;
+            sa.transform.localPosition = centre - new Vector3((data.X + data.Width * 0.5f) * k, (data.Y + data.Height * 0.5f) * k, 0f);
         }
 
         /// <summary>Vertical button list popup (settings).</summary>

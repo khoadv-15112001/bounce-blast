@@ -6,7 +6,9 @@
         "Unity.ResourceManager",
         "Sonat.Core",
         "Sonat.Game.Haptics",
-        "Sonat.Game.Haptics.Lab"
+        "Sonat.Game.Haptics.Lab",
+        "spine-unity",
+        "spine-csharp"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

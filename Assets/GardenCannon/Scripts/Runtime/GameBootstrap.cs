@@ -200,6 +200,11 @@ namespace GardenCannon
                 hud.font = a.font;
                 hud.whiteSprite = a.white;
                 hud.panelSprite = a.white;
+                hud.winSpine = a.winSpine;
+                hud.winTextSpine = a.winTextSpine;
+                // Parse the skeletons now, not on the win frame.
+                if (a.winSpine != null) a.winSpine.GetSkeletonData(true);
+                if (a.winTextSpine != null) a.winTextSpine.GetSkeletonData(true);
                 // Level plate and restart button are already placed in the scene.
                 hud.levelPlate = null;
                 hud.settingsButton = null;

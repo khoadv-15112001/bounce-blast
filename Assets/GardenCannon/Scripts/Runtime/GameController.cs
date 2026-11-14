@@ -909,7 +909,7 @@ namespace GardenCannon
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.Play(sfx.appear, 0.7f, 0f);
             GameHaptics.Play(GameHapticMoment.PopupShown);
-            hud?.ShowPopup("Well Done!", new Color(0.18f, 0.6f, 0.17f),
+            hud?.ShowWinPopup(new Color(0.18f, 0.6f, 0.17f),
                 $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
                 ("Replay", Restart, false),
                 ("Next", () => GoTo(LevelNumber + 1), true));

@@ -53,6 +53,11 @@ namespace GardenCannon
         public Sprite boosterArrowIcon;
         public Sprite boosterBowlingIcon;
         public Sprite boosterBombIcon;
+        [Header("Spine (Assets/GardenCannon/Spin)")]
+        [Tooltip("Win popup: the three ball characters celebrating (anim Idle, looped).")]
+        public Spine.Unity.SkeletonDataAsset winSpine;
+        [Tooltip("Win popup title: Well Done (anim Welldone, then Welldone_Idle looped).")]
+        public Spine.Unity.SkeletonDataAsset winTextSpine;
         public Material[] balloonMaterials = new Material[0];
         public GameObject bg3D;
         [Tooltip("BG mesh without the white moves plate (made by Garden Cannon > Rebuild BG without the moves plate).")]

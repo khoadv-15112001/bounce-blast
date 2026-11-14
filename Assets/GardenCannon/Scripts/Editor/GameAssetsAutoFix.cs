@@ -54,6 +54,14 @@ namespace GardenCannon.EditorTools
             SetIcon(ref assets.boosterArrowIcon, "BoosterArrow");
             SetIcon(ref assets.boosterBowlingIcon, "BoosterBowling");
             SetIcon(ref assets.boosterBombIcon, "BoosterBomb");
+            // Spine animations (win popup).
+            void SetSpine(ref Spine.Unity.SkeletonDataAsset slot, string path)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(path);
+                if (s != null && slot != s) { slot = s; changed = true; }
+            }
+            SetSpine(ref assets.winSpine, "Assets/GardenCannon/Spin/win/Win_SkeletonData.asset");
+            SetSpine(ref assets.winTextSpine, "Assets/GardenCannon/Spin/text_win/Text_Win_SkeletonData.asset");
             var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
             var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
             // Balloon flying away: balloon_fly instead of the bird sound.
@@ -453,6 +461,15 @@ namespace GardenCannon.EditorTools
 
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null) return;
+            // Always build the Addressables content with the APK. "Use preferences" depends on each machine's Unity
+            // settings: a build without it ships without assets/aa (about 30 MB smaller) and hangs on Loading.
+            if (settings.BuildAddressablesWithPlayerBuild != UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer)
+            {
+                settings.BuildAddressablesWithPlayerBuild = UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+                Debug.Log("[GardenCannon] Addressables: build content with every player build.");
+            }
             var shaderGuid = AssetDatabase.AssetPathToGUID(OverlayShaderPath);
             if (!string.IsNullOrEmpty(shaderGuid) && settings.FindAssetEntry(shaderGuid) == null)
             {

@@ -55,6 +55,8 @@ MonoBehaviour:
   boosterArrowIcon: {fileID: 21300000, guid: 6fa453df5a264b98b25c784c65e0b93b, type: 3}
   boosterBowlingIcon: {fileID: 21300000, guid: 6586916d98f94f0a9de87b48eff8f718, type: 3}
   boosterBombIcon: {fileID: 21300000, guid: 2edd0948ac214f9ea2451f5ca461d952, type: 3}
+  winSpine: {fileID: 11400000, guid: f345e29146394ec4ba8a3c10f883cc46, type: 2}
+  winTextSpine: {fileID: 11400000, guid: bbd68666faad02940813b3d30d08f819, type: 2}
   balloonMaterials:
   - {fileID: 2100000, guid: 14d6cd92dcbbc814c9376ad3ab5ef662, type: 2}
   - {fileID: 2100000, guid: bdd47b948a7f0844db538e71102aaad9, type: 2}
