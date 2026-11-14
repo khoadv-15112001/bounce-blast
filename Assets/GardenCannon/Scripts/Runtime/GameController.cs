@@ -105,10 +105,15 @@ namespace GardenCannon
             physics.Board = board;
             physics.OnContact = OnBallContact;
             board.ItemEvent = OnItemEvent;
+            GameHaptics.Init();
             sfx?.PlayMusic();
             if (hud != null)
             {
-                hud.ButtonClicked = () => sfx?.Play(sfx.buttonClick, 0.9f, 0f);
+                hud.ButtonClicked = () =>
+                {
+                    sfx?.Play(sfx.buttonClick, 0.9f, 0f);
+                    GameHaptics.Play(GameHapticMoment.UiButton);
+                };
                 hud.VariantForType = FirstVariantOfType;
                 hud.Init(OpenSettings, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
             }
@@ -158,6 +163,7 @@ namespace GardenCannon
             cannon?.PlayRefill();
             sfx?.SetMusicDuck(false);
             sfx?.Play(sfx.refillLand, 0.6f, 0f);
+            GameHaptics.Play(GameHapticMoment.LevelStart);
 
             if (hud != null)
             {
@@ -166,22 +172,42 @@ namespace GardenCannon
                 hud.BuildGoals(level.goals, catalog);
                 foreach (var g in level.goals) hud.SetGoal(g.type, g.count);
                 _tutorial = number == 1;
-                if (_tutorial) { hud.ShowBanner(tutorialText); sfx?.Play(sfx.appear, 0.7f, 0f); }
+                if (_tutorial)
+                {
+                    hud.ShowBanner(tutorialText);
+                    sfx?.Play(sfx.appear, 0.7f, 0f);
+                    GameHaptics.Play(GameHapticMoment.TutorialShown);
+                }
                 else hud.HideBanner();
             }
         }
 
         public void Restart() => GoTo(LevelNumber);
 
-        /// <summary>Settings button: music / sound toggles, replay, close.</summary>
+        /// <summary>Settings button: music / sound / vibration toggles, replay, close (+ haptics tools in dev builds).</summary>
         public void OpenSettings()
         {
             if (hud == null) return;
-            hud.ShowMenu("Settings",
+            var items = new List<(string, System.Action, bool)>
+            {
                 ("Music: " + (GameAudio.MusicMuted ? "Off" : "On"), () => { sfx?.ToggleMusic(); OpenSettings(); }, false),
                 ("Sound: " + (GameAudio.Muted ? "Off" : "On"), () => { sfx?.ToggleSound(); OpenSettings(); }, false),
-                ("Replay", () => { hud.ClosePopup(); Restart(); }, true),
-                ("Close", () => hud.ClosePopup(), true));
+                ("Vibration: " + (GameHaptics.VibrationOn ? "On" : "Off"), () => { GameHaptics.ToggleVibration(); OpenSettings(); }, false),
+            };
+            if (HapticsDebug.Available) items.Add(("Haptics Tools", OpenHapticsTools, false));
+            items.Add(("Replay", () => { hud.ClosePopup(); Restart(); }, true));
+            items.Add(("Close", () => hud.ClosePopup(), true));
+            hud.ShowMenu("Settings", items.ToArray());
+        }
+
+        /// <summary>Dev builds only: the package Haptics Lab, the game's haptics map, and a reset of the device tuning.</summary>
+        void OpenHapticsTools()
+        {
+            hud.ShowMenu("Haptics",
+                ("Haptics Lab", () => { hud.ClosePopup(); HapticsDebug.OpenLab(); }, false),
+                ("Game Haptics Map", () => { hud.ClosePopup(); HapticsDebug.OpenMap(); }, false),
+                ("Reset device tuning", () => { HapticsDebug.ResetAll(); OpenHapticsTools(); }, false),
+                ("Back", OpenSettings, true));
         }
 
         int FirstVariantOfType(int type)
@@ -221,11 +247,13 @@ namespace GardenCannon
                 if (b.Dead)
                 {
                     sfx?.Play(sfx.waterSplash, 0.9f, 0.1f);
+                    GameHaptics.Play(GameHapticMoment.BallSplash);
                     var splashPos = new Vector3(b.Pos.x, board.SplashLine, 0f);
                     if (fx == null || !fx.PlayPrefab(fx.splashFx, splashPos, board.CellSize))
                         fx?.Splash(splashPos, board.CellSize);
                     ReleaseBall(b);
                     _balls.RemoveAt(i);
+                    if (_balls.Count == 0 && _burstLeft == 0) GameHaptics.Play(GameHapticMoment.ShotEnded);
                 }
             }
 
@@ -245,8 +273,13 @@ namespace GardenCannon
 
             if (Input.GetMouseButtonDown(0))
             {
+                if (HapticsDebug.BlocksPointer(Input.mousePosition)) return;
                 if (hud != null && hud.HandleClick(Input.mousePosition)) return;
-                if (CurrentState == State.Aiming && MovesLeft > 0) _aiming = true;
+                if (CurrentState == State.Aiming && MovesLeft > 0)
+                {
+                    _aiming = true;
+                    GameHaptics.Play(GameHapticMoment.AimStart);
+                }
             }
             if (CurrentState != State.Aiming) { _aiming = false; aimGuide?.Hide(); return; }
 
@@ -261,6 +294,7 @@ namespace GardenCannon
                 if (Mathf.Abs(cannon.Angle - _lastAngle) > 3f && Time.time - _lastAimTick > 0.05f)
                 {
                     sfx?.Play(sfx.aimTick, 0.3f, 0.02f);
+                    GameHaptics.Play(GameHapticMoment.AimTick);
                     _lastAimTick = Time.time;
                     _lastAngle = cannon.Angle;
                 }
@@ -283,13 +317,19 @@ namespace GardenCannon
             if (!CanShoot)
             {
                 sfx?.Play(sfx.ballFireRefused, 0.6f);
+                GameHaptics.Play(GameHapticMoment.FireRefused);
                 return;
             }
             MovesLeft--;
             ammoBelt?.Feed(MovesLeft);
             hud?.SetMoves(MovesLeft, true);
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
-            if (MovesLeft == 5) sfx?.Play(sfx.lastMoves, 0.8f, 0f);
+            if (MovesLeft == 5)
+            {
+                sfx?.Play(sfx.lastMoves, 0.8f, 0f);
+                GameHaptics.Play(GameHapticMoment.LastMoves);
+            }
+            else if (MovesLeft == 1) GameHaptics.Play(GameHapticMoment.LastMove);
             _burstLeft = Mathf.Max(1, ballsPerShot);
             _burstTimer = 0f;
             _firstOfVolley = true;
@@ -311,6 +351,7 @@ namespace GardenCannon
             rig?.Shake(0.08f);
             // Cannon blast: full on the first ball of the volley, softer for the ones right behind it.
             sfx?.Play(sfx.ballFire, _firstOfVolley ? 0.9f : 0.4f);
+            GameHaptics.Play(_firstOfVolley ? GameHapticMoment.Fire : GameHapticMoment.VolleyBall);
             _firstOfVolley = false;
         }
 
@@ -392,6 +433,7 @@ namespace GardenCannon
             if (hit == BallHit.Wall)
             {
                 sfx?.Play(sfx.wallBounce, 0.45f);
+                GameHaptics.Play(GameHapticMoment.WallBounce);
                 return;
             }
             if (item == null) return;
@@ -415,12 +457,14 @@ namespace GardenCannon
                 fx?.Bird(item.LastHatchPos, cell, item.LastHatchMaterial);
                 sfx?.Play(e?.hitSfx, 0.8f);
                 sfx?.Play(e?.extraBreakSfx, 0.6f);
+                GameHaptics.Play(GameHapticMoment.EggHatched);
             }
             if (result == BoardItem.HitResult.Opened)
             {
                 sfx?.Play(e?.openSfx != null ? e.openSfx : e?.hitSfx, 0.85f);
                 if (fx == null || !fx.PlayPrefabSlow(e?.openFx, item.VisualCentre, cell, lidFxLifetime))
                     fx?.Hit(item.VisualCentre, ItemColor(item), cell * 1.6f);
+                GameHaptics.Play(GameHapticMoment.ObstacleStep);
                 rig?.Shake(0.15f);
                 return;
             }
@@ -439,11 +483,15 @@ namespace GardenCannon
                 if (fx == null || !fx.PlayPrefab(e?.breakFx, breakPos, cell, catalog, tile))
                     fx?.Break(breakPos, c, cell, Mathf.Sqrt(Mathf.Max(1, item.Offsets.Count)));
                 rig?.Shake(item.Offsets.Count > 1 ? bigBreakShake : breakShake);
+                if (item.Offsets.Count > 1) GameHaptics.Play(GameHapticMoment.BigItemBroken);
+                else GameHaptics.Play(GameHapticMoment.ItemBroken, combo);
+                if (ball != null && (combo + 1) % 5 == 0) GameHaptics.Play(GameHapticMoment.ComboMilestone);
                 OnItemBroken(item);
             }
             else
             {
                 sfx?.Play(e?.hitSfx != null ? e.hitSfx : sfx.ballCollide, 0.65f);
+                GameHaptics.Play(item.IsBreakable ? GameHapticMoment.ItemDamaged : GameHapticMoment.ItemHit);
                 if (fx == null || !fx.PlayPrefab(e?.hitFx, item.VisualCentre, cell))
                     fx?.Hit(new Vector3(point.x, point.y, 0f), item.IsBreakable ? c : new Color(0.9f, 0.9f, 0.85f), cell);
             }
@@ -465,6 +513,7 @@ namespace GardenCannon
             {
                 case BoardItem.HitResult.Blocked:
                     sfx?.Play(sfx.ballCollide, 0.45f);
+                    GameHaptics.Play(GameHapticMoment.ItemBlocked);
                     fx?.Hit(new Vector3(point.x, point.y, 0f), new Color(0.9f, 0.9f, 0.85f), cell * 0.8f);
                     return true;
                 case BoardItem.HitResult.Activated:
@@ -472,6 +521,7 @@ namespace GardenCannon
                     sfx?.Play(e?.hitSfx, 0.8f);
                     fx?.Hit(item.LastPartPos, OrbBlue, cell * 1.2f);
                     fx?.Sparkle(item.LastPartPos, 5, cell * 0.6f, 1.2f);
+                    GameHaptics.Play(GameHapticMoment.OrbActivated);
                     return true;
                 case BoardItem.HitResult.PartBroken:
                     // A crate of the wooden box / a log fed into the cutter.
@@ -479,11 +529,13 @@ namespace GardenCannon
                     if (fx == null || !fx.PlayPrefab(e?.partFx, item.LastPartPos, cell))
                         fx?.Break(item.LastPartPos, item.Behaviour == ItemBehaviour.LogCutter ? WoodChips : c, cell, 1f);
                     rig?.Shake(breakShake * 0.6f);
+                    GameHaptics.Play(GameHapticMoment.PartBroken);
                     return true;
                 case BoardItem.HitResult.Fused:
                     // Brick wall: the dynamite fuse is lit.
                     sfx?.Play(e?.hitSfx, 0.8f);
                     fx?.Sparkle(item.VisualCentre, 6, cell * 0.5f, 1.4f);
+                    GameHaptics.Play(GameHapticMoment.FuseLit);
                     return true;
             }
             return false;
@@ -501,6 +553,7 @@ namespace GardenCannon
                     if (fx == null || !fx.PlayPrefab(e?.breakFx, item.VisualCentre, cell))
                         fx?.Break(item.VisualCentre, new Color(0.55f, 0.35f, 0.25f), cell, 1.5f);
                     rig?.Shake(bigBreakShake);
+                    GameHaptics.Play(GameHapticMoment.Explosion);
                     // The blast hits everything around once (other walls go on cracking / exploding: chain reaction).
                     float radius = cell * Mathf.Max(0.5f, e != null ? e.blastRadius - 0.5f : 1f);
                     board.ItemsNear(item.VisualCentre, radius, _near, item);
@@ -513,6 +566,7 @@ namespace GardenCannon
                 }
                 case BoardItem.ItemEvent.OrbsReset:
                     sfx?.Play(e?.altSfx, 0.8f);
+                    GameHaptics.Play(GameHapticMoment.OrbsReset);
                     item.PartPositions(_partPos);
                     foreach (var p in _partPos) fx?.Hit(p, new Color(0.4f, 0.45f, 0.6f), cell * 0.7f);
                     break;
@@ -522,6 +576,7 @@ namespace GardenCannon
         /// <summary>All orbs flash when the electric orb item discharges.</summary>
         void DischargeOrbs(BoardItem item)
         {
+            GameHaptics.Play(GameHapticMoment.OrbsDischarged);
             item.PartPositions(_partPos);
             foreach (var p in _partPos)
             {
@@ -545,8 +600,16 @@ namespace GardenCannon
                 left--;
                 _goals[type] = left;
                 hud?.SetGoal(type, left, true);
-                if (left == 0) sfx?.Play(sfx.goalComplete, 0.8f, 0f);
-                else sfx?.Play(sfx.goalHit, 0.35f, 0.03f);
+                if (left == 0)
+                {
+                    sfx?.Play(sfx.goalComplete, 0.8f, 0f);
+                    GameHaptics.Play(GameHapticMoment.GoalComplete);
+                }
+                else
+                {
+                    sfx?.Play(sfx.goalHit, 0.35f, 0.03f);
+                    GameHaptics.Play(GameHapticMoment.GoalHit);
+                }
             }
             if (CurrentState == State.Aiming && GoalsDone()) Win();
         }
@@ -576,6 +639,7 @@ namespace GardenCannon
             PlayerPrefs.Save();
             sfx?.SetMusicDuck(true);
             sfx?.PlayJingle(sfx.levelWin, 1f);
+            GameHaptics.Play(GameHapticMoment.LevelWon);
             StartCoroutine(WinSequence());
         }
 
@@ -585,10 +649,12 @@ namespace GardenCannon
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
+            GameHaptics.Play(GameHapticMoment.WinFireworks);
             fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
             yield return new WaitForSeconds(0.5f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.Play(sfx.appear, 0.7f, 0f);
+            GameHaptics.Play(GameHapticMoment.PopupShown);
             hud?.ShowPopup("Well Done!", new Color(0.18f, 0.6f, 0.17f),
                 $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
                 ("Replay", Restart, false),
@@ -602,6 +668,7 @@ namespace GardenCannon
             hud?.HideBanner();
             sfx?.SetMusicDuck(true);
             sfx?.PlayJingle(sfx.outOfBalls, 0.9f);
+            GameHaptics.Play(GameHapticMoment.LevelLost);
             StartCoroutine(LoseSequence());
         }
 
@@ -611,6 +678,7 @@ namespace GardenCannon
             yield return new WaitForSeconds(0.8f);
             if (CurrentState != State.Lost || level != LevelNumber) yield break;
             sfx?.PlayJingle(sfx.levelFail, 0.9f);
+            GameHaptics.Play(GameHapticMoment.PopupShown);
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");

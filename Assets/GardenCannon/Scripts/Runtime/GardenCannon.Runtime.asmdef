@@ -3,7 +3,10 @@
     "rootNamespace": "GardenCannon",
     "references": [
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Sonat.Core",
+        "Sonat.Game.Haptics",
+        "Sonat.Game.Haptics.Lab"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
