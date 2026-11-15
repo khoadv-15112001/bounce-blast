@@ -152,6 +152,7 @@ namespace GardenCannon
                     if (icon != null) d.icon = icon;
                 }
                 bar.font = a.font;
+                if (a.boosterPlateSprite != null) bar.plateSprite = a.boosterPlateSprite;
                 bar.cannon = cannon.transform;
                 controller.boosters = bar;
             }
@@ -200,6 +201,7 @@ namespace GardenCannon
                 hud.font = a.font;
                 hud.whiteSprite = a.white;
                 hud.panelSprite = a.white;
+                if (a.movesBadgeSprite != null) hud.movesBadgeSprite = a.movesBadgeSprite;
                 hud.winSpine = a.winSpine;
                 hud.winTextSpine = a.winTextSpine;
                 // Parse the skeletons now, not on the win frame.

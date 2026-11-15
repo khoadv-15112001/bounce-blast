@@ -53,6 +53,11 @@ namespace GardenCannon
         public Sprite boosterArrowIcon;
         public Sprite boosterBowlingIcon;
         public Sprite boosterBombIcon;
+        [Header("UI buttons (Assets/GardenCannon/Art/UI)")]
+        [Tooltip("Moves badge panel (top left).")]
+        public Sprite movesBadgeSprite;
+        [Tooltip("Booster button plate.")]
+        public Sprite boosterPlateSprite;
         [Header("Spine (Assets/GardenCannon/Spin)")]
         [Tooltip("Win popup: the three ball characters celebrating (anim Idle, looped).")]
         public Spine.Unity.SkeletonDataAsset winSpine;

@@ -70,6 +70,10 @@ namespace GardenCannon
         public string movesBadgeTitle = "Shots";
         public Color movesBadgeFill = new Color(0.12f, 0.38f, 0.9f);
         public Color movesBadgeBorder = new Color(1f, 0.78f, 0.22f);
+        [Tooltip("Badge panel art (purple, gold rim). Empty = the generated blue panel.")]
+        public Sprite movesBadgeSprite;
+        [Tooltip("Scale of the badge panel art (x and y).")]
+        public float movesBadgeSpriteScale = 0.17f;
         Transform _goalsRoot, _popupRoot, _bannerRoot;
         readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
         readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
@@ -156,9 +160,17 @@ namespace GardenCannon
             }
             var panel = new GameObject("Panel").AddComponent<SpriteRenderer>();
             panel.transform.SetParent(badge, false);
-            panel.sprite = BadgeSprite();
-            panel.drawMode = SpriteDrawMode.Sliced;
-            panel.size = movesBadgeSize;
+            if (movesBadgeSprite != null)
+            {
+                panel.sprite = movesBadgeSprite;
+                panel.transform.localScale = new Vector3(movesBadgeSpriteScale, movesBadgeSpriteScale, 1f);
+            }
+            else
+            {
+                panel.sprite = BadgeSprite();
+                panel.drawMode = SpriteDrawMode.Sliced;
+                panel.size = movesBadgeSize;
+            }
             panel.sortingOrder = 58;
             var title = VisualUtil.MakeText("Title", badge, font, new Vector3(0f, movesBadgeSize.y * 0.29f, -0.1f), 0.42f, Color.white, TextAnchor.MiddleCenter, 61);
             title.text = movesBadgeTitle;

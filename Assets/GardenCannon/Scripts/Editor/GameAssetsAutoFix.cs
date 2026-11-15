@@ -54,6 +54,14 @@ namespace GardenCannon.EditorTools
             SetIcon(ref assets.boosterArrowIcon, "BoosterArrow");
             SetIcon(ref assets.boosterBowlingIcon, "BoosterBowling");
             SetIcon(ref assets.boosterBombIcon, "BoosterBomb");
+            // UI button art.
+            void SetUi(ref Sprite slot, string n)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/UI/" + n + ".png");
+                if (s != null && slot != s) { slot = s; changed = true; }
+            }
+            SetUi(ref assets.movesBadgeSprite, "button-tim-noi-khoi-vien-vang");
+            SetUi(ref assets.boosterPlateSprite, "button-tron-tim-vien-do");
             // Spine animations (win popup).
             void SetSpine(ref Spine.Unity.SkeletonDataAsset slot, string path)
             {

@@ -432,6 +432,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 52f45fa51a113c041ab5875aa7e8df2f
+    m_Address: Assets/GardenCannon/Art/UI/button-setting-xanh-la-vien-vang.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3d96ff2002d5e664faff54d0d339eed5
+    m_Address: Assets/GardenCannon/Art/UI/button-vien-vang-khong-chu.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:

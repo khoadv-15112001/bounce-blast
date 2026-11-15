@@ -47,6 +47,8 @@ namespace GardenCannon
         public Font font;
         public Transform cannon;
         public float buttonSize = 1.25f;
+        [Tooltip("Button plate art (round purple, red rim). Empty = the generated blue plate.")]
+        public Sprite plateSprite;
         public int sortingOrder = 45;
 
         /// <summary>The selected booster (armed for the next shot or waiting for a board tap), or null.</summary>
@@ -195,7 +197,7 @@ namespace GardenCannon
             b.root.SetParent(transform, false);
             b.glow = VisualUtil.MakeSprite("Glow", b.root, CircleSprite(true), Vector3.zero, buttonSize * 1.35f, sortingOrder - 1);
             b.glow.enabled = false;
-            b.plate = VisualUtil.MakeSprite("Plate", b.root, CircleSprite(false), Vector3.zero, buttonSize, sortingOrder);
+            b.plate = VisualUtil.MakeSprite("Plate", b.root, plateSprite != null ? plateSprite : CircleSprite(false), Vector3.zero, buttonSize, sortingOrder);
             b.icon = VisualUtil.MakeSprite("Icon", b.root, d.icon, Vector3.zero, buttonSize * 0.78f, sortingOrder + 1);
             if (!string.IsNullOrEmpty(d.label))
             {
