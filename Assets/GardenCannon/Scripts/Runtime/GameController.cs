@@ -266,8 +266,19 @@ namespace GardenCannon
             {
                 var b = _balls[i];
                 b.Age += dt;
-                if (b.Age > speedUpAfter) b.SpeedScale = Mathf.Min(maxSpeedScale, b.SpeedScale + dt * 0.25f);
-                physics.Advance(b, dt, false);
+                if (b.Dropping)
+                {
+                    // Win: falls straight into the water (gravity, no more contacts).
+                    b.Vel.y -= dropGravity * dt;
+                    b.Vel.x *= Mathf.Exp(-1.5f * dt);
+                    b.Pos += b.Vel * dt;
+                    if (b.Pos.y < board.SplashLine) b.Dead = true;
+                }
+                else
+                {
+                    if (b.Age > speedUpAfter) b.SpeedScale = Mathf.Min(maxSpeedScale, b.SpeedScale + dt * 0.25f);
+                    physics.Advance(b, dt, false);
+                }
                 if (b.View != null) b.View.position = BallPosition(b);
                 if (b.Dead)
                 {
@@ -287,6 +298,21 @@ namespace GardenCannon
         }
 
         Vector3 BallPosition(Ball b) => new Vector3(b.Pos.x, b.Pos.y, -physics.Radius);
+
+        [Tooltip("Win: gravity of the balls still flying when they drop into the water (world units / s²).")]
+        public float dropGravity = 45f;
+
+        /// <summary>Win screen: every ball still in the air gives a small hop and falls into the water.</summary>
+        void DropBalls()
+        {
+            _burstLeft = 0;
+            foreach (var b in _balls)
+            {
+                if (b.Dropping) continue;
+                b.Dropping = true;
+                b.Vel = new Vector2(b.Vel.x * 0.25f, Mathf.Clamp(b.Vel.y * 0.2f, -2f, 0f) + Random.Range(2f, 4f));
+            }
+        }
 
         bool CanShoot => CurrentState == State.Aiming && MovesLeft > 0 && _burstLeft == 0 && (allowFireWhileBallsFly || _balls.Count == 0);
 
@@ -924,6 +950,8 @@ namespace GardenCannon
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             // 1) Celebration: fireworks + confetti over the screen and the three characters jumping in.
+            //    The balls still flying drop into the water.
+            DropBalls();
             sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
             GameHaptics.Play(GameHapticMoment.WinFireworks);
             bool celebrationDone = hud == null;

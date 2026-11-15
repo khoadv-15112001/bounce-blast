@@ -12,6 +12,8 @@ namespace GardenCannon
         public Vector2 Vel;
         public Transform View;
         public bool Dead;
+        /// <summary>Level won: no more contacts, the ball just falls into the water.</summary>
+        public bool Dropping;
         public float Age;
         public float SpeedScale = 1f;
         /// <summary>Items broken by this ball (raises the break sound pitch).</summary>
