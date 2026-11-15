@@ -60,8 +60,8 @@ namespace GardenCannon.EditorTools
                 var s = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/UI/" + n + ".png");
                 if (s != null && slot != s) { slot = s; changed = true; }
             }
-            SetUi(ref assets.movesBadgeSprite, "button-tim-noi-khoi-vien-vang");
-            SetUi(ref assets.boosterPlateSprite, "button-tron-tim-vien-do");
+            SetUi(ref assets.movesBadgeSprite, "frame_shooter");
+            SetUi(ref assets.boosterPlateSprite, "frame_booster");
             SetUi(ref assets.boosterBubbleSprite, "dot_red");
             // Popup kit (cut from the original game's SpriteExport popup pieces).
             if (assets.popupSkin == null) { assets.popupSkin = new PopupSkin(); changed = true; }
@@ -75,8 +75,28 @@ namespace GardenCannon.EditorTools
             SetUi(ref ps.red, "Popup/BtnRed");
             SetUi(ref ps.purple, "Popup/BtnPurple");
             SetUi(ref ps.close, "Popup/BtnClose");
-            // One prefab per popup (created once, then edited by hand).
-            if (PopupPrefabBuilder.Ensure(assets, false)) changed = true;
+            // TextMeshPro font + materials for the HUD canvas / popups.
+            if (assets.uiTheme == null) { assets.uiTheme = new UiTheme(); changed = true; }
+            var th = assets.uiTheme;
+            void SetObj<T>(ref T slot, string path) where T : Object
+            {
+                var o = AssetDatabase.LoadAssetAtPath<T>(path);
+                if (o != null && slot != o) { slot = o; changed = true; }
+            }
+            const string F = "Assets/GardenCannon/Fonts/ENG/1FTVVIPMikado-Black SDF";
+            SetObj(ref th.font, F + ".asset");
+            SetObj(ref th.titleMaterial, F + " Material Title Red.mat");
+            SetObj(ref th.bodyMaterial, F + " Material Desc Brown.mat");
+            SetObj(ref th.greenText, F + " Material Title Green Dark.mat");
+            SetObj(ref th.yellowText, F + " Material Title Orange.mat");
+            SetObj(ref th.blueText, F + " Material Title Blue Dark.mat");
+            SetObj(ref th.redText, F + " Material Title Red.mat");
+            SetObj(ref th.purpleText, F + " Material Title Purple.mat");
+            SetObj(ref th.settingsButton, "Assets/GardenCannon/Art/UI/btn_setting.png");
+            SetObj(ref th.skeletonGraphicMaterial,
+                "Packages/com.esotericsoftware.spine.spine-unity/Runtime/spine-unity/Materials/UI-StraightAlphaTex/CanvasGroup/SkeletonGraphicDefault-CanvasGroupStraight.mat");
+            // HUD canvas + one canvas prefab per popup (created once, then edited by hand).
+            if (UiPrefabBuilder.Ensure(assets, false)) changed = true;
             // Spine animations (win popup).
             void SetSpine(ref Spine.Unity.SkeletonDataAsset slot, string path)
             {
@@ -366,6 +386,18 @@ namespace GardenCannon.EditorTools
         /// Haptics tools (Settings > Haptics Tools: Haptics Lab, Game Haptics Map) in phone builds too, not only in the
         /// Editor / development builds: they are compiled under SONAT_CHEAT_RELEASE.
         /// </summary>
+        /// <summary>TextMeshPro shaders / settings (TMP Essential Resources) for the Mikado SDF font and the canvas texts.</summary>
+        static void EnsureTmpEssentials()
+        {
+            if (AssetDatabase.IsValidFolder("Assets/TextMesh Pro")) return;
+            const string pkg = "Packages/com.unity.textmeshpro/Package Resources/TMP Essential Resources.unitypackage";
+            if (!System.IO.File.Exists(System.IO.Path.GetFullPath(pkg))) return;
+            AssetDatabase.ImportPackage(pkg, false);
+            Debug.Log("[GardenCannon] Imported TMP Essential Resources.");
+            // Run again once the TMP settings exist, so the UI prefabs get built.
+            EditorApplication.delayCall += Run;
+        }
+
         static void EnsureHapticsToolsInBuilds()
         {
             const string define = "SONAT_CHEAT_RELEASE";
@@ -384,6 +416,7 @@ namespace GardenCannon.EditorTools
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             EnsureHapticsToolsInBuilds();
+            EnsureTmpEssentials();
             var assets = AssetDatabase.LoadAssetAtPath<GameAssets>(GameAssetsPath);
             if (assets == null) return;
 

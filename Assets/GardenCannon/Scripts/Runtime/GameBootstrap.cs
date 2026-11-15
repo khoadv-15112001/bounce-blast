@@ -204,7 +204,24 @@ namespace GardenCannon
                 hud.panelSprite = a.white;
                 if (a.movesBadgeSprite != null) hud.movesBadgeSprite = a.movesBadgeSprite;
                 if (a.popupSkin != null && a.popupSkin.Valid) hud.skin = a.popupSkin;
-                if (a.popupPrefabs != null) hud.popupPrefabs = a.popupPrefabs;
+                hud.hudCanvasPrefab = a.hudCanvasPrefab;
+                if (a.uiTheme != null) hud.theme = a.uiTheme;
+                hud.boosterPlateSprite = a.boosterPlateSprite;
+                hud.boosterBubbleSprite = a.boosterBubbleSprite;
+                hud.boosterIcon = id => id switch
+                {
+                    BoosterId.X2 => a.boosterX2Icon,
+                    BoosterId.Arrow => a.boosterArrowIcon,
+                    BoosterId.Bowling => a.boosterBowlingIcon,
+                    _ => a.boosterBombIcon,
+                };
+                // HUD canvas now, so the boosters can use its buttons.
+                if (hud.EnsureCanvas() != null && controller.boosters != null)
+                {
+                    controller.boosters.hud = hud.Canvas;
+                    var r = rig;
+                    controller.boosters.screenToGround = p => r != null ? r.ScreenToGround(p) : (Vector2)Camera.main.ScreenToWorldPoint(p);
+                }
                 hud.winSpine = a.winSpine;
                 hud.winTextSpine = a.winTextSpine;
                 // Parse the skeletons now, not on the win frame.

@@ -7,7 +7,9 @@
         "Unity.Addressables.Editor",
         "Unity.ResourceManager",
         "spine-unity",
-        "spine-csharp"
+        "spine-csharp",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor"

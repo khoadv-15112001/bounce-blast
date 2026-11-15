@@ -98,6 +98,8 @@ namespace GardenCannon
         {
             _uiLayer = gameObject.layer;
             _buttons.Clear();
+            // HUD canvas (moves badge, settings, boosters, popups). Without it: the world HUD below.
+            if (EnsureCanvas() != null) InitCanvasHud(restart);
 
             if (levelAnchor != null)
             {
@@ -116,6 +118,7 @@ namespace GardenCannon
                 AddButton(_levelText.transform, new Vector2(3.6f, 1.3f), OnLevelPlateTap);
                 Relayer(levelAnchor);
             }
+            if (Canvas != null) return;   // settings / moves live on the canvas
             if (settingsAnchor != null)
             {
                 if (settingsButton != null) VisualUtil.MakeSprite("RestartButton", settingsAnchor, settingsButton, Vector3.zero, 1.5f, 60);
@@ -275,6 +278,13 @@ namespace GardenCannon
 
         public void SetMoves(int moves, bool punch = false)
         {
+            if (Canvas != null && Canvas.movesText != null)
+            {
+                Canvas.movesText.text = moves.ToString();
+                Canvas.movesText.color = moves <= 5 ? new Color(1f, 0.6f, 0.55f) : Color.white;
+                if (punch && Canvas.movesBadge != null) Punch(Canvas.movesBadge);
+                return;
+            }
             if (_movesText != null) _movesText.text = moves.ToString();
             if (_movesShadow != null) _movesShadow.text = moves.ToString();
             foreach (var o in _movesOutline) if (o != null) o.text = moves.ToString();
@@ -535,6 +545,7 @@ namespace GardenCannon
         /// <summary>Close the open popup with the close animation (shrinks and fades out).</summary>
         public void ClosePopup()
         {
+            _openToken++;   // a popup still loading (Addressables) will not open any more
             if (_popupRoot == null) { _buttons.RemoveAll(b => b.Popup); return; }
             var root = _popupRoot;
             _popupRoot = null;
@@ -554,6 +565,8 @@ namespace GardenCannon
         System.Collections.IEnumerator CloseAnim(Transform root)
         {
             if (root == null) yield break;
+            var uiPopup = root.GetComponent<UiPopup>();
+            if (uiPopup != null) { yield return CloseUi(uiPopup); yield break; }
             Vector3 start = root.localScale;
             if (_baseScale.TryGetValue(root, out var b)) { start = b; _baseScale.Remove(root); }
             var sprites = root.GetComponentsInChildren<SpriteRenderer>(true);

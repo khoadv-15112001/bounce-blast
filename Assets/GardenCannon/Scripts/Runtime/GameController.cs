@@ -300,6 +300,7 @@ namespace GardenCannon
             if (Input.GetMouseButtonDown(0))
             {
                 if (HapticsDebug.BlocksPointer(Input.mousePosition)) return;
+                if (GameHud.PointerOverUi()) return;   // HUD canvas (buttons, popups) takes this tap
                 if (hud != null && hud.HandleClick(Input.mousePosition)) return;
                 if (boosters != null && CurrentState == State.Aiming)
                 {

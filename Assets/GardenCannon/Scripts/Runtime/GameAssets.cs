@@ -62,8 +62,11 @@ namespace GardenCannon
         public Sprite boosterBubbleSprite;
         [Tooltip("Popups (settings, Well Done, cheats): original game popup art, Assets/GardenCannon/Art/UI/Popup.")]
         public PopupSkin popupSkin = new PopupSkin();
-        [Tooltip("One prefab per popup (Assets/GardenCannon/Prefabs/Popups): move / resize things there by hand.")]
-        public PopupPrefabs popupPrefabs = new PopupPrefabs();
+        [Header("HUD canvas (uGUI + TextMeshPro)")]
+        [Tooltip("Assets/GardenCannon/Prefabs/UI/HudCanvas: moves badge, settings, boosters, popup layer.")]
+        public GameObject hudCanvasPrefab;
+        [Tooltip("TextMeshPro font + materials (Assets/GardenCannon/Fonts/ENG).")]
+        public UiTheme uiTheme = new UiTheme();
         [Header("Spine (Assets/GardenCannon/Spin)")]
         [Tooltip("Win popup: the three ball characters celebrating (anim Idle, looped).")]
         public Spine.Unity.SkeletonDataAsset winSpine;

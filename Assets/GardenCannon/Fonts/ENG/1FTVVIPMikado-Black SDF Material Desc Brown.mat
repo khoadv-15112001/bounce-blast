@@ -33,4 +33,3 @@ Material:
     - _OutlineColor: {r: 0.3882353, g: 0.05882353, b: 0, a: 1}
     - _UnderlayColor: {r: 0.3882353, g: 0.05882353, b: 0, a: 1}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1

@@ -74,7 +74,20 @@ namespace GardenCannon
             public SpriteRenderer plate, icon, glow, bubble;
             public TextMesh count, countShadow;
             public float punch;
+            /// <summary>Canvas button (HUD canvas mode).</summary>
+            public UiBoosterButton ui;
+            public float baseX;
         }
+
+        [Header("HUD canvas")]
+        [Tooltip("HUD canvas holding the booster buttons (set by the game). Empty = world buttons next to the cannon.")]
+        [NonSerialized] public HudCanvas hud;
+        /// <summary>Screen point -> ground point (projectiles start under the canvas button).</summary>
+        public Func<Vector2, Vector2> screenToGround;
+        [Tooltip("Canvas mode: gap kept between a button and the side of the screen (canvas units).")]
+        public float uiEdgeMargin = 37f;
+
+        bool UiMode => hud != null && hud.boosters != null;
 
         readonly List<Button> _buttons = new List<Button>();
         float _pulse;
@@ -93,14 +106,40 @@ namespace GardenCannon
         public Vector3 ButtonPos(BoosterId id)
         {
             var b = _buttons.Find(x => x.def.id == id);
-            return b != null ? b.root.position : transform.position;
+            if (b == null) return transform.position;
+            if (b.ui != null)
+            {
+                var cam = hud.canvas != null ? hud.canvas.worldCamera : null;
+                Vector2 screen = RectTransformUtility.WorldToScreenPoint(cam, b.ui.transform.position);
+                Vector2 g = screenToGround != null ? screenToGround(screen) : (Vector2)(cannon != null ? cannon.position : Vector3.zero);
+                return new Vector3(g.x, g.y, -0.4f);
+            }
+            return b.root.position;
         }
 
         public void Build()
         {
             if (_buttons.Count > 0) return;
             if (boosters.Count == 0) boosters = DefaultDefs();
-            foreach (var d in boosters) _buttons.Add(MakeButton(d));
+            if (UiMode)
+            {
+                // Canvas buttons from the HUD prefab (a booster without a button there is simply not offered).
+                var uis = hud.boosters.GetComponentsInChildren<UiBoosterButton>(true);
+                foreach (var d in boosters)
+                {
+                    UiBoosterButton ui = null;
+                    foreach (var u in uis) if (u.booster == d.id) { ui = u; break; }
+                    if (ui == null) continue;
+                    var b = new Button { def = d, root = ui.transform, ui = ui, baseX = ((RectTransform)ui.transform).anchoredPosition.x };
+                    if (ui.icon != null && d.icon != null) ui.icon.sprite = d.icon;
+                    if (ui.label != null) ui.label.text = d.label ?? "";
+                    if (ui.glow != null) ui.glow.enabled = false;
+                    if (ui.button != null) { var bb = b; ui.button.onClick = () => Tap(bb); }
+                    _buttons.Add(b);
+                }
+                foreach (var u in uis) if (!_buttons.Exists(x => x.ui == u)) u.gameObject.SetActive(false);
+            }
+            else foreach (var d in boosters) _buttons.Add(MakeButton(d));
             Place();
             Refresh();
         }
@@ -117,24 +156,30 @@ namespace GardenCannon
         {
             foreach (var b in _buttons)
             {
+                if (b.ui != null) continue;   // canvas buttons take their own taps
                 Vector2 c = b.root.position;
                 float r = buttonSize * 0.6f;
                 if ((world - c).sqrMagnitude > r * r) continue;
-                b.punch = 1f;
-                if (Selected == b.def.id) { Select(null); return true; }
-                if (b.left <= 0) return true;
-                if (UseOf(b.def.id) == BoosterUse.Instant)
-                {
-                    b.left--;
-                    Select(null);
-                    Refresh();
-                    InstantUsed?.Invoke(b.def.id);
-                    return true;
-                }
-                Select(b.def.id);
+                Tap(b);
                 return true;
             }
             return false;
+        }
+
+        void Tap(Button b)
+        {
+            b.punch = 1f;
+            if (Selected == b.def.id) { Select(null); return; }
+            if (b.left <= 0) return;
+            if (UseOf(b.def.id) == BoosterUse.Instant)
+            {
+                b.left--;
+                Select(null);
+                Refresh();
+                InstantUsed?.Invoke(b.def.id);
+                return;
+            }
+            Select(b.def.id);
         }
 
         /// <summary>The selected booster is used (shot fired / target picked). Returns its id.</summary>
@@ -164,8 +209,38 @@ namespace GardenCannon
                  + "taller) pull the outer buttons in.")]
         public float edgeMargin = 0.3f;
 
+        /// <summary>Canvas mode: the booster group follows the cannon on screen; outer buttons are kept on screen.</summary>
+        void PlaceUi()
+        {
+            var canvasRect = hud.Rect;
+            var cam = Camera.main;
+            if (cam == null || canvasRect == null) return;
+            Vector3 pivot = cannon != null ? cannon.position : new Vector3(0f, -10.54f, 0f);
+            Vector2 screen = cam.WorldToScreenPoint(pivot);
+            var parent = hud.boosters.parent as RectTransform;
+            if (parent == null) return;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screen, hud.canvas != null ? hud.canvas.worldCamera : null, out var local)) return;
+            var rt = hud.boosters;
+            // Keep the group's own anchors: convert the local point into an anchored position.
+            Vector2 anchorRef = Vector2.Scale(parent.rect.size, (rt.anchorMin + rt.anchorMax) * 0.5f - parent.pivot);
+            rt.anchoredPosition = new Vector2(local.x - anchorRef.x, local.y - anchorRef.y);
+            float halfW = parent.rect.width * 0.5f;
+            foreach (var b in _buttons)
+            {
+                if (b.ui == null) continue;
+                var brt = (RectTransform)b.ui.transform;
+                float half = brt.rect.width * 0.5f;
+                float x = b.baseX;
+                float centreX = local.x + x;
+                float max = halfW - uiEdgeMargin - half;
+                if (Mathf.Abs(centreX) > max) x = Mathf.Sign(centreX) * max - local.x;
+                brt.anchoredPosition = new Vector2(x, brt.anchoredPosition.y);
+            }
+        }
+
         void Place()
         {
+            if (UiMode) { PlaceUi(); return; }
             Vector3 pivot = cannon != null ? cannon.position : new Vector3(0f, -10.54f, 0f);
             var cam = Camera.main;
             float camX = cam != null ? cam.transform.position.x : 0f;
@@ -184,9 +259,16 @@ namespace GardenCannon
             foreach (var b in _buttons)
             {
                 string s = b.left.ToString();
+                var c = b.left <= 0 ? new Color(0.55f, 0.55f, 0.6f, 1f) : Color.white;
+                if (b.ui != null)
+                {
+                    if (b.ui.count != null) b.ui.count.text = s;
+                    if (b.ui.plate != null) b.ui.plate.color = c;
+                    if (b.ui.icon != null) b.ui.icon.color = c;
+                    continue;
+                }
                 if (b.count != null) b.count.text = s;
                 if (b.countShadow != null) b.countShadow.text = s;
-                var c = b.left <= 0 ? new Color(0.55f, 0.55f, 0.6f, 1f) : Color.white;
                 b.plate.color = c;
                 b.icon.color = c;
             }
@@ -200,6 +282,17 @@ namespace GardenCannon
             foreach (var b in _buttons)
             {
                 bool active = Selected == b.def.id;
+                if (b.ui != null)
+                {
+                    // Canvas: the UiButton does the press scale; the selection pulses the glow and the icon.
+                    if (b.ui.glow != null)
+                    {
+                        b.ui.glow.enabled = active;
+                        if (active) b.ui.glow.color = new Color(1f, 0.85f, 0.3f, 0.55f + 0.35f * Mathf.Sin(_pulse * 9f));
+                    }
+                    if (b.ui.icon != null) b.ui.icon.transform.localScale = Vector3.one * (active ? 1f + 0.08f * Mathf.Sin(_pulse * 9f) : 1f);
+                    continue;
+                }
                 float k = active ? 1f + 0.08f * Mathf.Sin(_pulse * 9f) : 1f;
                 b.punch = Mathf.Max(0f, b.punch - Time.deltaTime * 5f);
                 b.root.localScale = Vector3.one * (k + Mathf.Sin(b.punch * Mathf.PI) * 0.15f);

@@ -8,7 +8,9 @@
         "Sonat.Game.Haptics",
         "Sonat.Game.Haptics.Lab",
         "spine-unity",
-        "spine-csharp"
+        "spine-csharp",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

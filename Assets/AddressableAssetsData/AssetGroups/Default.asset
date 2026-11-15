@@ -442,6 +442,41 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca38b082b3b25a145a16419279d3d1ce
+    m_Address: GardenCannon/UI/UiPopupWin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 103f8aaed72bf8b489c6029ec8723714
+    m_Address: GardenCannon/UI/UiPopupLose
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5e2fdff3e9179814eac44163ffdf9da1
+    m_Address: GardenCannon/UI/UiPopupSettings
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 47beb1b2427dd1f4ca562d60bd44f62e
+    m_Address: GardenCannon/UI/UiPopupCheat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bc0d4017317fc03408a0e01181a94d7f
+    m_Address: GardenCannon/UI/UiPopupPassword
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c66cf5d0c87734a43bceacaad21271f7
+    m_Address: GardenCannon/UI/UiPopupLevelInput
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 89f77c71dd8bdca44acc76e5151bb9d0
+    m_Address: GardenCannon/UI/UiPopupHaptics
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f220a7ea09e64e04db3fdf64fb895068, type: 2}
   m_SchemaSet:
