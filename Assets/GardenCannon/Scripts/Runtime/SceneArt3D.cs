@@ -75,6 +75,43 @@ namespace GardenCannon
             // Balls leave from the tip of the (smaller) barrel.
             if (_muzzleBase < 0f) _muzzleBase = cannon.muzzleDistance;
             cannon.muzzleDistance = _muzzleBase * cannonScale;
+            MeasureBarrel(_cannon.transform, rail, out cannon.muzzleSideOffset, out cannon.muzzleHeight);
+        }
+
+        /// <summary>
+        /// Sideways centre (rail-local X) of the barrel mesh, so shots leave from the middle of the barrel even when
+        /// the model's barrel is not exactly on its origin. Uses mesh bounds (no Read/Write needed on the FBX).
+        /// The barrel is the mesh on a child of the model; the base (on the model root) is used only as a fallback.
+        /// </summary>
+        static void MeasureBarrel(Transform model, Transform rail, out float side, out float height)
+        {
+            side = height = 0f;
+            var filters = model.GetComponentsInChildren<MeshFilter>(true);
+            bool hasChild = false;
+            foreach (var mf in filters) if (mf.transform != model && mf.sharedMesh != null) { hasChild = true; break; }
+            float min = float.MaxValue, max = float.MinValue;
+            float zMin = float.MaxValue, zMax = float.MinValue;
+            foreach (var mf in filters)
+            {
+                if (mf.sharedMesh == null || (hasChild && mf.transform == model)) continue;
+                var b = mf.sharedMesh.bounds;
+                for (int i = 0; i < 8; i++)
+                {
+                    var c = new Vector3((i & 1) == 0 ? b.min.x : b.max.x, (i & 2) == 0 ? b.min.y : b.max.y, (i & 4) == 0 ? b.min.z : b.max.z);
+                    // Unrotated rail frame: the aim rotation must not leak into the offset.
+                    Vector3 w = mf.transform.TransformPoint(c);
+                    Vector3 l = Quaternion.Inverse(rail.rotation) * (w - rail.position);   // world units
+                    min = Mathf.Min(min, l.x);
+                    max = Mathf.Max(max, l.x);
+                    // Height above the ground plane (z = 0 is the ground, -z points at the camera).
+                    zMin = Mathf.Min(zMin, -w.z);
+                    zMax = Mathf.Max(zMax, -w.z);
+                }
+            }
+            if (min > max) return;
+            side = (min + max) * 0.5f;
+            height = (zMin + zMax) * 0.5f;
+            Debug.Log($"[GardenCannon] Barrel side offset: {side:F3}, height: {height:F3}");
         }
 
         void SwapBottom(CannonView cannon)
