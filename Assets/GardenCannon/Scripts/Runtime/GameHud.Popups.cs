@@ -38,7 +38,9 @@ namespace GardenCannon
         [Tooltip("Width of the three celebrating characters on the celebration screen.")]
         public float celebrationWidth = 11f;
         [Tooltip("Screen height (UI camera space) of the centre of the characters' setup pose.")]
-        public float celebrationY = -3f;
+        public float celebrationY = 2f;
+        [Tooltip("Darkness of the screen behind the celebration (0..1).")]
+        public float celebrationDim = 0.9f;
 
         /// <summary>The level plate was tapped 5 times in a row (cheat menu).</summary>
         public Action CheatRequested;
@@ -234,7 +236,7 @@ namespace GardenCannon
             {
                 var sz = whiteSprite.bounds.size;
                 var dim = VisualUtil.MakeSprite("Dim", _popupRoot, whiteSprite, Vector3.zero, 0f, 900);
-                dim.color = new Color(0f, 0f, 0f, 0.35f);
+                dim.color = new Color(0f, 0f, 0f, celebrationDim);
                 dim.transform.localScale = new Vector3(80f / sz.x, 120f / sz.y, 1f);
             }
             bool done = false;

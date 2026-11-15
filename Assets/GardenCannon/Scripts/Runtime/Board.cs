@@ -11,7 +11,7 @@ namespace GardenCannon
     public class Board : MonoBehaviour
     {
         [Header("Grid (world units, original GridView)")]
-        public float gridLeft = -5.708f;
+        public float gridLeft = -5.76f;   // centred: gridWidth 11.52, centre x = 0 (camera, cannon)
         public float gridTop = 9.614f;
         public float gridWidth = 11.52f;
         [Tooltip("Balls falling below this line drop into the water.")]
