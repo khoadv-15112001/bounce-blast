@@ -153,6 +153,7 @@ namespace GardenCannon
                 }
                 bar.font = a.font;
                 if (a.boosterPlateSprite != null) bar.plateSprite = a.boosterPlateSprite;
+                if (a.boosterBubbleSprite != null) bar.bubbleSprite = a.boosterBubbleSprite;
                 bar.cannon = cannon.transform;
                 controller.boosters = bar;
             }
@@ -202,6 +203,8 @@ namespace GardenCannon
                 hud.whiteSprite = a.white;
                 hud.panelSprite = a.white;
                 if (a.movesBadgeSprite != null) hud.movesBadgeSprite = a.movesBadgeSprite;
+                if (a.popupSkin != null && a.popupSkin.Valid) hud.skin = a.popupSkin;
+                if (a.popupPrefabs != null) hud.popupPrefabs = a.popupPrefabs;
                 hud.winSpine = a.winSpine;
                 hud.winTextSpine = a.winTextSpine;
                 // Parse the skeletons now, not on the win frame.

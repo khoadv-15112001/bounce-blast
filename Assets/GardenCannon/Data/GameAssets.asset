@@ -57,6 +57,25 @@ MonoBehaviour:
   boosterBombIcon: {fileID: 21300000, guid: 2edd0948ac214f9ea2451f5ca461d952, type: 3}
   movesBadgeSprite: {fileID: 21300000, guid: a9260a5be889cfa43bb7b53fd150401d, type: 3}
   boosterPlateSprite: {fileID: 21300000, guid: 7fc122b698fff644bbe8e65a35c5c297, type: 3}
+  boosterBubbleSprite: {fileID: 21300000, guid: d6fe4ecc24fa210468ad13150ad4d613, type: 3}
+  popupSkin:
+    body: {fileID: 21300000, guid: 256ae8bd5f87471abf6e17dc5cf16899, type: 3}
+    header: {fileID: 21300000, guid: c643925bbf0a4f7e9459c1d7f3399cb1, type: 3}
+    inside: {fileID: 21300000, guid: 5f7193cd9df74395bbad78f99eb2e484, type: 3}
+    green: {fileID: 21300000, guid: 9fc091d49e05473cb0d68baba4fa5dee, type: 3}
+    yellow: {fileID: 21300000, guid: 3199a3cf9b1248b7996669d75505e5cc, type: 3}
+    blue: {fileID: 21300000, guid: c36daa6e721843fc8a3ea1cbf4c9db47, type: 3}
+    red: {fileID: 21300000, guid: 1df0db600e6944f2b4fb34c1ae99d209, type: 3}
+    purple: {fileID: 21300000, guid: 5c995af3e2fc4b9fbde4cdaaab8d5c13, type: 3}
+    close: {fileID: 21300000, guid: b6742034971f4f0bbc288a59e349f46a, type: 3}
+  popupPrefabs:
+    win: {fileID: 3295677635968053038, guid: 7480c9d2aaad92745bf9768f808c6962, type: 3}
+    lose: {fileID: 1013901148925338998, guid: cb4ac30132a7bb847b2852efbea75546, type: 3}
+    settings: {fileID: 2566452013489669317, guid: 988bb353912c6314ca3a561cc9538549, type: 3}
+    cheat: {fileID: 367491485541487975, guid: 6903e01a06eb4514a81c236acdba1162, type: 3}
+    password: {fileID: 8986558143244492496, guid: d0150fd5edf5f194faf71ecaf8290eb5, type: 3}
+    levelInput: {fileID: 2617282246081614306, guid: 7082d72c5c664ef42a8035d77d52b916, type: 3}
+    haptics: {fileID: 6408937882536108984, guid: b90195f2a2ca5974ea5a1a72ab4cf717, type: 3}
   winSpine: {fileID: 11400000, guid: f345e29146394ec4ba8a3c10f883cc46, type: 2}
   winTextSpine: {fileID: 11400000, guid: bbd68666faad02940813b3d30d08f819, type: 2}
   balloonMaterials:

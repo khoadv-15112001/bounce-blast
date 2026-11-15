@@ -765,9 +765,9 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 0
   webGLPowerPreference: 0
   scriptingDefineSymbols:
-    Android: SONAT_HAPTICS_DEBUG
+    Android: SONAT_HAPTICS_DEBUG;SONAT_CHEAT_RELEASE
     Standalone: SONAT_HAPTICS_DEBUG
-    iPhone: SONAT_HAPTICS_DEBUG
+    iPhone: SONAT_HAPTICS_DEBUG;SONAT_CHEAT_RELEASE
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

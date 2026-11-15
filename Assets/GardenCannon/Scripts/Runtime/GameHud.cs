@@ -9,7 +9,7 @@ namespace GardenCannon
     /// Level plate, goals, restart button, tutorial banner and popups live on the UI layer (UI camera);
     /// the move counter sits on the GrassBottom art in the world, like the original MoveCountText.
     /// </summary>
-    public class GameHud : MonoBehaviour
+    public partial class GameHud : MonoBehaviour
     {
         [Header("Cameras")]
         public Camera uiCamera;
@@ -37,6 +37,9 @@ namespace GardenCannon
         [Tooltip("Width of the Well Done title.")]
         public float winTextWidth = 8.6f;
 
+        [Tooltip("< and > next to the level plate to change level (off: use the cheat menu or the [ ] keys).")]
+        public bool showLevelArrows;
+
         [Tooltip("The original game shows no goal row (clear everything). Turn on to show remaining goals.")]
         public bool showGoals;
 
@@ -53,6 +56,8 @@ namespace GardenCannon
             public Vector2 Size;
             public Action OnClick;
             public bool Popup;
+            /// <summary>Size is in the target's local units (prefab popups): scale it by the target's world scale.</summary>
+            public bool Lossy;
         }
 
         readonly List<Button> _buttons = new List<Button>();
@@ -98,12 +103,17 @@ namespace GardenCannon
             {
                 if (levelPlate != null) VisualUtil.MakeSprite("LevelPlate", levelAnchor, levelPlate, Vector3.zero, 4.15f, 60);
                 _levelText = VisualUtil.MakeText("LevelText", levelAnchor, font, new Vector3(0f, 0f, -0.1f), 0.8f, levelTextColor, TextAnchor.MiddleCenter, 61);
-                var l = VisualUtil.MakeText("Prev", levelAnchor, font, new Vector3(-2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
-                l.text = "<";
-                var r = VisualUtil.MakeText("Next", levelAnchor, font, new Vector3(2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
-                r.text = ">";
-                AddButton(l.transform, new Vector2(1.1f, 1.3f), prev);
-                AddButton(r.transform, new Vector2(1.1f, 1.3f), next);
+                if (showLevelArrows)
+                {
+                    var l = VisualUtil.MakeText("Prev", levelAnchor, font, new Vector3(-2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
+                    l.text = "<";
+                    var r = VisualUtil.MakeText("Next", levelAnchor, font, new Vector3(2.75f, 0.05f, -0.1f), 0.9f, Color.white, TextAnchor.MiddleCenter, 61);
+                    r.text = ">";
+                    AddButton(l.transform, new Vector2(1.1f, 1.3f), prev);
+                    AddButton(r.transform, new Vector2(1.1f, 1.3f), next);
+                }
+                // 5 taps on the level plate: cheat menu (password protected).
+                AddButton(_levelText.transform, new Vector2(3.6f, 1.3f), OnLevelPlateTap);
                 Relayer(levelAnchor);
             }
             if (settingsAnchor != null)
@@ -235,6 +245,8 @@ namespace GardenCannon
 
         void Update()
         {
+            UpdatePassword();
+            UpdatePress();
             if (_punch.Count == 0) return;
             var done = _punchDone;
             var keys = _punchKeys;
@@ -379,7 +391,7 @@ namespace GardenCannon
 
         public void ShowPopup(string title, Color titleColor, string body, params (string label, Action action, bool main)[] buttons)
         {
-            ClosePopup();
+            ClosePopupNow();
             _popupRoot = new GameObject("Popup").transform;
             _popupRoot.SetParent(transform, false);
             Vector3 c = uiCamera != null ? uiCamera.transform.position + uiCamera.transform.forward * 5f : new Vector3(0, 0, -5f);
@@ -426,44 +438,16 @@ namespace GardenCannon
             _baseScale[_popupRoot] = Vector3.one;
         }
 
-        /// <summary>
-        /// Win popup: the regular popup with the Spine "Well Done" title (Welldone, then Welldone_Idle looped) and the
-        /// celebrating characters standing on top of the panel (Idle looped). Falls back to a text title without Spine.
-        /// </summary>
-        public void ShowWinPopup(Color titleColor, string body, params (string label, Action action, bool main)[] buttons)
-        {
-            ShowPopup(winTextSpine != null ? "" : "Well Done!", titleColor, body, buttons);
-            if (_popupRoot == null) return;
-            const float panelTop = 4.1f;
-            if (winSpine != null)
-            {
-                // Idle is a one-shot jump: they pop up from below, then fall off the screen. Played once, in front of
-                // the Well Done title, and hidden when it is over.
-                var sa = AddSpine("WinCharacters", winSpine, "Idle", null, winCharactersWidth, 907, out Vector2 size);
-                if (sa != null)
-                {
-                    PlaceSpine(sa, winSpine, new Vector3(0f, panelTop + size.y * 0.5f - winCharactersOverlap, -0.45f));
-                    var go = sa.gameObject;
-                    sa.AnimationState.Complete += _ => { if (go != null) go.SetActive(false); };
-                }
-            }
-            if (winTextSpine != null)
-            {
-                var sa = AddSpine("WellDone", winTextSpine, "Welldone", "Welldone_Idle", winTextWidth, 906, out _);
-                if (sa != null) PlaceSpine(sa, winTextSpine, new Vector3(0f, 2.55f, -0.35f));
-            }
-            Relayer(_popupRoot);
-        }
-
         /// <summary>Spine skeleton under the popup, scaled to <paramref name="width"/>; plays <paramref name="first"/> once, then loops <paramref name="loop"/> (if any).</summary>
-        Spine.Unity.SkeletonAnimation AddSpine(string name, Spine.Unity.SkeletonDataAsset asset, string first, string loop, float width, int order, out Vector2 size)
+        Spine.Unity.SkeletonAnimation AddSpine(string name, Spine.Unity.SkeletonDataAsset asset, string first, string loop, float width, int order, out Vector2 size,
+            Transform parent = null)
         {
             size = Vector2.zero;
             var data = asset.GetSkeletonData(true);
             if (data == null || data.Width <= 0f) return null;
             var sa = Spine.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(asset, true);
             sa.name = name;
-            sa.transform.SetParent(_popupRoot, false);
+            sa.transform.SetParent(parent != null ? parent : _popupRoot, false);
             float k = width / (data.Width * asset.scale);
             sa.transform.localScale = Vector3.one * k;
             size = new Vector2(data.Width, data.Height) * asset.scale * k;
@@ -493,7 +477,7 @@ namespace GardenCannon
         /// <summary>Vertical button list popup (settings).</summary>
         public void ShowMenu(string title, params (string label, Action action, bool main)[] items)
         {
-            ClosePopup();
+            ClosePopupNow();
             _popupRoot = new GameObject("Menu").transform;
             _popupRoot.SetParent(transform, false);
             _popupRoot.position = uiCamera != null ? uiCamera.transform.position + uiCamera.transform.forward * 5f : new Vector3(0, 0, -5f);
@@ -534,11 +518,108 @@ namespace GardenCannon
             Relayer(_popupRoot);
         }
 
+        [Header("Button / popup animation")]
+        [Tooltip("Scale a button shrinks to when pressed.")]
+        public float buttonPressScale = 0.86f;
+        [Tooltip("Length of the press animation (down + bounce back).")]
+        public float buttonPressTime = 0.22f;
+        [Tooltip("Delay between the press and the button's action (lets the press read).")]
+        public float buttonActionDelay = 0.1f;
+        [Tooltip("Length of the popup close animation.")]
+        public float popupCloseTime = 0.18f;
+
+        readonly Dictionary<Transform, float> _press = new Dictionary<Transform, float>();
+        readonly List<Transform> _pressKeys = new List<Transform>();
+        bool _clickPending;
+
+        /// <summary>Close the open popup with the close animation (shrinks and fades out).</summary>
         public void ClosePopup()
         {
-            if (_popupRoot != null) Destroy(_popupRoot.gameObject);
+            if (_popupRoot == null) { _buttons.RemoveAll(b => b.Popup); return; }
+            var root = _popupRoot;
             _popupRoot = null;
             _buttons.RemoveAll(b => b.Popup);
+            _punch.Remove(root);
+            StartCoroutine(CloseAnim(root));
+        }
+
+        /// <summary>Close the open popup at once (another popup replaces it).</summary>
+        public void ClosePopupNow()
+        {
+            if (_popupRoot != null) { _punch.Remove(_popupRoot); _baseScale.Remove(_popupRoot); Destroy(_popupRoot.gameObject); }
+            _popupRoot = null;
+            _buttons.RemoveAll(b => b.Popup);
+        }
+
+        System.Collections.IEnumerator CloseAnim(Transform root)
+        {
+            if (root == null) yield break;
+            Vector3 start = root.localScale;
+            if (_baseScale.TryGetValue(root, out var b)) { start = b; _baseScale.Remove(root); }
+            var sprites = root.GetComponentsInChildren<SpriteRenderer>(true);
+            var spriteCols = new Color[sprites.Length];
+            for (int i = 0; i < sprites.Length; i++) spriteCols[i] = sprites[i].color;
+            var texts = root.GetComponentsInChildren<TextMesh>(true);
+            var textCols = new Color[texts.Length];
+            for (int i = 0; i < texts.Length; i++) textCols[i] = texts[i].color;
+            var spines = root.GetComponentsInChildren<Spine.Unity.SkeletonAnimation>(true);
+            float t = 0f, dur = Mathf.Max(0.01f, popupCloseTime);
+            while (t < 1f && root != null)
+            {
+                t = Mathf.Min(1f, t + Time.unscaledDeltaTime / dur);
+                // Small swell, then shrink (ease in back); everything fades out.
+                const float c1 = 1.70158f, c3 = c1 + 1f;
+                float e = c3 * t * t * t - c1 * t * t;
+                root.localScale = start * Mathf.Max(0f, 1f - 0.45f * e);
+                float a = 1f - t * t;
+                for (int i = 0; i < sprites.Length; i++) if (sprites[i] != null) { var c = spriteCols[i]; c.a *= a; sprites[i].color = c; }
+                for (int i = 0; i < texts.Length; i++) if (texts[i] != null) { var c = textCols[i]; c.a *= a; texts[i].color = c; }
+                foreach (var s in spines) if (s != null && s.Skeleton != null) s.Skeleton.A = a;
+                yield return null;
+            }
+            if (root != null) Destroy(root.gameObject);
+        }
+
+        /// <summary>Press feedback: the button shrinks, then bounces back to its size.</summary>
+        void Press(Transform t)
+        {
+            if (t == null) return;
+            if (!_baseScale.ContainsKey(t)) _baseScale[t] = t.localScale;
+            _punch.Remove(t);
+            _press[t] = 0f;
+        }
+
+        void UpdatePress()
+        {
+            if (_press.Count == 0) return;
+            _pressKeys.Clear();
+            foreach (var k in _press.Keys) _pressKeys.Add(k);
+            float dur = Mathf.Max(0.01f, buttonPressTime);
+            foreach (var t in _pressKeys)
+            {
+                if (t == null) { _press.Remove(t); continue; }
+                float x = _press[t] + Time.unscaledDeltaTime / dur;
+                _press[t] = x;
+                float k;
+                if (x < 0.35f) k = Mathf.Lerp(1f, buttonPressScale, x / 0.35f);
+                else
+                {
+                    // ease out back from the pressed scale to 1
+                    float u = Mathf.Clamp01((x - 0.35f) / 0.65f) - 1f;
+                    const float c1 = 1.9f, c3 = c1 + 1f;
+                    k = Mathf.LerpUnclamped(buttonPressScale, 1f, 1f + c3 * u * u * u + c1 * u * u);
+                }
+                if (_baseScale.TryGetValue(t, out var b)) t.localScale = b * (x >= 1f ? 1f : k);
+                if (x >= 1f) _press.Remove(t);
+            }
+        }
+
+        System.Collections.IEnumerator ClickLater(Action a, float delay)
+        {
+            _clickPending = true;
+            if (delay > 0f) yield return new WaitForSecondsRealtime(delay);
+            _clickPending = false;
+            a?.Invoke();
         }
 
         /// <summary>Screen click -> HUD button. Returns true when the click was used by the HUD.</summary>
@@ -553,12 +634,19 @@ namespace GardenCannon
                 if (popup && !b.Popup) continue;
                 if (b.Target == null) continue;
                 Vector2 c = b.Target.position;
-                Vector2 half = b.Size * 0.5f * (b.Popup && _popupRoot != null ? _popupRoot.lossyScale.x : 1f);
+                Vector2 half;
+                if (b.Lossy)
+                {
+                    var ls = b.Target.lossyScale;
+                    half = new Vector2(b.Size.x * 0.5f * Mathf.Abs(ls.x), b.Size.y * 0.5f * Mathf.Abs(ls.y));
+                }
+                else half = b.Size * 0.5f * (b.Popup && _popupRoot != null ? _popupRoot.lossyScale.x : 1f);
                 if (Mathf.Abs(world.x - c.x) <= half.x && Mathf.Abs(world.y - c.y) <= half.y)
                 {
+                    if (_clickPending) return true;   // one press at a time
                     ButtonClicked?.Invoke();
-                    Punch(b.Target);
-                    b.OnClick?.Invoke();
+                    Press(b.Target);
+                    StartCoroutine(ClickLater(b.OnClick, buttonActionDelay));
                     return true;
                 }
             }

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 1FTVVIPMikado-Black SDF Material Title Blue
+  m_Shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
+  m_Parent: {fileID: 2100000, guid: f03f00acd5da9c640ba7617f8d57ead1, type: 2}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - UNDERLAY_ON
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.64125
+    - _ScaleRatioC: 0.64125
+    m_Colors:
+    - _OutlineColor: {r: 0.024474904, g: 0.1426094, b: 0.4716981, a: 1}
+    - _UnderlayColor: {r: 0.023529412, g: 0.14117648, b: 0.47058824, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

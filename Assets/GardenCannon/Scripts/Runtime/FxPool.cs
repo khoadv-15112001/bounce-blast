@@ -248,10 +248,79 @@ namespace GardenCannon
             }
         }
 
-        /// <summary>Remove the popup confetti at once (level change / replay).</summary>
+        /// <summary>Remove the popup confetti / fireworks at once (level change / replay).</summary>
         public void ClearConfettiOverlay()
         {
             if (_confettiUi != null) _confettiUi.Clear(true);
+            if (_fireworksUi != null) _fireworksUi.Clear(true);
+            if (_fireworksRoutine != null) { StopCoroutine(_fireworksRoutine); _fireworksRoutine = null; }
+        }
+
+        ParticleSystem _fireworksUi;
+        Coroutine _fireworksRoutine;
+        static readonly Color[] FireworkColors =
+        {
+            new Color(1f, 0.85f, 0.2f), new Color(1f, 0.35f, 0.3f), new Color(0.4f, 0.85f, 1f),
+            new Color(0.6f, 1f, 0.4f), new Color(1f, 0.5f, 0.95f), new Color(1f, 0.65f, 0.2f),
+        };
+
+        /// <summary>
+        /// Win celebration fireworks over the whole screen (UI camera, in front of the popups): star bursts going off
+        /// one after the other for <paramref name="duration"/> seconds.
+        /// </summary>
+        public void FireworksOverlay(Camera uiCamera, int layer, int sortingOrder, float duration = 2.2f, int bursts = 7)
+        {
+            if (uiCamera == null) return;
+            Init();
+            if (_fireworksUi == null)
+            {
+                _fireworksUi = Create("FireworksUI", 0.35f, new[] { starSprite, glowSprite }, 1200);
+                ConfigureFade(_fireworksUi, 0.55f);
+            }
+            _fireworksUi.gameObject.layer = layer;
+            _fireworksUi.GetComponent<ParticleSystemRenderer>().sortingOrder = sortingOrder;
+            if (_fireworksRoutine != null) StopCoroutine(_fireworksRoutine);
+            _fireworksRoutine = StartCoroutine(FireworksRoutine(uiCamera, duration, Mathf.Max(1, bursts)));
+        }
+
+        System.Collections.IEnumerator FireworksRoutine(Camera cam, float duration, int bursts)
+        {
+            float step = duration / bursts;
+            for (int i = 0; i < bursts; i++)
+            {
+                if (cam == null) yield break;
+                var c = cam.transform.position;
+                float halfH = cam.orthographicSize, halfW = halfH * cam.aspect;
+                float z = c.z + cam.transform.forward.z * 4.4f;
+                // Upper two thirds of the screen, alternating sides.
+                float x = c.x + (i % 2 == 0 ? -1f : 1f) * Random.Range(0.15f, 0.7f) * halfW;
+                float y = c.y + Random.Range(-0.1f, 0.75f) * halfH;
+                var colour = FireworkColors[Random.Range(0, FireworkColors.Length)];
+                var p = new ParticleSystem.EmitParams();
+                // flash
+                p.position = new Vector3(x, y, z);
+                p.velocity = Vector3.zero;
+                p.startColor = new Color(1f, 1f, 1f, 0.9f);
+                p.startSize = 3.2f;
+                p.startLifetime = 0.25f;
+                _fireworksUi.Emit(p, 1);
+                // ring of sparks
+                const int sparks = 40;
+                for (int k = 0; k < sparks; k++)
+                {
+                    float a = (k + Random.value * 0.5f) / sparks * Mathf.PI * 2f;
+                    float speed = Random.Range(4.5f, 7.5f);
+                    p.position = new Vector3(x, y, z);
+                    p.velocity = new Vector3(Mathf.Cos(a) * speed, Mathf.Sin(a) * speed, 0f);
+                    p.startColor = Color.Lerp(colour, Color.white, Random.Range(0f, 0.35f));
+                    p.startSize = Random.Range(0.35f, 0.65f);
+                    p.startLifetime = Random.Range(0.9f, 1.4f);
+                    p.rotation = Random.Range(0f, 360f);
+                    _fireworksUi.Emit(p, 1);
+                }
+                yield return new WaitForSeconds(step * Random.Range(0.7f, 1.2f));
+            }
+            _fireworksRoutine = null;
         }
 
         // ------------------------------------------------------------------ original VFX prefabs (pooled)

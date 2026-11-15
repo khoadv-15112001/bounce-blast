@@ -49,6 +49,12 @@ namespace GardenCannon
         public float buttonSize = 1.25f;
         [Tooltip("Button plate art (round purple, red rim). Empty = the generated blue plate.")]
         public Sprite plateSprite;
+        [Tooltip("Count bubble art (red dot). Empty = the generated bubble.")]
+        public Sprite bubbleSprite;
+        [Tooltip("Scale of the bubble art (x and y).")]
+        public float bubbleScale = 0.22f;
+        [Tooltip("Local x of the bubble (and its number) on the button.")]
+        public float bubbleX = 0.486f;
         public int sortingOrder = 45;
 
         /// <summary>The selected booster (armed for the next shot or waiting for a board tap), or null.</summary>
@@ -219,8 +225,9 @@ namespace GardenCannon
                 var t = VisualUtil.MakeText("Label", b.root, font, new Vector3(0f, 0f, -0.02f), buttonSize * 0.34f, Color.white, TextAnchor.MiddleCenter, sortingOrder + 3);
                 t.text = d.label;
             }
-            var bubblePos = new Vector3(buttonSize * 0.36f, -buttonSize * 0.34f, -0.03f);
-            b.bubble = VisualUtil.MakeSprite("Bubble", b.root, BubbleSprite(), bubblePos, buttonSize * 0.44f, sortingOrder + 4);
+            var bubblePos = new Vector3(bubbleSprite != null ? bubbleX : buttonSize * 0.36f, -buttonSize * 0.34f, -0.03f);
+            b.bubble = VisualUtil.MakeSprite("Bubble", b.root, bubbleSprite != null ? bubbleSprite : BubbleSprite(), bubblePos, buttonSize * 0.44f, sortingOrder + 4);
+            if (bubbleSprite != null) b.bubble.transform.localScale = Vector3.one * bubbleScale;
             b.countShadow = VisualUtil.MakeText("CountShadow", b.root, font, bubblePos + new Vector3(0.02f, -0.03f, -0.01f), buttonSize * 0.26f, new Color(0.25f, 0.05f, 0.05f, 0.8f), TextAnchor.MiddleCenter, sortingOrder + 5);
             b.count = VisualUtil.MakeText("Count", b.root, font, bubblePos + new Vector3(0f, 0f, -0.02f), buttonSize * 0.26f, Color.white, TextAnchor.MiddleCenter, sortingOrder + 6);
             return b;

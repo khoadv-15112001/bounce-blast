@@ -62,6 +62,21 @@ namespace GardenCannon.EditorTools
             }
             SetUi(ref assets.movesBadgeSprite, "button-tim-noi-khoi-vien-vang");
             SetUi(ref assets.boosterPlateSprite, "button-tron-tim-vien-do");
+            SetUi(ref assets.boosterBubbleSprite, "dot_red");
+            // Popup kit (cut from the original game's SpriteExport popup pieces).
+            if (assets.popupSkin == null) { assets.popupSkin = new PopupSkin(); changed = true; }
+            var ps = assets.popupSkin;
+            SetUi(ref ps.body, "Popup/PopupBody");
+            SetUi(ref ps.header, "Popup/PopupHeader");
+            SetUi(ref ps.inside, "Popup/PopupInside");
+            SetUi(ref ps.green, "Popup/BtnGreen");
+            SetUi(ref ps.yellow, "Popup/BtnYellow");
+            SetUi(ref ps.blue, "Popup/BtnBlue");
+            SetUi(ref ps.red, "Popup/BtnRed");
+            SetUi(ref ps.purple, "Popup/BtnPurple");
+            SetUi(ref ps.close, "Popup/BtnClose");
+            // One prefab per popup (created once, then edited by hand).
+            if (PopupPrefabBuilder.Ensure(assets, false)) changed = true;
             // Spine animations (win popup).
             void SetSpine(ref Spine.Unity.SkeletonDataAsset slot, string path)
             {
@@ -347,9 +362,28 @@ namespace GardenCannon.EditorTools
             return changed;
         }
 
+        /// <summary>
+        /// Haptics tools (Settings > Haptics Tools: Haptics Lab, Game Haptics Map) in phone builds too, not only in the
+        /// Editor / development builds: they are compiled under SONAT_CHEAT_RELEASE.
+        /// </summary>
+        static void EnsureHapticsToolsInBuilds()
+        {
+            const string define = "SONAT_CHEAT_RELEASE";
+            foreach (var group in new[] { BuildTargetGroup.Android, BuildTargetGroup.iOS })
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+                var list = defines.Split(';').Select(d => d.Trim()).Where(d => d.Length > 0).ToList();
+                if (list.Contains(define)) continue;
+                list.Add(define);
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(group, string.Join(";", list));
+                Debug.Log($"[GardenCannon] {group}: added {define} (haptics tools in builds).");
+            }
+        }
+
         static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            EnsureHapticsToolsInBuilds();
             var assets = AssetDatabase.LoadAssetAtPath<GameAssets>(GameAssetsPath);
             if (assets == null) return;
 

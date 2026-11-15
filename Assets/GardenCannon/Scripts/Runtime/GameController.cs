@@ -138,6 +138,7 @@ namespace GardenCannon
                     GameHaptics.Play(GameHapticMoment.UiButton);
                 };
                 hud.VariantForType = FirstVariantOfType;
+                hud.CheatRequested = OnCheatRequested;
                 hud.Init(OpenSettings, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
             }
             int start = startLevel > 0 ? startLevel : PlayerPrefs.GetInt(PrefKey, 1);
@@ -214,26 +215,22 @@ namespace GardenCannon
         public void OpenSettings()
         {
             if (hud == null) return;
-            var items = new List<(string, System.Action, bool)>
-            {
-                ("Music: " + (GameAudio.MusicMuted ? "Off" : "On"), () => { sfx?.ToggleMusic(); OpenSettings(); }, false),
-                ("Sound: " + (GameAudio.Muted ? "Off" : "On"), () => { sfx?.ToggleSound(); OpenSettings(); }, false),
-                ("Vibration: " + (GameHaptics.VibrationOn ? "On" : "Off"), () => { GameHaptics.ToggleVibration(); OpenSettings(); }, false),
-            };
-            if (HapticsDebug.Available) items.Add(("Haptics Tools", OpenHapticsTools, false));
-            items.Add(("Replay", () => { hud.ClosePopup(); Restart(); }, true));
-            items.Add(("Close", () => hud.ClosePopup(), true));
-            hud.ShowMenu("Settings", items.ToArray());
+            hud.ShowSettings(!GameAudio.MusicMuted, !GameAudio.Muted, GameHaptics.VibrationOn,
+                () => { sfx?.ToggleMusic(); OpenSettings(); },
+                () => { sfx?.ToggleSound(); OpenSettings(); },
+                () => { GameHaptics.ToggleVibration(); OpenSettings(); },
+                () => { hud.ClosePopup(); Restart(); },
+                HapticsDebug.Available ? OpenHapticsTools : (System.Action)null);
         }
 
         /// <summary>Dev builds only: the package Haptics Lab, the game's haptics map, and a reset of the device tuning.</summary>
         void OpenHapticsTools()
         {
-            hud.ShowMenu("Haptics",
-                ("Haptics Lab", () => { hud.ClosePopup(); HapticsDebug.OpenLab(); }, false),
-                ("Game Haptics Map", () => { hud.ClosePopup(); HapticsDebug.OpenMap(); }, false),
-                ("Reset device tuning", () => { HapticsDebug.ResetAll(); OpenHapticsTools(); }, false),
-                ("Back", OpenSettings, true));
+            hud.ShowHaptics(
+                () => { hud.ClosePopup(); HapticsDebug.OpenLab(); },
+                () => { hud.ClosePopup(); HapticsDebug.OpenMap(); },
+                () => { HapticsDebug.ResetAll(); OpenHapticsTools(); },
+                OpenSettings);
         }
 
         int FirstVariantOfType(int type)
@@ -295,9 +292,10 @@ namespace GardenCannon
 
         void HandleInput()
         {
-            if (Input.GetKeyDown(KeyCode.R)) Restart();
-            if (Input.GetKeyDown(KeyCode.LeftBracket)) GoTo(LevelNumber - 1);
-            if (Input.GetKeyDown(KeyCode.RightBracket)) GoTo(LevelNumber + 1);
+            bool typing = hud != null && hud.CaptureKeyboard;
+            if (!typing && Input.GetKeyDown(KeyCode.R)) Restart();
+            if (!typing && Input.GetKeyDown(KeyCode.LeftBracket)) GoTo(LevelNumber - 1);
+            if (!typing && Input.GetKeyDown(KeyCode.RightBracket)) GoTo(LevelNumber + 1);
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -324,7 +322,7 @@ namespace GardenCannon
 
             if (Input.GetKey(KeyCode.LeftArrow)) cannon.SetAngle(cannon.Angle + 60f * Time.deltaTime);
             if (Input.GetKey(KeyCode.RightArrow)) cannon.SetAngle(cannon.Angle - 60f * Time.deltaTime);
-            if (Input.GetKeyDown(KeyCode.Space)) Fire();
+            if (!typing && Input.GetKeyDown(KeyCode.Space)) Fire();
 
             if (_aiming)
             {
@@ -640,6 +638,13 @@ namespace GardenCannon
 
         static MaterialPropertyBlock _ballBlock;
         static readonly int ColorId = Shader.PropertyToID("_Color");
+        static readonly int ExposureId = Shader.PropertyToID("_GCExposure");
+        static readonly int AmbientId = Shader.PropertyToID("_GCAmbient");
+        [Header("Ball look")]
+        [Tooltip("Exposure multiplier of the fired balls (on top of their material).")]
+        public float ballExposure = 1.25f;
+        [Tooltip("Ambient light added to the fired balls.")]
+        public float ballAmbientBoost = 0.15f;
 
         /// <summary>Ball look: 0 normal, 1 x2 fireball (orange-red, fiery trail), 2 kettlebell (steel grey, heavy).</summary>
         void TintBall(Transform view, int kind)
@@ -656,13 +661,16 @@ namespace GardenCannon
                     tr.widthMultiplier = TrailWidth * (fire ? 1.3f : 1f);
                     continue;
                 }
-                if (kind != 0)
-                {
-                    r.GetPropertyBlock(_ballBlock);
-                    _ballBlock.SetColor(ColorId, fire ? fireballColor : kettlebellColor);
-                    r.SetPropertyBlock(_ballBlock);
-                }
-                else r.SetPropertyBlock(null);
+                // Brighter than the shared atlas material (the ball read too dark): white base colour, more exposure
+                // and ambient, only on the ball's renderers (property block).
+                var mat = r.sharedMaterial;
+                r.GetPropertyBlock(_ballBlock);
+                _ballBlock.SetColor(ColorId, kind == 0 ? Color.white : (fire ? fireballColor : kettlebellColor));
+                if (mat != null && mat.HasProperty(ExposureId))
+                    _ballBlock.SetFloat(ExposureId, mat.GetFloat(ExposureId) * ballExposure);
+                if (mat != null && mat.HasProperty(AmbientId))
+                    _ballBlock.SetColor(AmbientId, mat.GetColor(AmbientId) + new Color(ballAmbientBoost, ballAmbientBoost, ballAmbientBoost, 0f));
+                r.SetPropertyBlock(_ballBlock);
             }
         }
 
@@ -914,18 +922,62 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
-            yield return new WaitForSeconds(0.5f);
-            if (CurrentState != State.Won || level != LevelNumber) yield break;
-            sfx?.Play(sfx.appear, 0.7f, 0f);
-            GameHaptics.Play(GameHapticMoment.PopupShown);
-            hud?.ShowWinPopup(new Color(0.18f, 0.6f, 0.17f),
-                $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
-                ("Replay", Restart, false),
-                ("Next", () => GoTo(LevelNumber + 1), true));
-            // Confetti together with the popup, falling over it (UI camera, above the popup and its Spine).
+            // 1) Celebration: fireworks + confetti over the screen and the three characters jumping in.
             sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
             GameHaptics.Play(GameHapticMoment.WinFireworks);
-            if (hud != null) fx?.ConfettiOverlay(hud.uiCamera, hud.gameObject.layer, 950);
+            bool celebrationDone = hud == null;
+            if (hud != null)
+            {
+                fx?.FireworksOverlay(hud.uiCamera, hud.gameObject.layer, 950);
+                fx?.ConfettiOverlay(hud.uiCamera, hud.gameObject.layer, 951);
+                hud.ShowWinCelebration(() => celebrationDone = true);
+            }
+            float wait = 0f;
+            while (!celebrationDone && wait < 4f) { wait += Time.deltaTime; yield return null; }
+            if (CurrentState != State.Won || level != LevelNumber) yield break;
+            // 2) Well Done popup: Replay / Next.
+            sfx?.Play(sfx.appear, 0.7f, 0f);
+            GameHaptics.Play(GameHapticMoment.PopupShown);
+            hud?.ShowWinPopup($"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
+                Restart, () => GoTo(LevelNumber + 1));
+        }
+
+        // ---------------- Cheats (5 taps on the level plate, password) ----------------
+
+        const string CheatPassword = "sonat@123";
+        // Entered once on this device: remembered in PlayerPrefs.
+        const string CheatUnlockedKey = "GardenCannon.CheatUnlocked";
+
+        void OnCheatRequested()
+        {
+            if (hud == null) return;
+            if (PlayerPrefs.GetInt(CheatUnlockedKey, 0) == 1) { OpenCheats(); return; }
+            hud.ShowPasswordPrompt(pw => pw == CheatPassword, () =>
+            {
+                PlayerPrefs.SetInt(CheatUnlockedKey, 1);
+                PlayerPrefs.Save();
+                OpenCheats();
+            });
+        }
+
+        /// <summary>Cheat: type a level number and jump to it.</summary>
+        void OpenLevelCheat()
+        {
+            int count = Mathf.Max(1, LevelLibrary.Count);
+            hud.ShowLevelPrompt($"Level 1 - {count}",
+                text => int.TryParse(text, out int n) && n >= 1 && n <= count,
+                text => { hud.ClosePopup(); GoTo(int.Parse(text)); },
+                $"Enter a number from 1 to {count}");
+        }
+
+        void OpenCheats()
+        {
+            hud.ShowCheats(
+                () => { hud.ClosePopup(); if (CurrentState == State.Aiming) { ClearBalls(); Win(); } },
+                () => { hud.ClosePopup(); if (CurrentState == State.Aiming) { ClearBalls(); Lose(); } },
+                () => { MovesLeft += 10; hud.SetMoves(MovesLeft, true); },
+                () => { boosters?.ResetForLevel(); },
+                OpenLevelCheat);
         }
 
         void Lose()
@@ -949,9 +1001,7 @@ namespace GardenCannon
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");
-            hud?.ShowPopup("Out of Moves", new Color(0.79f, 0.15f, 0.12f),
-                "Still to break:\n" + string.Join("\n", lines),
-                ("Try Again", Restart, true));
+            hud?.ShowLosePopup("Still to break:\n" + string.Join("\n", lines), Restart);
         }
     }
 }
