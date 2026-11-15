@@ -154,10 +154,23 @@ namespace GardenCannon
             SelectionChanged?.Invoke(id);
         }
 
+        [Tooltip("Gap kept between a button and the side of the screen (world units). Narrow screens (1440x3120 and "
+                 + "taller) pull the outer buttons in.")]
+        public float edgeMargin = 0.3f;
+
         void Place()
         {
             Vector3 pivot = cannon != null ? cannon.position : new Vector3(0f, -10.54f, 0f);
-            foreach (var b in _buttons) b.root.position = pivot + b.def.offset;
+            var cam = Camera.main;
+            float camX = cam != null ? cam.transform.position.x : 0f;
+            float maxX = cam != null ? cam.orthographicSize * cam.aspect - edgeMargin - buttonSize * 0.5f : float.MaxValue;
+            foreach (var b in _buttons)
+            {
+                var p = pivot + b.def.offset;
+                float dx = p.x - camX;
+                if (Mathf.Abs(dx) > maxX) p.x = camX + Mathf.Sign(dx) * maxX;
+                b.root.position = p;
+            }
         }
 
         void Refresh()

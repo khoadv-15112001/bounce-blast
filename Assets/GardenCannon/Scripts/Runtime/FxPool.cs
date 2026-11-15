@@ -214,6 +214,46 @@ namespace GardenCannon
             Sparkle(top + Vector3.down * 4f, 14, 1.3f, 3f);
         }
 
+        ParticleSystem _confettiUi;
+
+        /// <summary>
+        /// Win popup confetti: rains from the top of the screen in front of the popup (drawn by the UI camera, on
+        /// <paramref name="layer"/>, above every popup sprite / Spine with <paramref name="sortingOrder"/>).
+        /// </summary>
+        public void ConfettiOverlay(Camera uiCamera, int layer, int sortingOrder, int count = 110)
+        {
+            if (uiCamera == null) return;
+            Init();
+            if (_confettiUi == null)
+            {
+                _confettiUi = Create("ConfettiUI", 0.55f, confettiSprites, 500);
+                ConfigureFade(_confettiUi, 0.85f);
+            }
+            _confettiUi.gameObject.layer = layer;
+            _confettiUi.GetComponent<ParticleSystemRenderer>().sortingOrder = sortingOrder;
+            var c = uiCamera.transform.position;
+            float halfH = uiCamera.orthographicSize, halfW = halfH * uiCamera.aspect;
+            // A little in front of the popup (which sits 5 units in front of the UI camera).
+            float z = c.z + uiCamera.transform.forward.z * 4.5f;
+            var p = new ParticleSystem.EmitParams();
+            for (int i = 0; i < count; i++)
+            {
+                p.position = new Vector3(c.x + Random.Range(-1f, 1f) * halfW, c.y + halfH + Random.Range(-0.5f, 3f), z);
+                p.velocity = new Vector3(Random.Range(-2.5f, 2.5f), Random.Range(-2f, 3f), 0f);
+                p.startColor = Color.white;
+                p.startSize = Random.Range(0.45f, 0.8f);
+                p.startLifetime = Random.Range(2.8f, 3.8f);
+                p.rotation = Random.Range(0f, 360f);
+                _confettiUi.Emit(p, 1);
+            }
+        }
+
+        /// <summary>Remove the popup confetti at once (level change / replay).</summary>
+        public void ClearConfettiOverlay()
+        {
+            if (_confettiUi != null) _confettiUi.Clear(true);
+        }
+
         // ------------------------------------------------------------------ original VFX prefabs (pooled)
 
         class PrefabFx

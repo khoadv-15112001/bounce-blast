@@ -158,6 +158,7 @@ namespace GardenCannon
             PlayerPrefs.Save();
 
             ClearBalls();
+            fx?.ClearConfettiOverlay();
             sfx?.StopJingles();
             _burstLeft = 0;
             _aiming = false;
@@ -892,9 +893,20 @@ namespace GardenCannon
             PlayerPrefs.SetInt(PrefKey, next > LevelLibrary.Count ? 1 : next);
             PlayerPrefs.Save();
             sfx?.SetMusicDuck(true);
-            sfx?.PlayJingle(sfx.levelWin, 1f);
             GameHaptics.Play(GameHapticMoment.LevelWon);
             StartCoroutine(WinSequence());
+            StartCoroutine(WinJingle());
+        }
+
+        [Tooltip("Delay before the win music starts (seconds after the last goal breaks). The popup opens at 1.1 s.")]
+        public float winJingleDelay = 1.1f;
+
+        IEnumerator WinJingle()
+        {
+            int level = LevelNumber;
+            if (winJingleDelay > 0f) yield return new WaitForSeconds(winJingleDelay);
+            if (CurrentState != State.Won || level != LevelNumber) yield break;
+            sfx?.PlayJingle(sfx.levelWin, 1f);
         }
 
         IEnumerator WinSequence()
@@ -902,9 +914,6 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
-            sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
-            GameHaptics.Play(GameHapticMoment.WinFireworks);
-            fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
             yield return new WaitForSeconds(0.5f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
             sfx?.Play(sfx.appear, 0.7f, 0f);
@@ -913,6 +922,10 @@ namespace GardenCannon
                 $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
                 ("Replay", Restart, false),
                 ("Next", () => GoTo(LevelNumber + 1), true));
+            // Confetti together with the popup, falling over it (UI camera, above the popup and its Spine).
+            sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
+            GameHaptics.Play(GameHapticMoment.WinFireworks);
+            if (hud != null) fx?.ConfettiOverlay(hud.uiCamera, hud.gameObject.layer, 950);
         }
 
         void Lose()

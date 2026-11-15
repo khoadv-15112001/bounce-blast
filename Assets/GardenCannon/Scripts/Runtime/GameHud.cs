@@ -74,6 +74,8 @@ namespace GardenCannon
         public Sprite movesBadgeSprite;
         [Tooltip("Scale of the badge panel art (x and y).")]
         public float movesBadgeSpriteScale = 0.17f;
+        [Tooltip("Minimum distance from the centre of the settings button / moves badge to the side of the screen.")]
+        public float hudEdgeGap = 1.2f;
         Transform _goalsRoot, _popupRoot, _bannerRoot;
         readonly Dictionary<int, (TextMesh text, Transform icon)> _goals = new Dictionary<int, (TextMesh, Transform)>();
         readonly Dictionary<Transform, float> _punch = new Dictionary<Transform, float>();
@@ -115,6 +117,9 @@ namespace GardenCannon
                 AddButton(settingsAnchor, new Vector2(1.6f, 1.6f), restart);
                 Relayer(settingsAnchor);
             }
+            // Keep the settings button off the side of the narrowest screens (1440x3120).
+            var settingsUi = settingsAnchor != null ? settingsAnchor.GetComponent<UiAnchor>() : null;
+            if (settingsUi != null) { settingsUi.minEdgeGap = hudEdgeGap; settingsUi.Apply(); }
             if (movesBadgeTopLeft && settingsAnchor != null) movesAnchor = BuildMovesBadge();
             if (movesAnchor != null)
             {
@@ -156,6 +161,7 @@ namespace GardenCannon
                 a.offset = src.offset;
                 a.x = -src.x;
                 a.respectSafeArea = src.respectSafeArea;
+                a.minEdgeGap = hudEdgeGap;
                 a.Apply();
             }
             var panel = new GameObject("Panel").AddComponent<SpriteRenderer>();
