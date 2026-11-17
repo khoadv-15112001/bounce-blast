@@ -26,6 +26,8 @@ namespace GardenCannon
         public Material[] balloonMaterials;
         [Tooltip("Balloon size in cells.")]
         public float balloonScale = 1.3f;
+        [Tooltip("Flying balloons push each other apart when closer than this (share of the balloon size).")]
+        public float balloonSpacing = 0.8f;
         [Tooltip("Original ball splash effect (VFX_Ball_Splash).")]
         public GameObject splashFx;
 
@@ -212,6 +214,115 @@ namespace GardenCannon
             Sparkle(top + Vector3.down * 4f, 14, 1.3f, 3f);
         }
 
+        ParticleSystem _confettiUi;
+
+        /// <summary>
+        /// Win popup confetti: rains from the top of the screen in front of the popup (drawn by the UI camera, on
+        /// <paramref name="layer"/>, above every popup sprite / Spine with <paramref name="sortingOrder"/>).
+        /// </summary>
+        public void ConfettiOverlay(Camera uiCamera, int layer, int sortingOrder, int count = 110)
+        {
+            if (uiCamera == null) return;
+            Init();
+            if (_confettiUi == null)
+            {
+                _confettiUi = Create("ConfettiUI", 0.55f, confettiSprites, 500);
+                ConfigureFade(_confettiUi, 0.85f);
+            }
+            _confettiUi.gameObject.layer = layer;
+            _confettiUi.GetComponent<ParticleSystemRenderer>().sortingOrder = sortingOrder;
+            var c = uiCamera.transform.position;
+            float halfH = uiCamera.orthographicSize, halfW = halfH * uiCamera.aspect;
+            // A little in front of the popup (which sits 5 units in front of the UI camera).
+            float z = c.z + uiCamera.transform.forward.z * 4.5f;
+            var p = new ParticleSystem.EmitParams();
+            for (int i = 0; i < count; i++)
+            {
+                p.position = new Vector3(c.x + Random.Range(-1f, 1f) * halfW, c.y + halfH + Random.Range(-0.5f, 3f), z);
+                p.velocity = new Vector3(Random.Range(-2.5f, 2.5f), Random.Range(-2f, 3f), 0f);
+                p.startColor = Color.white;
+                p.startSize = Random.Range(0.45f, 0.8f);
+                p.startLifetime = Random.Range(2.8f, 3.8f);
+                p.rotation = Random.Range(0f, 360f);
+                _confettiUi.Emit(p, 1);
+            }
+        }
+
+        /// <summary>Remove the popup confetti / fireworks at once (level change / replay).</summary>
+        public void ClearConfettiOverlay()
+        {
+            if (_confettiUi != null) _confettiUi.Clear(true);
+            if (_fireworksUi != null) _fireworksUi.Clear(true);
+            if (_fireworksRoutine != null) { StopCoroutine(_fireworksRoutine); _fireworksRoutine = null; }
+        }
+
+        ParticleSystem _fireworksUi;
+        Coroutine _fireworksRoutine;
+        static readonly Color[] FireworkColors =
+        {
+            new Color(1f, 0.85f, 0.2f), new Color(1f, 0.35f, 0.3f), new Color(0.4f, 0.85f, 1f),
+            new Color(0.6f, 1f, 0.4f), new Color(1f, 0.5f, 0.95f), new Color(1f, 0.65f, 0.2f),
+        };
+
+        /// <summary>
+        /// Win celebration fireworks over the whole screen (UI camera, in front of the popups): star bursts going off
+        /// one after the other for <paramref name="duration"/> seconds.
+        /// </summary>
+        public void FireworksOverlay(Camera uiCamera, int layer, int sortingOrder, float duration = 2.2f, int bursts = 7)
+        {
+            if (uiCamera == null) return;
+            Init();
+            if (_fireworksUi == null)
+            {
+                _fireworksUi = Create("FireworksUI", 0.35f, new[] { starSprite, glowSprite }, 1200);
+                ConfigureFade(_fireworksUi, 0.55f);
+            }
+            _fireworksUi.gameObject.layer = layer;
+            _fireworksUi.GetComponent<ParticleSystemRenderer>().sortingOrder = sortingOrder;
+            if (_fireworksRoutine != null) StopCoroutine(_fireworksRoutine);
+            _fireworksRoutine = StartCoroutine(FireworksRoutine(uiCamera, duration, Mathf.Max(1, bursts)));
+        }
+
+        System.Collections.IEnumerator FireworksRoutine(Camera cam, float duration, int bursts)
+        {
+            float step = duration / bursts;
+            for (int i = 0; i < bursts; i++)
+            {
+                if (cam == null) yield break;
+                var c = cam.transform.position;
+                float halfH = cam.orthographicSize, halfW = halfH * cam.aspect;
+                float z = c.z + cam.transform.forward.z * 4.4f;
+                // Upper two thirds of the screen, alternating sides.
+                float x = c.x + (i % 2 == 0 ? -1f : 1f) * Random.Range(0.15f, 0.7f) * halfW;
+                float y = c.y + Random.Range(-0.1f, 0.75f) * halfH;
+                var colour = FireworkColors[Random.Range(0, FireworkColors.Length)];
+                var p = new ParticleSystem.EmitParams();
+                // flash
+                p.position = new Vector3(x, y, z);
+                p.velocity = Vector3.zero;
+                p.startColor = new Color(1f, 1f, 1f, 0.9f);
+                p.startSize = 3.2f;
+                p.startLifetime = 0.25f;
+                _fireworksUi.Emit(p, 1);
+                // ring of sparks
+                const int sparks = 40;
+                for (int k = 0; k < sparks; k++)
+                {
+                    float a = (k + Random.value * 0.5f) / sparks * Mathf.PI * 2f;
+                    float speed = Random.Range(4.5f, 7.5f);
+                    p.position = new Vector3(x, y, z);
+                    p.velocity = new Vector3(Mathf.Cos(a) * speed, Mathf.Sin(a) * speed, 0f);
+                    p.startColor = Color.Lerp(colour, Color.white, Random.Range(0f, 0.35f));
+                    p.startSize = Random.Range(0.35f, 0.65f);
+                    p.startLifetime = Random.Range(0.9f, 1.4f);
+                    p.rotation = Random.Range(0f, 360f);
+                    _fireworksUi.Emit(p, 1);
+                }
+                yield return new WaitForSeconds(step * Random.Range(0.7f, 1.2f));
+            }
+            _fireworksRoutine = null;
+        }
+
         // ------------------------------------------------------------------ original VFX prefabs (pooled)
 
         class PrefabFx
@@ -368,6 +479,9 @@ namespace GardenCannon
             public Renderer body;
             public Vector3 start;
             public float age, rise, accel, phase, sway, scale;
+            /// <summary>Separation offset (pushed by the neighbours) and its velocity.</summary>
+            public Vector2 push, pushVel;
+            public Vector2 basePos;
         }
 
         readonly List<Floater> _balloonsActive = new List<Floater>();
@@ -401,22 +515,29 @@ namespace GardenCannon
             f.phase = Random.Range(0f, Mathf.PI * 2f);
             f.sway = Random.Range(0.18f, 0.3f) * cellSize;
             f.scale = balloonScale * cellSize;
+            f.push = Vector2.zero;
+            f.pushVel = Vector2.zero;
+            // Slightly different depth per balloon so overlapping ones never cut through each other.
+            f.start.z -= (_balloonDepth = (_balloonDepth + 1) % 8) * 0.06f * cellSize;
             f.t.position = f.start;
             f.t.rotation = Quaternion.identity;
             f.t.localScale = Vector3.zero;
             _balloonsActive.Add(f);
         }
 
+        int _balloonDepth;
+
         void UpdateBalloons(float dt)
         {
             float top = Camera.main != null ? Camera.main.transform.position.y + 2f * Camera.main.orthographicSize + 6f : 30f;
+            // 1) Path of each balloon (rise + sway), without the separation.
             for (int i = _balloonsActive.Count - 1; i >= 0; i--)
             {
                 var f = _balloonsActive[i];
                 f.age += dt;
                 float t = f.age;
                 float y = f.start.y + f.rise * t + 0.5f * f.accel * t * t;
-                if (y > top || t > 8f)
+                if (y + f.push.y > top || t > 8f)
                 {
                     f.t.gameObject.SetActive(false);
                     _balloonsActive.RemoveAt(i);
@@ -424,7 +545,35 @@ namespace GardenCannon
                     continue;
                 }
                 float x = f.start.x + Mathf.Sin(t * 2.4f + f.phase) * f.sway - Mathf.Sin(f.phase) * f.sway;
-                f.t.position = new Vector3(x, y, f.start.z);
+                f.basePos = new Vector2(x, y);
+            }
+            // 2) Balloons closer than balloonSpacing push each other apart (soft spring, damped), so they never stick together.
+            for (int i = 0; i < _balloonsActive.Count; i++)
+            {
+                var a = _balloonsActive[i];
+                for (int j = i + 1; j < _balloonsActive.Count; j++)
+                {
+                    var b = _balloonsActive[j];
+                    float min = balloonSpacing * 0.5f * (a.scale + b.scale);
+                    Vector2 d = (a.basePos + a.push) - (b.basePos + b.push);
+                    float dist = d.magnitude;
+                    if (dist >= min) continue;
+                    // Same spot (two eggs hatched together): split them sideways.
+                    Vector2 n = dist > 1e-4f ? d / dist : (i % 2 == 0 ? Vector2.right : Vector2.left);
+                    float overlap = (min - dist) / Mathf.Max(0.01f, min);
+                    Vector2 kick = n * (overlap * min * 18f * dt);
+                    a.pushVel += kick;
+                    b.pushVel -= kick;
+                }
+            }
+            float damp = Mathf.Exp(-4f * dt);
+            for (int i = 0; i < _balloonsActive.Count; i++)
+            {
+                var f = _balloonsActive[i];
+                float t = f.age;
+                f.pushVel *= damp;
+                f.push += f.pushVel * dt;
+                f.t.position = new Vector3(f.basePos.x + f.push.x, f.basePos.y + f.push.y, f.start.z);
                 // Pop out of the egg (overshoot), then a gentle wobble.
                 float pop = t < 0.35f ? EaseOutBack(t / 0.35f) : 1f;
                 f.t.localScale = Vector3.one * (f.scale * pop);

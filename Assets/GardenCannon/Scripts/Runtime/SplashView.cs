@@ -26,8 +26,26 @@ namespace GardenCannon
         [Tooltip("The logo never gets wider than this share of the screen width.")]
         [Range(0.5f, 1f)] public float logoMaxWidth = 0.92f;
 
+        [Header("Spine logo (replaces the logo sprite when set)")]
+        [Tooltip("Spine logo placed in the scene (child of Logo). Found automatically under the logo when empty.")]
+        public Spine.Unity.SkeletonAnimation logoSpineView;
+        [Tooltip("Used when there is no LogoSpine in the scene: one is made from this data.")]
+        public Spine.Unity.SkeletonDataAsset logoSpine;
+        public string logoAppearAnim = "Appear";
+        [Tooltip("Looped between Appear and End while the game is still loading.")]
+        public string logoIdleAnim = "Idle";
+        [Tooltip("Played once the game is loaded; the game scene opens when it is done.")]
+        public string logoEndAnim = "End";
+        [Tooltip("Spine logo width relative to the logo sprite width.")]
+        public float logoSpineWidth = 1.25f;
+
         const string BackgroundPath = "Assets/SpriteExport/splash_bg.png";
         const string LogoPath = "Assets/SpriteExport/splash_logo.png";
+        const string LogoSpinePath = "Assets/GardenCannon/Spin/Logo/Logo_SkeletonData.asset";
+
+        Spine.Unity.SkeletonAnimation _logoAnim;
+        Spine.TrackEntry _logoAppear;
+        Vector2 _logoSpineSize;   // in the logo's local space
 
         void Awake()
         {
@@ -47,6 +65,70 @@ namespace GardenCannon
                 var a = logo.GetComponent<AddressableSprite>();
                 if (a != null) a.enabled = false;
             }
+            if (logo != null) MakeSpineLogo();
+        }
+
+        /// <summary>
+        /// Animated logo: the LogoSpine placed in the scene (kept where it was put), or one made from
+        /// <see cref="logoSpine"/> at the sprite logo's place. Plays Appear, then Idle until the game is loaded
+        /// (End is played from <see cref="Start"/>). The sprite logo is hidden.
+        /// </summary>
+        void MakeSpineLogo()
+        {
+            var sr = logo.GetComponent<SpriteRenderer>();
+            if (logoSpineView == null) logoSpineView = logo.GetComponentInChildren<Spine.Unity.SkeletonAnimation>(true);
+            if (logoSpineView != null)
+            {
+                if (logoSpineView.skeletonDataAsset == null) logoSpineView.skeletonDataAsset = logoSpine;
+                if (logoSpineView.skeletonDataAsset == null) return;
+                logoSpineView.gameObject.SetActive(true);
+                logoSpineView.Initialize(false);
+                if (!logoSpineView.valid) return;
+                _logoAnim = logoSpineView;
+                var d = _logoAnim.skeletonDataAsset.GetSkeletonData(true);
+                var ls = _logoAnim.transform.localScale;
+                _logoSpineSize = new Vector2(d.Width * Mathf.Abs(ls.x), d.Height * Mathf.Abs(ls.y)) * _logoAnim.skeletonDataAsset.scale;
+            }
+            else
+            {
+                if (logoSpine == null) return;
+                var data = logoSpine.GetSkeletonData(true);
+                if (data == null || data.Width <= 0f) return;
+                float spriteW = sr != null && sr.sprite != null ? sr.sprite.bounds.size.x : data.Width * logoSpine.scale;
+                _logoAnim = Spine.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(logoSpine, true);
+                _logoAnim.name = "LogoSpine";
+                var t = _logoAnim.transform;
+                t.SetParent(logo, false);
+                float k = spriteW * logoSpineWidth / (data.Width * logoSpine.scale);
+                float u = logoSpine.scale * k;
+                t.localScale = Vector3.one * k;
+                // Centre of the skeleton bounds on the logo pivot (the sprite is centred).
+                t.localPosition = new Vector3(-(data.X + data.Width * 0.5f) * u, -(data.Y + data.Height * 0.5f) * u, -0.01f);
+                _logoSpineSize = new Vector2(data.Width, data.Height) * u;
+                var mr = _logoAnim.GetComponent<MeshRenderer>();
+                if (mr != null && sr != null) { mr.sortingLayerID = sr.sortingLayerID; mr.sortingOrder = sr.sortingOrder; }
+                _logoAnim.gameObject.layer = logo.gameObject.layer;
+            }
+            if (sr != null) sr.enabled = false;
+            var skel = _logoAnim.skeletonDataAsset.GetSkeletonData(true);
+            bool appear = skel.FindAnimation(logoAppearAnim) != null, idle = skel.FindAnimation(logoIdleAnim) != null;
+            if (appear) _logoAppear = _logoAnim.AnimationState.SetAnimation(0, logoAppearAnim, false);
+            if (idle)
+            {
+                if (appear) _logoAnim.AnimationState.AddAnimation(0, logoIdleAnim, true, 0f);
+                else _logoAnim.AnimationState.SetAnimation(0, logoIdleAnim, true);
+            }
+        }
+
+        /// <summary>Wait for Appear to finish, then play End and wait for it (the game scene opens right after).</summary>
+        IEnumerator PlayLogoOut()
+        {
+            if (_logoAnim == null) yield break;
+            while (_logoAppear != null && !_logoAppear.IsComplete) yield return null;
+            var skel = _logoAnim.skeletonDataAsset.GetSkeletonData(true);
+            if (string.IsNullOrEmpty(logoEndAnim) || skel.FindAnimation(logoEndAnim) == null) yield break;
+            var end = _logoAnim.AnimationState.SetAnimation(0, logoEndAnim, false);
+            while (end != null && !end.IsComplete) yield return null;
         }
 
 #if UNITY_EDITOR
@@ -55,6 +137,7 @@ namespace GardenCannon
             bool changed = false;
             if (backgroundSprite == null) { backgroundSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(BackgroundPath); changed |= backgroundSprite != null; }
             if (logoSprite == null) { logoSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(LogoPath); changed |= logoSprite != null; }
+            if (logoSpine == null) { logoSpine = UnityEditor.AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(LogoSpinePath); changed |= logoSpine != null; }
             if (changed) UnityEditor.EditorUtility.SetDirty(this);
         }
 
@@ -109,6 +192,8 @@ namespace GardenCannon
             if (levels.IsValid()) Addressables.Release(levels);
 
             while (_t < minDuration) yield return null;
+            // Spine logo: the whole Appear animation, then End, before leaving.
+            yield return PlayLogoOut();
 
             // Load the game scene only now. A scene load held with allowSceneActivation = false blocks every async
             // load queued after it (asset bundles included), which froze the first launch on "Loading".
@@ -120,7 +205,9 @@ namespace GardenCannon
             _t += Time.deltaTime;
             FitBackground();
             float fit = FitLogo();
-            if (logo != null && _logoScale != Vector3.zero)
+            if (logo != null && _logoScale != Vector3.zero && _logoAnim != null)
+                logo.localScale = _logoScale * fit;   // the Spine Appear animation does the entrance
+            else if (logo != null && _logoScale != Vector3.zero)
             {
                 float k = Mathf.Clamp01(_t / 0.45f);
                 float back = 1f + 2.70158f * Mathf.Pow(k - 1f, 3f) + 1.70158f * Mathf.Pow(k - 1f, 2f); // ease out back
@@ -178,11 +265,14 @@ namespace GardenCannon
         {
             if (logo == null || cam == null) return 1f;
             var sr = logo.GetComponent<SpriteRenderer>();
-            if (sr == null || sr.sprite == null) return 1f;
+            Vector3 localSize;
+            if (_logoAnim != null) localSize = _logoSpineSize;
+            else if (sr != null && sr.sprite != null) localSize = sr.sprite.bounds.size;
+            else return 1f;
             if (!_logoLocalSet) { _logoLocal = logo.localPosition; _logoLocalSet = true; }
             var parent = logo.parent;
             float parentScale = parent != null ? Mathf.Abs(parent.lossyScale.y) : 1f;
-            Vector3 full = Vector3.Scale(sr.sprite.bounds.size, _logoScale == Vector3.zero ? logo.localScale : _logoScale) * parentScale;
+            Vector3 full = Vector3.Scale(localSize, _logoScale == Vector3.zero ? logo.localScale : _logoScale) * parentScale;
             float camH = cam.orthographicSize * 2f, camW = camH * cam.aspect;
             float fit = full.x > 1e-4f ? Mathf.Min(1f, camW * logoMaxWidth / full.x) : 1f;
             float halfH = full.y * fit * 0.5f;

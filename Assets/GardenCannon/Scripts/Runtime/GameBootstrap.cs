@@ -31,6 +31,8 @@ namespace GardenCannon
         public FxPool fx;
         [Tooltip("Lawn sprite renderer, swapped to the 12x17 lawn for 12-column levels.")]
         public SpriteRenderer lawnRenderer;
+        [Tooltip("Row of waiting balls right of the cannon (off: that spot holds boosters now).")]
+        public bool showAmmoBelt = false;
 
         AsyncOperationHandle<GameAssets> _assetsHandle;
         AsyncOperationHandle<IList<TextAsset>> _levelsHandle;
@@ -54,6 +56,7 @@ namespace GardenCannon
             if (art == null) art = gameObject.AddComponent<SceneArt3D>();
             art.cannonPrefab = a.cannon3D;
             art.bgPrefab = a.bg3D;
+            art.bgMesh = a.bgMesh;
             art.grassPrefab = a.grass3D;   // checker lawn drawn under the GrassTop picture (its lawn is transparent)
             art.Apply(board, cannon, hud);
             if (controller != null) controller.sceneArt = art;
@@ -114,7 +117,7 @@ namespace GardenCannon
                 fx.splashFx = a.splashFx;
             }
             if (fx != null) fx.birdFrames = a.birdFrames;
-            if (controller != null && a.ballPrefab != null && cannon != null)
+            if (showAmmoBelt && controller != null && a.ballPrefab != null && cannon != null)
             {
                 // Balls waiting on the right of the cannon; one rolls in on each shot.
                 var belt = controller.ammoBelt;
@@ -126,6 +129,33 @@ namespace GardenCannon
                 belt.ballPrefab = a.ballPrefab;
                 belt.cannon = cannon.transform;
                 controller.ammoBelt = belt;
+            }
+            if (controller != null && cannon != null)
+            {
+                // Boosters on both sides of the cannon (x2 fireballs, arrow, bowling, bomb).
+                var bar = controller.boosters;
+                if (bar == null)
+                {
+                    bar = new GameObject("Boosters").AddComponent<BoosterBar>();
+                    bar.transform.SetParent(transform, false);
+                }
+                if (bar.boosters.Count == 0) bar.boosters = BoosterBar.DefaultDefs();
+                foreach (var d in bar.boosters)
+                {
+                    var icon = d.id switch
+                    {
+                        BoosterId.X2 => a.boosterX2Icon,
+                        BoosterId.Arrow => a.boosterArrowIcon,
+                        BoosterId.Bowling => a.boosterBowlingIcon,
+                        _ => a.boosterBombIcon,
+                    };
+                    if (icon != null) d.icon = icon;
+                }
+                bar.font = a.font;
+                if (a.boosterPlateSprite != null) bar.plateSprite = a.boosterPlateSprite;
+                if (a.boosterBubbleSprite != null) bar.bubbleSprite = a.boosterBubbleSprite;
+                bar.cannon = cannon.transform;
+                controller.boosters = bar;
             }
             if (fx != null)
             {
@@ -172,6 +202,31 @@ namespace GardenCannon
                 hud.font = a.font;
                 hud.whiteSprite = a.white;
                 hud.panelSprite = a.white;
+                if (a.movesBadgeSprite != null) hud.movesBadgeSprite = a.movesBadgeSprite;
+                if (a.popupSkin != null && a.popupSkin.Valid) hud.skin = a.popupSkin;
+                hud.hudCanvasPrefab = a.hudCanvasPrefab;
+                if (a.uiTheme != null) hud.theme = a.uiTheme;
+                hud.boosterPlateSprite = a.boosterPlateSprite;
+                hud.boosterBubbleSprite = a.boosterBubbleSprite;
+                hud.boosterIcon = id => id switch
+                {
+                    BoosterId.X2 => a.boosterX2Icon,
+                    BoosterId.Arrow => a.boosterArrowIcon,
+                    BoosterId.Bowling => a.boosterBowlingIcon,
+                    _ => a.boosterBombIcon,
+                };
+                // HUD canvas now, so the boosters can use its buttons.
+                if (hud.EnsureCanvas() != null && controller.boosters != null)
+                {
+                    controller.boosters.hud = hud.Canvas;
+                    var r = rig;
+                    controller.boosters.screenToGround = p => r != null ? r.ScreenToGround(p) : (Vector2)Camera.main.ScreenToWorldPoint(p);
+                }
+                hud.winSpine = a.winSpine;
+                hud.winTextSpine = a.winTextSpine;
+                // Parse the skeletons now, not on the win frame.
+                if (a.winSpine != null) a.winSpine.GetSkeletonData(true);
+                if (a.winTextSpine != null) a.winTextSpine.GetSkeletonData(true);
                 // Level plate and restart button are already placed in the scene.
                 hud.levelPlate = null;
                 hud.settingsButton = null;

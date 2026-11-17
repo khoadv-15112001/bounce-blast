@@ -47,6 +47,64 @@ namespace GardenCannon.EditorTools
             var lawn12 = lawn;   // one picture for both board sizes: the checker is drawn underneath per level
             if (lawn != null && assets.grassTop != lawn) { assets.grassTop = lawn; changed = true; }
             if (lawn12 != null && assets.grassTop12x17 != lawn12) { assets.grassTop12x17 = lawn12; changed = true; }
+            // Booster icons: cut from Art/Boosters/booster_icons.png (arrow, bowling, x2, bomb).
+            Sprite Icon(string n) => AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/Boosters/" + n + ".png");
+            void SetIcon(ref Sprite slot, string n) { var s = Icon(n); if (s != null && slot != s) { slot = s; changed = true; } }
+            SetIcon(ref assets.boosterX2Icon, "BoosterX2");
+            SetIcon(ref assets.boosterArrowIcon, "BoosterArrow");
+            SetIcon(ref assets.boosterBowlingIcon, "BoosterBowling");
+            SetIcon(ref assets.boosterBombIcon, "BoosterBomb");
+            // UI button art.
+            void SetUi(ref Sprite slot, string n)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/GardenCannon/Art/UI/" + n + ".png");
+                if (s != null && slot != s) { slot = s; changed = true; }
+            }
+            SetUi(ref assets.movesBadgeSprite, "frame_shooter");
+            SetUi(ref assets.boosterPlateSprite, "frame_booster");
+            SetUi(ref assets.boosterBubbleSprite, "dot_red");
+            // Popup kit (cut from the original game's SpriteExport popup pieces).
+            if (assets.popupSkin == null) { assets.popupSkin = new PopupSkin(); changed = true; }
+            var ps = assets.popupSkin;
+            SetUi(ref ps.body, "Popup/PopupBody");
+            SetUi(ref ps.header, "Popup/PopupHeader");
+            SetUi(ref ps.inside, "Popup/PopupInside");
+            SetUi(ref ps.green, "Popup/BtnGreen");
+            SetUi(ref ps.yellow, "Popup/BtnYellow");
+            SetUi(ref ps.blue, "Popup/BtnBlue");
+            SetUi(ref ps.red, "Popup/BtnRed");
+            SetUi(ref ps.purple, "Popup/BtnPurple");
+            SetUi(ref ps.close, "Popup/BtnClose");
+            // TextMeshPro font + materials for the HUD canvas / popups.
+            if (assets.uiTheme == null) { assets.uiTheme = new UiTheme(); changed = true; }
+            var th = assets.uiTheme;
+            void SetObj<T>(ref T slot, string path) where T : Object
+            {
+                var o = AssetDatabase.LoadAssetAtPath<T>(path);
+                if (o != null && slot != o) { slot = o; changed = true; }
+            }
+            const string F = "Assets/GardenCannon/Fonts/ENG/1FTVVIPMikado-Black SDF";
+            SetObj(ref th.font, F + ".asset");
+            SetObj(ref th.titleMaterial, F + " Material Title Red.mat");
+            SetObj(ref th.bodyMaterial, F + " Material Desc Brown.mat");
+            SetObj(ref th.greenText, F + " Material Title Green Dark.mat");
+            SetObj(ref th.yellowText, F + " Material Title Orange.mat");
+            SetObj(ref th.blueText, F + " Material Title Blue Dark.mat");
+            SetObj(ref th.redText, F + " Material Title Red.mat");
+            SetObj(ref th.purpleText, F + " Material Title Purple.mat");
+            SetObj(ref th.settingsButton, "Assets/GardenCannon/Art/UI/btn_setting.png");
+            SetObj(ref th.skeletonGraphicMaterial,
+                "Packages/com.esotericsoftware.spine.spine-unity/Runtime/spine-unity/Materials/UI-StraightAlphaTex/CanvasGroup/SkeletonGraphicDefault-CanvasGroupStraight.mat");
+            // HUD canvas + one canvas prefab per popup (created once, then edited by hand).
+            if (UiPrefabBuilder.Ensure(assets, false)) changed = true;
+            // Spine animations (win popup).
+            void SetSpine(ref Spine.Unity.SkeletonDataAsset slot, string path)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(path);
+                if (s != null && slot != s) { slot = s; changed = true; }
+            }
+            SetSpine(ref assets.winSpine, "Assets/GardenCannon/Spin/win/Win_SkeletonData.asset");
+            SetSpine(ref assets.winTextSpine, "Assets/GardenCannon/Spin/text_win/Text_Win_SkeletonData.asset");
             var balloon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Prefab/Baloon/Baloon.prefab");
             var eggBox = assets.catalog != null ? assets.catalog.entries.FirstOrDefault(x => x.typeId == 5) : null;
             // Balloon flying away: balloon_fly instead of the bird sound.
@@ -324,9 +382,41 @@ namespace GardenCannon.EditorTools
             return changed;
         }
 
+        /// <summary>
+        /// Haptics tools (Settings > Haptics Tools: Haptics Lab, Game Haptics Map) in phone builds too, not only in the
+        /// Editor / development builds: they are compiled under SONAT_CHEAT_RELEASE.
+        /// </summary>
+        /// <summary>TextMeshPro shaders / settings (TMP Essential Resources) for the Mikado SDF font and the canvas texts.</summary>
+        static void EnsureTmpEssentials()
+        {
+            if (AssetDatabase.IsValidFolder("Assets/TextMesh Pro")) return;
+            const string pkg = "Packages/com.unity.textmeshpro/Package Resources/TMP Essential Resources.unitypackage";
+            if (!System.IO.File.Exists(System.IO.Path.GetFullPath(pkg))) return;
+            AssetDatabase.ImportPackage(pkg, false);
+            Debug.Log("[GardenCannon] Imported TMP Essential Resources.");
+            // Run again once the TMP settings exist, so the UI prefabs get built.
+            EditorApplication.delayCall += Run;
+        }
+
+        static void EnsureHapticsToolsInBuilds()
+        {
+            const string define = "SONAT_CHEAT_RELEASE";
+            foreach (var group in new[] { BuildTargetGroup.Android, BuildTargetGroup.iOS })
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+                var list = defines.Split(';').Select(d => d.Trim()).Where(d => d.Length > 0).ToList();
+                if (list.Contains(define)) continue;
+                list.Add(define);
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(group, string.Join(";", list));
+                Debug.Log($"[GardenCannon] {group}: added {define} (haptics tools in builds).");
+            }
+        }
+
         static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            EnsureHapticsToolsInBuilds();
+            EnsureTmpEssentials();
             var assets = AssetDatabase.LoadAssetAtPath<GameAssets>(GameAssetsPath);
             if (assets == null) return;
 
@@ -402,6 +492,18 @@ namespace GardenCannon.EditorTools
             }
 
             // New music / shot sound and the egg box balloons (checked every time: the files may import later).
+            // BG without the old moves plate (the counter is in the top-left badge now).
+            if (assets.bg3D != null && (assets.bgMesh == null || AssetDatabase.GetAssetPath(assets.bgMesh) != BgPlateRemover.OutPath))
+            {
+                var noPlate = BgPlateRemover.LoadOrBuild();
+                if (noPlate != null)
+                {
+                    assets.bgMesh = noPlate;
+                    EditorUtility.SetDirty(assets);
+                    AssetDatabase.SaveAssets();
+                }
+            }
+
             if (ApplyAudioAndBalloons(assets))
             {
                 EditorUtility.SetDirty(assets);
@@ -434,6 +536,15 @@ namespace GardenCannon.EditorTools
 
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null) return;
+            // Always build the Addressables content with the APK. "Use preferences" depends on each machine's Unity
+            // settings: a build without it ships without assets/aa (about 30 MB smaller) and hangs on Loading.
+            if (settings.BuildAddressablesWithPlayerBuild != UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer)
+            {
+                settings.BuildAddressablesWithPlayerBuild = UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+                Debug.Log("[GardenCannon] Addressables: build content with every player build.");
+            }
             var shaderGuid = AssetDatabase.AssetPathToGUID(OverlayShaderPath);
             if (!string.IsNullOrEmpty(shaderGuid) && settings.FindAssetEntry(shaderGuid) == null)
             {

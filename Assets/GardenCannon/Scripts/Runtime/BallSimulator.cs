@@ -12,10 +12,16 @@ namespace GardenCannon
         public Vector2 Vel;
         public Transform View;
         public bool Dead;
+        /// <summary>Level won: no more contacts, the ball just falls into the water.</summary>
+        public bool Dropping;
         public float Age;
         public float SpeedScale = 1f;
         /// <summary>Items broken by this ball (raises the break sound pitch).</summary>
         public int Combo;
+        /// <summary>Damage per hit (2 for x2 fireballs).</summary>
+        public int Damage = 1;
+        /// <summary>Kettlebell: heavy ball that goes through breakable items (hits each once) instead of bouncing.</summary>
+        public bool Pierce;
         public readonly HashSet<BoardItem> Inside = new HashSet<BoardItem>();
     }
 
@@ -78,7 +84,7 @@ namespace GardenCannon
                 if (!it.Alive) continue;
                 if (!it.Collide(b.Pos, r, out var n, out var pen)) continue;
 
-                if (it.Kind == ItemKind.PassThrough)
+                if (it.Kind == ItemKind.PassThrough || (b.Pierce && !ghost && it.IsBreakable))
                 {
                     _tmpInside.Add(it);
                     if (!b.Inside.Contains(it))

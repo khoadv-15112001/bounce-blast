@@ -25,6 +25,23 @@ namespace GardenCannon
         public GameObject ballPrefab;
         [HideInInspector] public SceneArt3D sceneArt;
         [HideInInspector] public AmmoBelt ammoBelt;
+        [HideInInspector] public BoosterBar boosters;
+        [Header("Boosters")]
+        [Tooltip("Damage per hit of the x2 fireballs.")]
+        public int x2Damage = 2;
+        [Tooltip("Bomb flight time (spinning throw).")]
+        public float rocketFlightTime = 0.55f;
+        public Color fireballColor = new Color(1f, 0.42f, 0.12f);
+        [Tooltip("Bomb: damage to every item in the 5x5 cells around the target.")]
+        public int bombDamage = 3;
+        [Tooltip("Arrow: damage to every item in the tapped row.")]
+        public int arrowDamage = 3;
+        [Tooltip("Bowling: damage to every item in the tapped column.")]
+        public int bowlingDamage = 3;
+        public Color kettlebellColor = new Color(0.55f, 0.6f, 0.7f);
+        int _volleyDamage = 1;
+        bool _volleyPierce;
+        bool _boosterBanner;
         public SpriteRenderer lawnRenderer;
         public Sprite lawn9x12;
         public Sprite lawn12x17;
@@ -105,6 +122,12 @@ namespace GardenCannon
             physics.Board = board;
             physics.OnContact = OnBallContact;
             board.ItemEvent = OnItemEvent;
+            if (boosters != null)
+            {
+                boosters.Build();
+                boosters.SelectionChanged = OnBoosterSelected;
+                boosters.InstantUsed = OnInstantBooster;
+            }
             GameHaptics.Init();
             sfx?.PlayMusic();
             if (hud != null)
@@ -115,6 +138,7 @@ namespace GardenCannon
                     GameHaptics.Play(GameHapticMoment.UiButton);
                 };
                 hud.VariantForType = FirstVariantOfType;
+                hud.CheatRequested = OnCheatRequested;
                 hud.Init(OpenSettings, () => GoTo(LevelNumber - 1), () => GoTo(LevelNumber + 1));
             }
             int start = startLevel > 0 ? startLevel : PlayerPrefs.GetInt(PrefKey, 1);
@@ -135,6 +159,7 @@ namespace GardenCannon
             PlayerPrefs.Save();
 
             ClearBalls();
+            fx?.ClearConfettiOverlay();
             sfx?.StopJingles();
             _burstLeft = 0;
             _aiming = false;
@@ -159,6 +184,7 @@ namespace GardenCannon
             MovesLeft = Mathf.Max(1, level.moves);
             // One waiting ball per ball to shoot (moves x balls per shot).
             ammoBelt?.Fill(MovesLeft * Mathf.Max(1, ballsPerShot));
+            boosters?.ResetForLevel();
             CurrentState = State.Aiming;
             cannon?.SetAngle(0f);
             cannon?.PlayRefill();
@@ -189,26 +215,22 @@ namespace GardenCannon
         public void OpenSettings()
         {
             if (hud == null) return;
-            var items = new List<(string, System.Action, bool)>
-            {
-                ("Music: " + (GameAudio.MusicMuted ? "Off" : "On"), () => { sfx?.ToggleMusic(); OpenSettings(); }, false),
-                ("Sound: " + (GameAudio.Muted ? "Off" : "On"), () => { sfx?.ToggleSound(); OpenSettings(); }, false),
-                ("Vibration: " + (GameHaptics.VibrationOn ? "On" : "Off"), () => { GameHaptics.ToggleVibration(); OpenSettings(); }, false),
-            };
-            if (HapticsDebug.Available) items.Add(("Haptics Tools", OpenHapticsTools, false));
-            items.Add(("Replay", () => { hud.ClosePopup(); Restart(); }, true));
-            items.Add(("Close", () => hud.ClosePopup(), true));
-            hud.ShowMenu("Settings", items.ToArray());
+            hud.ShowSettings(!GameAudio.MusicMuted, !GameAudio.Muted, GameHaptics.VibrationOn,
+                () => { sfx?.ToggleMusic(); OpenSettings(); },
+                () => { sfx?.ToggleSound(); OpenSettings(); },
+                () => { GameHaptics.ToggleVibration(); OpenSettings(); },
+                () => { hud.ClosePopup(); Restart(); },
+                HapticsDebug.Available ? OpenHapticsTools : (System.Action)null);
         }
 
         /// <summary>Dev builds only: the package Haptics Lab, the game's haptics map, and a reset of the device tuning.</summary>
         void OpenHapticsTools()
         {
-            hud.ShowMenu("Haptics",
-                ("Haptics Lab", () => { hud.ClosePopup(); HapticsDebug.OpenLab(); }, false),
-                ("Game Haptics Map", () => { hud.ClosePopup(); HapticsDebug.OpenMap(); }, false),
-                ("Reset device tuning", () => { HapticsDebug.ResetAll(); OpenHapticsTools(); }, false),
-                ("Back", OpenSettings, true));
+            hud.ShowHaptics(
+                () => { hud.ClosePopup(); HapticsDebug.OpenLab(); },
+                () => { hud.ClosePopup(); HapticsDebug.OpenMap(); },
+                () => { HapticsDebug.ResetAll(); OpenHapticsTools(); },
+                OpenSettings);
         }
 
         int FirstVariantOfType(int type)
@@ -244,8 +266,19 @@ namespace GardenCannon
             {
                 var b = _balls[i];
                 b.Age += dt;
-                if (b.Age > speedUpAfter) b.SpeedScale = Mathf.Min(maxSpeedScale, b.SpeedScale + dt * 0.25f);
-                physics.Advance(b, dt, false);
+                if (b.Dropping)
+                {
+                    // Win: falls straight into the water (gravity, no more contacts).
+                    b.Vel.y -= dropGravity * dt;
+                    b.Vel.x *= Mathf.Exp(-1.5f * dt);
+                    b.Pos += b.Vel * dt;
+                    if (b.Pos.y < board.SplashLine) b.Dead = true;
+                }
+                else
+                {
+                    if (b.Age > speedUpAfter) b.SpeedScale = Mathf.Min(maxSpeedScale, b.SpeedScale + dt * 0.25f);
+                    physics.Advance(b, dt, false);
+                }
                 if (b.View != null) b.View.position = BallPosition(b);
                 if (b.Dead)
                 {
@@ -266,18 +299,46 @@ namespace GardenCannon
 
         Vector3 BallPosition(Ball b) => new Vector3(b.Pos.x, b.Pos.y, -physics.Radius);
 
+        [Tooltip("Win: gravity of the balls still flying when they drop into the water (world units / s²).")]
+        public float dropGravity = 45f;
+
+        /// <summary>Win screen: every ball still in the air gives a small hop and falls into the water.</summary>
+        void DropBalls()
+        {
+            _burstLeft = 0;
+            foreach (var b in _balls)
+            {
+                if (b.Dropping) continue;
+                b.Dropping = true;
+                b.Vel = new Vector2(b.Vel.x * 0.25f, Mathf.Clamp(b.Vel.y * 0.2f, -2f, 0f) + Random.Range(2f, 4f));
+            }
+        }
+
         bool CanShoot => CurrentState == State.Aiming && MovesLeft > 0 && _burstLeft == 0 && (allowFireWhileBallsFly || _balls.Count == 0);
 
         void HandleInput()
         {
-            if (Input.GetKeyDown(KeyCode.R)) Restart();
-            if (Input.GetKeyDown(KeyCode.LeftBracket)) GoTo(LevelNumber - 1);
-            if (Input.GetKeyDown(KeyCode.RightBracket)) GoTo(LevelNumber + 1);
+            bool typing = hud != null && hud.CaptureKeyboard;
+            if (!typing && Input.GetKeyDown(KeyCode.R)) Restart();
+            if (!typing && Input.GetKeyDown(KeyCode.LeftBracket)) GoTo(LevelNumber - 1);
+            if (!typing && Input.GetKeyDown(KeyCode.RightBracket)) GoTo(LevelNumber + 1);
 
             if (Input.GetMouseButtonDown(0))
             {
                 if (HapticsDebug.BlocksPointer(Input.mousePosition)) return;
+                if (GameHud.PointerOverUi()) return;   // HUD canvas (buttons, popups) takes this tap
                 if (hud != null && hud.HandleClick(Input.mousePosition)) return;
+                if (boosters != null && CurrentState == State.Aiming)
+                {
+                    Vector2 g = rig != null ? rig.ScreenToGround(Input.mousePosition) : (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    if (boosters.HandleTap(g)) return;
+                    if (boosters.SelectedUse == BoosterUse.Target)
+                    {
+                        if (board.IsOverBoard(g)) UseTargetBooster(g);
+                        else boosters.Cancel();
+                        return;
+                    }
+                }
                 if (CurrentState == State.Aiming && MovesLeft > 0)
                 {
                     _aiming = true;
@@ -288,7 +349,7 @@ namespace GardenCannon
 
             if (Input.GetKey(KeyCode.LeftArrow)) cannon.SetAngle(cannon.Angle + 60f * Time.deltaTime);
             if (Input.GetKey(KeyCode.RightArrow)) cannon.SetAngle(cannon.Angle - 60f * Time.deltaTime);
-            if (Input.GetKeyDown(KeyCode.Space)) Fire();
+            if (!typing && Input.GetKeyDown(KeyCode.Space)) Fire();
 
             if (_aiming)
             {
@@ -325,6 +386,14 @@ namespace GardenCannon
             }
             MovesLeft--;
             hud?.SetMoves(MovesLeft, true);
+            // x2 armed: this whole volley is made of fireballs dealing double damage.
+            _volleyDamage = 1;
+            _volleyPierce = false;
+            if (boosters != null && boosters.SelectedUse == BoosterUse.NextShot)
+            {
+                var used = boosters.ConsumeSelected();
+                if (used == BoosterId.X2) _volleyDamage = Mathf.Max(1, x2Damage);
+            }
             if (_tutorial) { _tutorial = false; hud?.HideBanner(); }
             if (MovesLeft == 5)
             {
@@ -341,8 +410,9 @@ namespace GardenCannon
 
         void SpawnBall()
         {
-            var b = new Ball { Pos = cannon.Muzzle, Vel = cannon.Direction * physics.Speed };
+            var b = new Ball { Pos = cannon.Muzzle, Vel = cannon.Direction * physics.Speed, Damage = _volleyDamage, Pierce = _volleyPierce };
             b.View = AcquireBallView();
+            TintBall(b.View, b.Damage > 1 ? 1 : b.Pierce ? 2 : 0);
             if (b.View != null)
             {
                 b.View.position = BallPosition(b);
@@ -406,11 +476,8 @@ namespace GardenCannon
             tr.time = 0.22f;
             tr.minVertexDistance = 0.05f;
             tr.widthCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-            tr.widthMultiplier = physics.Radius * 1.8f;
-            var g = new Gradient();
-            g.SetKeys(new[] { new GradientColorKey(trailColor, 0f), new GradientColorKey(Color.white, 1f) },
-                      new[] { new GradientAlphaKey(trailColor.a, 0f), new GradientAlphaKey(0f, 1f) });
-            tr.colorGradient = g;
+            tr.widthMultiplier = TrailWidth;
+            SetTrailColors(tr, false);
             tr.material = new Material(Shader.Find("Sprites/Default"));
             tr.sortingOrder = 30;
         }
@@ -439,15 +506,22 @@ namespace GardenCannon
                 return;
             }
             if (item == null) return;
-            ApplyHit(item, ball.Pos, ball);
+            ApplyHit(item, ball.Pos, ball, ball.Damage);
         }
 
         /// <summary>One hit on an item (a ball, or an explosion when <paramref name="ball"/> is null) with its feedback.</summary>
-        void ApplyHit(BoardItem item, Vector2 point, Ball ball)
+        void ApplyHit(BoardItem item, Vector2 point, Ball ball, int damage = 1)
         {
             var e = item.Entry;
             Color c = ItemColor(item);
             var result = item.HitAt(point);
+            // Extra damage (x2 fireballs, rocket): more hits at once, feedback for the strongest outcome.
+            for (int i = 1; i < damage && item.Alive && result != BoardItem.HitResult.Broken; i++)
+            {
+                var r = item.HitAt(point);
+                if (r == BoardItem.HitResult.None || r == BoardItem.HitResult.Blocked) break;
+                result = r;
+            }
             bool broke = result == BoardItem.HitResult.Broken;
             float cell = board.CellSize;
             if (item.LastHitHatched)
@@ -587,6 +661,220 @@ namespace GardenCannon
             }
         }
 
+        // ---------------- Boosters ----------------
+
+        static MaterialPropertyBlock _ballBlock;
+        static readonly int ColorId = Shader.PropertyToID("_Color");
+        static readonly int ExposureId = Shader.PropertyToID("_GCExposure");
+        static readonly int AmbientId = Shader.PropertyToID("_GCAmbient");
+        [Header("Ball look")]
+        [Tooltip("Exposure multiplier of the fired balls (on top of their material).")]
+        public float ballExposure = 1.25f;
+        [Tooltip("Ambient light added to the fired balls.")]
+        public float ballAmbientBoost = 0.15f;
+
+        /// <summary>Ball look: 0 normal, 1 x2 fireball (orange-red, fiery trail), 2 kettlebell (steel grey, heavy).</summary>
+        void TintBall(Transform view, int kind)
+        {
+            bool fire = kind == 1;
+            if (view == null) return;
+            if (_ballBlock == null) _ballBlock = new MaterialPropertyBlock();
+            foreach (var r in view.GetComponentsInChildren<Renderer>(true))
+            {
+                if (r is TrailRenderer tr)
+                {
+                    // Width stays relative to the ball (setting 1 here made the wide fan-shaped trails).
+                    SetTrailColors(tr, fire);
+                    tr.widthMultiplier = TrailWidth * (fire ? 1.3f : 1f);
+                    continue;
+                }
+                // Brighter than the shared atlas material (the ball read too dark): white base colour, more exposure
+                // and ambient, only on the ball's renderers (property block).
+                var mat = r.sharedMaterial;
+                r.GetPropertyBlock(_ballBlock);
+                _ballBlock.SetColor(ColorId, kind == 0 ? Color.white : (fire ? fireballColor : kettlebellColor));
+                if (mat != null && mat.HasProperty(ExposureId))
+                    _ballBlock.SetFloat(ExposureId, mat.GetFloat(ExposureId) * ballExposure);
+                if (mat != null && mat.HasProperty(AmbientId))
+                    _ballBlock.SetColor(AmbientId, mat.GetColor(AmbientId) + new Color(ballAmbientBoost, ballAmbientBoost, ballAmbientBoost, 0f));
+                r.SetPropertyBlock(_ballBlock);
+            }
+        }
+
+        // Original trail (before the boosters): physics radius x 1.8 wide, trailColor fading to white.
+        float TrailWidth => physics.Radius * 1.8f;
+
+        void SetTrailColors(TrailRenderer tr, bool fire)
+        {
+            var g = new Gradient();
+            if (fire)
+                g.SetKeys(new[] { new GradientColorKey(new Color(1f, 0.55f, 0.1f), 0f), new GradientColorKey(new Color(1f, 0.15f, 0f), 1f) },
+                          new[] { new GradientAlphaKey(0.9f, 0f), new GradientAlphaKey(0f, 1f) });
+            else
+                g.SetKeys(new[] { new GradientColorKey(trailColor, 0f), new GradientColorKey(Color.white, 1f) },
+                          new[] { new GradientAlphaKey(trailColor.a, 0f), new GradientAlphaKey(0f, 1f) });
+            tr.colorGradient = g;
+        }
+
+        static string HintOf(BoosterId id) => id switch
+        {
+            BoosterId.X2 => "Next shot: fireballs\ndeal double damage!",
+            BoosterId.Arrow => "Tap a row to\nshoot the arrow!",
+            BoosterId.Bowling => "Tap a column to\nroll the bowling ball!",
+            BoosterId.Bomb => "Tap the board to\nthrow the bomb!",
+            _ => "",
+        };
+
+        void OnBoosterSelected(BoosterId? id)
+        {
+            if (id.HasValue)
+            {
+                sfx?.Play(sfx.appear, 0.8f, 0f);
+                hud?.ShowBanner(HintOf(id.Value), true);
+                _boosterBanner = true;
+            }
+            else if (_boosterBanner)
+            {
+                hud?.HideBanner();
+                _boosterBanner = false;
+            }
+            GameHaptics.Play(GameHapticMoment.AimTick);
+        }
+
+        void OnInstantBooster(BoosterId id)
+        {
+            // None of the current boosters are instant.
+        }
+
+        readonly List<BoardItem> _blast = new List<BoardItem>();
+
+        void UseTargetBooster(Vector2 tap)
+        {
+            if (boosters == null) return;
+            var id = boosters.ConsumeSelected();
+            if (!id.HasValue) return;
+            Vector2 target = board.CellCentreAt(tap);
+            Vector3 from = boosters.ButtonPos(id.Value);
+            Sprite icon = boosters.IconOf(id.Value);
+            switch (id.Value)
+            {
+                case BoosterId.Arrow: StartCoroutine(Sweep(target, icon, false, true, arrowDamage)); break;
+                case BoosterId.Bowling: StartCoroutine(Sweep(target, icon, true, false, bowlingDamage)); break;
+                // Spinning throw, explodes over 5x5 cells.
+                case BoosterId.Bomb: StartCoroutine(Projectile(from, target, icon, false, () => Blast(target, 2, bombDamage))); break;
+            }
+        }
+
+        /// <summary>Sprite drawn over everything (3D items can't hide it).</summary>
+        SpriteRenderer FlyingSprite(string name, Sprite icon, float size)
+        {
+            var go = new GameObject(name);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = icon;
+            sr.sortingOrder = 90;
+            if (DigitLabel.OverlayMaterial != null) sr.sharedMaterial = DigitLabel.OverlayMaterial;
+            if (icon != null) go.transform.localScale = Vector3.one * (size / Mathf.Max(0.01f, icon.bounds.size.x));
+            return sr;
+        }
+
+        /// <summary>Rocket / bomb: arc from the button to the target cell, then <paramref name="onHit"/>.</summary>
+        IEnumerator Projectile(Vector3 from, Vector2 target, Sprite icon, bool rocket, System.Action onHit)
+        {
+            int level = LevelNumber;
+            sfx?.Play(sfx.ballFire, 0.9f, 0f);
+            GameHaptics.Play(GameHapticMoment.Fire);
+            var sr = FlyingSprite(rocket ? "Rocket" : "Bomb", icon, board.CellSize * 1.1f);
+            var go = sr.gameObject;
+            Vector3 to = new Vector3(target.x, target.y, -1.5f);
+            float t = 0f, dur = Mathf.Max(0.15f, rocketFlightTime), smoke = 0f, spin = 0f;
+            Vector3 prev = from;
+            while (t < 1f)
+            {
+                t = Mathf.Min(1f, t + Time.deltaTime / dur);
+                float e = t * t * (3f - 2f * t);
+                Vector3 p = Vector3.Lerp(from, to, e) + Vector3.up * (Mathf.Sin(t * Mathf.PI) * (rocket ? 1.6f : 2.4f));
+                go.transform.position = p;
+                Vector3 d = p - prev;
+                if (rocket)
+                {
+                    // The icon's nose points up-right: turn it along the flight.
+                    if (d.sqrMagnitude > 1e-6f) go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg - 45f);
+                }
+                else go.transform.rotation = Quaternion.Euler(0f, 0f, spin += Time.deltaTime * 360f);
+                prev = p;
+                smoke -= Time.deltaTime;
+                if (smoke <= 0f) { fx?.Sparkle(p, 2, board.CellSize * 0.35f, 0.6f); smoke = 0.04f; }
+                yield return null;
+            }
+            Destroy(go);
+            if (level != LevelNumber || CurrentState == State.Lost) yield break;
+            onHit?.Invoke();
+        }
+
+        /// <summary>Explosion: every item touching the (2r+1)x(2r+1) cells around the target takes <paramref name="damage"/>.</summary>
+        void Blast(Vector2 target, int radiusCells, int damage)
+        {
+            float cell = board.CellSize;
+            float half = cell * (radiusCells + 0.5f);
+            board.ItemsInRect(new Rect(target.x - half, target.y - half, half * 2f, half * 2f), _blast);
+            var hits = new List<BoardItem>(_blast);
+            var boom = catalog != null ? catalog.Get(2)?.breakSfx : null;
+            sfx?.PlayPitched(boom != null ? boom : sfx.ballCollide, 1f, 1f, 0.03f);
+            fx?.Break(new Vector3(target.x, target.y, 0f), new Color(1f, 0.55f, 0.15f), cell, 2f + radiusCells);
+            fx?.Sparkle(new Vector3(target.x, target.y, -1f), 10 + 6 * radiusCells, cell * (0.9f + 0.5f * radiusCells), 2.2f);
+            rig?.Shake(bigBreakShake * (radiusCells > 1 ? 1.4f : 1f));
+            GameHaptics.Play(GameHapticMoment.Explosion);
+            foreach (var it in hits)
+                if (it.Alive) ApplyHit(it, target, null, Mathf.Max(1, damage));
+        }
+
+        /// <summary>
+        /// Arrow (horizontal: flies along the tapped row from left to right) / bowling ball (vertical: rolls down the
+        /// tapped column from the top). Every item it passes takes <paramref name="damage"/>.
+        /// </summary>
+        IEnumerator Sweep(Vector2 target, Sprite icon, bool vertical, bool arrow, int damage)
+        {
+            int level = LevelNumber;
+            float cell = board.CellSize;
+            Rect lane = vertical
+                ? new Rect(target.x - cell * 0.45f, board.Bottom, cell * 0.9f, board.Top - board.Bottom)
+                : new Rect(board.Left, target.y - cell * 0.45f, board.Right - board.Left, cell * 0.9f);
+            board.ItemsInRect(lane, _blast);
+            var hits = new List<BoardItem>(_blast);
+            // Distance along the lane: left to right for rows, top to bottom for columns.
+            float Along(Vector2 p) => vertical ? -p.y : p.x;
+            hits.Sort((a, b) => Along(a.Bounds.center).CompareTo(Along(b.Bounds.center)));
+            var sr = FlyingSprite(arrow ? "Arrow" : "Bowling", icon, cell * (arrow ? 1.5f : 1.1f));
+            var go = sr.gameObject;
+            // The arrow icon points right: turn it along the lane.
+            if (arrow && vertical) go.transform.rotation = Quaternion.Euler(0f, 0f, -90f);
+            sfx?.Play(sfx.ballFire, 0.8f, 0f);
+            GameHaptics.Play(GameHapticMoment.Fire);
+            float pos = (vertical ? -board.Top : board.Left) - cell, end = (vertical ? -board.Bottom : board.Right) + cell;
+            float speed = cell * (arrow ? 22f : 14f), spin = 0f, dust = 0f;
+            int next = 0;
+            while (pos < end)
+            {
+                pos += Time.deltaTime * speed;
+                go.transform.position = vertical ? new Vector3(target.x, -pos, -2f) : new Vector3(pos, target.y, -2f);
+                if (!arrow) go.transform.rotation = Quaternion.Euler(0f, 0f, spin -= Time.deltaTime * 720f);
+                dust -= Time.deltaTime;
+                if (dust <= 0f) { fx?.Sparkle(go.transform.position, 1, cell * 0.3f, 0.5f); dust = 0.05f; }
+                while (next < hits.Count && Along(hits[next].Bounds.center) <= pos)
+                {
+                    var it = hits[next++];
+                    if (level != LevelNumber || CurrentState == State.Lost) continue;
+                    if (!it.Alive) continue;
+                    rig?.Shake(breakShake * 0.6f);
+                    GameHaptics.Play(GameHapticMoment.ItemHit);
+                    var at = vertical ? new Vector2(target.x, it.Bounds.center.y) : new Vector2(it.Bounds.center.x, target.y);
+                    ApplyHit(it, at, null, Mathf.Max(1, damage));
+                }
+                yield return null;
+            }
+            Destroy(go);
+        }
+
         Color ItemColor(BoardItem item)
         {
             var e = item.Entry;
@@ -640,9 +928,20 @@ namespace GardenCannon
             PlayerPrefs.SetInt(PrefKey, next > LevelLibrary.Count ? 1 : next);
             PlayerPrefs.Save();
             sfx?.SetMusicDuck(true);
-            sfx?.PlayJingle(sfx.levelWin, 1f);
             GameHaptics.Play(GameHapticMoment.LevelWon);
             StartCoroutine(WinSequence());
+            StartCoroutine(WinJingle());
+        }
+
+        [Tooltip("Delay before the win music starts (seconds after the last goal breaks). The popup opens at 1.1 s.")]
+        public float winJingleDelay = 1.1f;
+
+        IEnumerator WinJingle()
+        {
+            int level = LevelNumber;
+            if (winJingleDelay > 0f) yield return new WaitForSeconds(winJingleDelay);
+            if (CurrentState != State.Won || level != LevelNumber) yield break;
+            sfx?.PlayJingle(sfx.levelWin, 1f);
         }
 
         IEnumerator WinSequence()
@@ -650,17 +949,64 @@ namespace GardenCannon
             int level = LevelNumber;
             yield return new WaitForSeconds(0.6f);
             if (CurrentState != State.Won || level != LevelNumber) yield break;
+            // 1) Celebration: fireworks + confetti over the screen and the three characters jumping in.
+            //    The balls still flying drop into the water.
+            DropBalls();
             sfx?.PlayJingle(sfx.levelWinFireworks, 0.8f);
             GameHaptics.Play(GameHapticMoment.WinFireworks);
-            fx?.Confetti(new Vector3(board.Left + board.gridWidth * 0.5f, board.Top + 1f, 0f), board.gridWidth);
-            yield return new WaitForSeconds(0.5f);
+            bool celebrationDone = hud == null;
+            if (hud != null)
+            {
+                fx?.FireworksOverlay(hud.uiCamera, hud.gameObject.layer, 950);
+                fx?.ConfettiOverlay(hud.uiCamera, hud.gameObject.layer, 951);
+                hud.ShowWinCelebration(() => celebrationDone = true);
+            }
+            float wait = 0f;
+            while (!celebrationDone && wait < 4f) { wait += Time.deltaTime; yield return null; }
             if (CurrentState != State.Won || level != LevelNumber) yield break;
+            // 2) Well Done popup: Replay / Next.
             sfx?.Play(sfx.appear, 0.7f, 0f);
             GameHaptics.Play(GameHapticMoment.PopupShown);
-            hud?.ShowPopup("Well Done!", new Color(0.18f, 0.6f, 0.17f),
-                $"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
-                ("Replay", Restart, false),
-                ("Next", () => GoTo(LevelNumber + 1), true));
+            hud?.ShowWinPopup($"Level {LevelNumber} complete\nMoves left: {MovesLeft}",
+                Restart, () => GoTo(LevelNumber + 1));
+        }
+
+        // ---------------- Cheats (5 taps on the level plate, password) ----------------
+
+        const string CheatPassword = "sonat@123";
+        // Entered once on this device: remembered in PlayerPrefs.
+        const string CheatUnlockedKey = "GardenCannon.CheatUnlocked";
+
+        void OnCheatRequested()
+        {
+            if (hud == null) return;
+            if (PlayerPrefs.GetInt(CheatUnlockedKey, 0) == 1) { OpenCheats(); return; }
+            hud.ShowPasswordPrompt(pw => pw == CheatPassword, () =>
+            {
+                PlayerPrefs.SetInt(CheatUnlockedKey, 1);
+                PlayerPrefs.Save();
+                OpenCheats();
+            });
+        }
+
+        /// <summary>Cheat: type a level number and jump to it.</summary>
+        void OpenLevelCheat()
+        {
+            int count = Mathf.Max(1, LevelLibrary.Count);
+            hud.ShowLevelPrompt($"Level 1 - {count}",
+                text => int.TryParse(text, out int n) && n >= 1 && n <= count,
+                text => { hud.ClosePopup(); GoTo(int.Parse(text)); },
+                $"Enter a number from 1 to {count}");
+        }
+
+        void OpenCheats()
+        {
+            hud.ShowCheats(
+                () => { hud.ClosePopup(); if (CurrentState == State.Aiming) { ClearBalls(); Win(); } },
+                () => { hud.ClosePopup(); if (CurrentState == State.Aiming) { ClearBalls(); Lose(); } },
+                () => { MovesLeft += 10; hud.SetMoves(MovesLeft, true); },
+                () => { boosters?.ResetForLevel(); },
+                OpenLevelCheat);
         }
 
         void Lose()
@@ -684,9 +1030,7 @@ namespace GardenCannon
             var lines = new List<string>();
             foreach (var kv in _goals)
                 if (kv.Value > 0) lines.Add($"{catalog.Get(kv.Key)?.label ?? ("Item " + kv.Key)}: {kv.Value}");
-            hud?.ShowPopup("Out of Moves", new Color(0.79f, 0.15f, 0.12f),
-                "Still to break:\n" + string.Join("\n", lines),
-                ("Try Again", Restart, true));
+            hud?.ShowLosePopup("Still to break:\n" + string.Join("\n", lines), Restart);
         }
     }
 }

@@ -17,6 +17,9 @@ namespace GardenCannon
         public float offset = 1.33f;
         public float x;
         public bool respectSafeArea = true;
+        [Tooltip("Minimum distance from the object's centre to the left/right side of the screen (world units, 0 = off). "
+                 + "On the narrowest screens (1440x3120) x is pulled in so the object does not touch the side.")]
+        public float minEdgeGap;
 
         int _w, _h;
         Rect _safe;
@@ -47,8 +50,18 @@ namespace GardenCannon
                 Edge.Bottom => centreY - size + insetBottom + offset,
                 _ => centreY + offset,
             };
+            float px = x;
+            if (minEdgeGap > 0f)
+            {
+                float halfW = size * uiCamera.aspect;
+                float insetX = 0f;
+                if (respectSafeArea && _w > 0)
+                    insetX = Mathf.Max(_safe.xMin, _w - _safe.xMax) / _w * halfW * 2f;
+                float maxX = Mathf.Max(0f, halfW - insetX - minEdgeGap);
+                if (Mathf.Abs(px) > maxX) px = Mathf.Sign(px) * maxX;
+            }
             var p = transform.position;
-            transform.position = new Vector3(uiCamera.transform.position.x + x, y, p.z);
+            transform.position = new Vector3(uiCamera.transform.position.x + px, y, p.z);
         }
     }
 }

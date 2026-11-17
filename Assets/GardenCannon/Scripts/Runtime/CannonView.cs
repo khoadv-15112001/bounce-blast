@@ -14,6 +14,14 @@ namespace GardenCannon
         public Transform barrel;
         [Tooltip("Distance from the pivot to the muzzle (original Tip: 2.5).")]
         public float muzzleDistance = 2.5f;
+        [Tooltip("Sideways offset of the barrel axis from the pivot, in the barrel's unrotated frame (+ = right). " +
+                 "Set from the 3D model by SceneArt3D so the aim line and balls leave from the middle of the barrel.")]
+        public float muzzleSideOffset = 0f;
+        [Tooltip("Height of the barrel axis above the ground (world units, towards the camera). The game camera is " +
+                 "tilted, so a raised barrel shows up higher on screen: the muzzle is projected along the view onto z = 0.")]
+        public float muzzleHeight = 0f;
+        [Tooltip("Tilted game camera (default: the CameraRig's camera, else Camera.main).")]
+        public Camera viewCamera;
         public float maxAngle = 75f;
         public float recoilDistance = 0.25f;
 
@@ -28,7 +36,29 @@ namespace GardenCannon
         public float Angle => _angle;
         public Vector2 Pivot => transform.position;
         public Vector2 Direction => new Vector2(-Mathf.Sin(_angle * Mathf.Deg2Rad), Mathf.Cos(_angle * Mathf.Deg2Rad));
-        public Vector2 Muzzle => Pivot + Direction * muzzleDistance;
+        /// <summary>Barrel's right-hand axis (local +X rotated by the aim angle).</summary>
+        public Vector2 Side => new Vector2(Mathf.Cos(_angle * Mathf.Deg2Rad), Mathf.Sin(_angle * Mathf.Deg2Rad));
+        public Vector2 Muzzle => Pivot + Direction * muzzleDistance + Side * muzzleSideOffset + ViewShift(muzzleHeight);
+
+        /// <summary>
+        /// Ground (z = 0) offset that lies on the same view ray as a point raised by <paramref name="height"/>
+        /// (z = -height). Zero for a camera looking straight down the Z axis (e.g. the 2D Scene view setup).
+        /// </summary>
+        Vector2 ViewShift(float height)
+        {
+            if (Mathf.Abs(height) < 1e-5f) return Vector2.zero;
+            var cam = viewCamera;
+            if (cam == null)
+            {
+                var rig = FindObjectOfType<CameraRig>();
+                cam = viewCamera = rig != null ? rig.Cam : Camera.main;
+            }
+            if (cam == null) return Vector2.zero;
+            Vector3 d = cam.transform.forward;
+            if (d.z < 1e-4f) return Vector2.zero;
+            // P = (x, y, -h); G = P - d * (P.z / d.z) = P + d * (h / d.z)
+            return new Vector2(d.x, d.y) * (height / d.z);
+        }
 
         void Awake()
         {

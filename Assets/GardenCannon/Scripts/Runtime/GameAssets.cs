@@ -48,8 +48,34 @@ namespace GardenCannon
         public GameObject cannon3D;
         [Tooltip("Egg box: balloon floating away instead of the bird (Assets/3D/Prefab/Baloon).")]
         public GameObject balloonPrefab;
+        [Header("Boosters")]
+        public Sprite boosterX2Icon;
+        public Sprite boosterArrowIcon;
+        public Sprite boosterBowlingIcon;
+        public Sprite boosterBombIcon;
+        [Header("UI buttons (Assets/GardenCannon/Art/UI)")]
+        [Tooltip("Moves badge panel (top left).")]
+        public Sprite movesBadgeSprite;
+        [Tooltip("Booster button plate.")]
+        public Sprite boosterPlateSprite;
+        [Tooltip("Booster count bubble (red dot).")]
+        public Sprite boosterBubbleSprite;
+        [Tooltip("Popups (settings, Well Done, cheats): original game popup art, Assets/GardenCannon/Art/UI/Popup.")]
+        public PopupSkin popupSkin = new PopupSkin();
+        [Header("HUD canvas (uGUI + TextMeshPro)")]
+        [Tooltip("Assets/GardenCannon/Prefabs/UI/HudCanvas: moves badge, settings, boosters, popup layer.")]
+        public GameObject hudCanvasPrefab;
+        [Tooltip("TextMeshPro font + materials (Assets/GardenCannon/Fonts/ENG).")]
+        public UiTheme uiTheme = new UiTheme();
+        [Header("Spine (Assets/GardenCannon/Spin)")]
+        [Tooltip("Win popup: the three ball characters celebrating (anim Idle, looped).")]
+        public Spine.Unity.SkeletonDataAsset winSpine;
+        [Tooltip("Win popup title: Well Done (anim Welldone, then Welldone_Idle looped).")]
+        public Spine.Unity.SkeletonDataAsset winTextSpine;
         public Material[] balloonMaterials = new Material[0];
         public GameObject bg3D;
+        [Tooltip("BG mesh without the white moves plate (made by Garden Cannon > Rebuild BG without the moves plate).")]
+        public Mesh bgMesh;
         public GameObject grass3D;
 
         [Header("HUD")]
